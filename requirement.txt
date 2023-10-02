@@ -1,0 +1,5 @@
+lib-not-dr
+colorama
+rtoml
+pynacl
+python-socketio[asyncio_client]
