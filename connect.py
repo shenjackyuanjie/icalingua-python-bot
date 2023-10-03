@@ -1,3 +1,4 @@
+import time
 import random
 import asyncio
 import traceback
@@ -127,12 +128,13 @@ async def safe_eval(code: str) -> str:
         code = code.replace('exit', '好坏！\n')
         code = code.replace('eval', '啊哈！\n')
         code = code.replace('exec', '抓住！\n')
+        start_time = time.time()
         try:
             import os
             import math
-            import random
             import decimal
-            global_val = {'math':       math,
+            global_val = {'time':       time,
+                          'math':       math,
                           'decimal':    decimal,
                           'random':     random,
                           '__import__': '<built-in function __import__>',
@@ -151,6 +153,7 @@ async def safe_eval(code: str) -> str:
                 result = result[:limit]
         except:
             result = traceback.format_exc()
+        end_time = time.time()
         result = result.replace(KEY, '***')
         result = result.replace(HOST, '***')
 
@@ -159,7 +162,7 @@ async def safe_eval(code: str) -> str:
         if result == '6' or result == 6:
             result = '他确实等于 6'
 
-        result = f'{code}\neval result:\n{result}'
+        result = f'{code}\neval result:\n{result}\n耗时: {end_time - start_time} s'
         return result
     except:
         error = traceback.format_exc()

@@ -1,2 +1,6 @@
 /venv
 config.toml
+
+# Added by cargo
+
+/target
