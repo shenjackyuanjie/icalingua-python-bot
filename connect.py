@@ -189,9 +189,7 @@ async def add_message(data: Dict[str, Any]):
 
             evals: str = data.get('message').get('content')[2:]
             result = await safe_eval(evals)
-            reply = ReplyMessage(id=data['message']['_id'],
-                                 username=sender_name,
-                                 content=content)
+            reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=result,
                               reply_to=reply,
                               room_id=room_id)
@@ -202,9 +200,7 @@ async def add_message(data: Dict[str, Any]):
             randomer = random.Random(f'{sender_id}-{data["message"]["date"]}-jrrp')
             result = randomer.randint(0, 50) + randomer.randint(0, 50)
             print(f'{sender_name} 今日人品值为 {result}')
-            reply = ReplyMessage(id=data['message']['_id'],
-                                 username=sender_name,
-                                 content='jrrp')
+            reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=f'{sender_name} 今日人品值为 {result}',
                               reply_to=reply,
                               room_id=room_id)
@@ -212,9 +208,7 @@ async def add_message(data: Dict[str, Any]):
             await sio.emit('sendMessage', message.to_json())
         # 如果只包括一个或多个 6
         # elif data['message']['content'].replace(' ', '') in ('6', '666', '六', '3+3', '5+1', '4+2', '2+4', '1+5'):
-        #     reply = ReplyMessage(id=data['message']['_id'],
-        #                          username=sender_name,
-        #                          content=content)
+        #     reply = ReplyMessage(id=data['message']['_id'])
         #     message = Message(content='你 6 nm 呢',
         #                       reply_to=reply,
         #                       room_id=room_id)
