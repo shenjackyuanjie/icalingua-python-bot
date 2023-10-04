@@ -188,7 +188,10 @@ async def add_message(data: Dict[str, Any]):
         elif data.get('message').get('content').startswith('=='):
 
             evals: str = data.get('message').get('content')[2:]
-            result = await safe_eval(evals)
+            try:
+                result = await asyncio.wait_for(safe_eval(evals), 5)
+            except asyncio.TimeoutError:
+                result = f'{evals}\n超时'
             reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=result,
                               reply_to=reply,
