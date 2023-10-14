@@ -2,6 +2,7 @@ import time
 import random
 import asyncio
 import traceback
+import multiprocessing
 
 from typing import Dict, List, Tuple, Any, Optional, Union, Literal
 
@@ -110,7 +111,7 @@ def update_room(data: Dict[str, Any]):
     print(f"{Fore.CYAN}update_room: {data}{Style.RESET_ALL}")
 
 
-async def safe_eval(code: str) -> str:
+def safe_eval(code: str) -> str:
     try:
         # code = code.replace('help', '坏东西！\n')
         # code = code.replace('bytes', '坏东西！\n')
@@ -188,7 +189,20 @@ async def add_message(data: Dict[str, Any]):
         elif data.get('message').get('content').startswith('=='):
 
             evals: str = data.get('message').get('content')[2:]
-            result = await safe_eval(evals)
+
+            quene = multiprocessing.Queue()
+            def run(quene, evals):
+                go = safe_eval(evals)
+                quene.put(go)
+
+            process = multiprocessing.Process(target=run, args=(quene, evals))
+            process.start()
+            process.join(1)
+            if quene.empty():
+                result = '超时'
+            else:
+                result = quene.get()
+
             reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=result,
                               reply_to=reply,
@@ -257,12 +271,15 @@ def catch_all(event, data):
 
 
 async def main():
-    await sio.connect(HOST)
+    async with asyncio.TaskGroup() as task_group:
+        await sio.connect(HOST)
+        # task1 = task_group.create_task(sio.wait())
+        await sio.wait()
 
-    await sio.emit('requireAuth', ('', {'version': '', 'protocolVersion': ''}))
-    await asyncio.sleep(2)
+    # await sio.emit('requireAuth', ('', {'version': '', 'protocolVersion': ''}))
+    # await asyncio.sleep(2)
 
-    await sio.wait()
+    # await asyncio.gather(sio.wait(), sio.wait(), sio.wait())
 
 
 if __name__ == '__main__':
