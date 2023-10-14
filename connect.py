@@ -271,10 +271,8 @@ def catch_all(event, data):
 
 
 async def main():
-    async with asyncio.TaskGroup() as task_group:
-        await sio.connect(HOST)
-        # task1 = task_group.create_task(sio.wait())
-        await sio.wait()
+    await sio.connect(HOST)
+    await sio.wait()
 
     # await sio.emit('requireAuth', ('', {'version': '', 'protocolVersion': ''}))
     # await asyncio.sleep(2)
