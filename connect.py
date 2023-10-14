@@ -208,7 +208,7 @@ async def add_message(data: Dict[str, Any]):
                               reply_to=reply,
                               room_id=room_id)
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(random.random() * 2)
             await sio.emit('sendMessage', message.to_json())
         elif data['message']['content'] == 'jrrp':
             randomer = random.Random(f'{sender_id}-{data["message"]["date"]}-jrrp')
