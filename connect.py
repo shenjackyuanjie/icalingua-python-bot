@@ -175,7 +175,7 @@ def safe_eval(code: str) -> str:
 async def add_message(data: Dict[str, Any]):
     print(f"{Fore.MAGENTA}add_message: {data}{Style.RESET_ALL}")
 
-    is_self = data['message']['senderId'] == SELF_ID
+    is_self = data['message']['senderId'] == SELF_ID or data['message']['senderId'] == 2524423915
     sender_name = data['message']['username']
     sender_id = data['message']['senderId']
     content = data['message']['content']
