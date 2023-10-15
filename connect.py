@@ -175,7 +175,7 @@ def safe_eval(code: str) -> str:
 async def add_message(data: Dict[str, Any]):
     print(f"{Fore.MAGENTA}add_message: {data}{Style.RESET_ALL}")
 
-    is_self = data['message']['senderId'] == SELF_ID or data['message']['senderId'] == 2524423915
+    is_self = data['message']['senderId'] == SELF_ID
     sender_name = data['message']['username']
     sender_id = data['message']['senderId']
     content = data['message']['content']
@@ -190,18 +190,28 @@ async def add_message(data: Dict[str, Any]):
 
             evals: str = data.get('message').get('content')[2:]
 
-            quene = multiprocessing.Queue()
-            def run(quene, evals):
-                go = safe_eval(evals)
-                quene.put(go)
-
-            process = multiprocessing.Process(target=run, args=(quene, evals))
-            process.start()
-            process.join(1)
-            if quene.empty():
-                result = '超时'
+            # quene = multiprocessing.Queue()
+            # def run(quene, evals):
+            #     go = safe_eval(evals)
+            #     quene.put(go)
+            # process = multiprocessing.Process(target=run, args=(quene, evals))
+            # process.start()
+            # process.join(1)
+            # if quene.empty():
+            #     result = '超时'
+            # else:
+            #     result = quene.get()
+            whitelist = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '.', '+', '-', '*', '/', '(', ')', '<',
+                         '>', '=']
+            evals = evals.replace('**', '')
+            express = ''
+            for text in evals:
+                if text in whitelist:
+                    express += text
+            if express == '':
+                result = '你在干嘛'
             else:
-                result = quene.get()
+                result = str(eval(express))
 
             reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=result,
