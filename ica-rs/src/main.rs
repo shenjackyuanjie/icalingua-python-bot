@@ -1,3 +1,5 @@
+mod client;
+
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{ClientBuilder, Payload, RawClient, Event};
 use std::time::Duration;
