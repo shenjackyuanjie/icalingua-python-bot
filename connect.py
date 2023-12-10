@@ -77,10 +77,13 @@ def connect():
 
 @sio.on('requireAuth')
 async def require_auth(salt: str, versions: Dict[str, str]):
-    print(f"{Fore.BLUE}versions: {versions}{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}versions: {versions}{Style.RESET_ALL}\n{type(salt)}|{salt=}")
     # 准备数据
     sign = SigningKey(bytes.fromhex(KEY))
     signature = sign.sign(bytes.fromhex(salt))
+    
+    # 发送数据
+    print(f"{len(signature.signature)=} {type(signature.signature)=}")
     await sio.emit('auth', signature.signature)
     print(f"{Fore.BLUE}send auth emit{Style.RESET_ALL}")
 
