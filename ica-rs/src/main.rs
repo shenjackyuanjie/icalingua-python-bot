@@ -2,19 +2,28 @@ mod client;
 
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{ClientBuilder, Event, Payload, RawClient};
+use serde_json::Value;
 use std::time::Duration;
 
 #[allow(unused)]
-fn require_auth_callback(payload: Payload, client: RawClient) {
+fn require_auth_callback(payload: Payload, client: RawClient, _id: Option<i32>) {
     let key = std::env::args().nth(2).expect("No key given");
-    let auth_key = match payload {
-        Payload::String(str) => Some(str),
+    let require_data = match payload {
+        Payload::String(_) => None,
         Payload::Binary(_) => None,
+        Payload::Text(json_value) => Some(json_value),
     }
-    .expect("Payload should be String");
-    let auth_key = &auth_key[1..auth_key.len() - 1];
+    .expect("Payload should be Json data");
 
-    println!("auth_key: {}", auth_key);
+    println!("require_data: {:?}", require_data);
+
+    // let (auth_key, version) = (&require_data[0], &require_data[1]);
+    // println!("auth_key: {:?}, version: {:?}", auth_key, version);
+    let auth_key = match &require_data.get(0) {
+        Some(Value::String(auth_key)) => Some(auth_key),
+        _ => None,
+    }
+    .expect("auth_key should be string");
 
     let array_key: [u8; 32] = hex::decode(key)
         .expect("Key should be hex")
@@ -31,11 +40,12 @@ fn require_auth_callback(payload: Payload, client: RawClient) {
 }
 
 #[allow(unused)]
-fn any_event(event: Event, payload: Payload, _client: RawClient) {
+fn any_event(event: Event, payload: Payload, _client: RawClient, id: Option<i32>) {
     // println!("event: {} | {:#?}", event, payload);
     match payload {
-        Payload::Binary(bin) => println!("event: {} |bin: {:?}", event, bin),
-        Payload::String(str) => println!("event: {} |str: {:?}", event, str),
+        Payload::Binary(bin) => println!("event: {}|id:{:?}|bin: {:?}", event, id, bin),
+        Payload::String(str) => println!("event: {}|id:{:?}|str: {:?}", event, id, str),
+        Payload::Text(txt) => println!("event: {}|id:{:?}|txt: {:?}", event, id, txt),
     }
 }
 
@@ -43,7 +53,7 @@ fn ws_main() {
     // define a callback which is called when a payload is received
     // this callback gets the payload as well as an instance of the
     // socket to communicate with the server
-    let connect_call_back = |payload: Payload, _client: RawClient| {
+    let connect_call_back = |payload: Payload, _client: RawClient, _id| {
         println!("Connect callback: {:#?}", payload);
     };
     // 从命令行获取 host 和 key
