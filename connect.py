@@ -2,7 +2,6 @@ import time
 import random
 import asyncio
 import traceback
-import multiprocessing
 
 from typing import Dict, List, Tuple, Any, Optional, Union, Literal
 
@@ -67,7 +66,7 @@ class Message(Options):
         }
 
 
-sio = socketio.AsyncClient()
+sio: socketio.AsyncClient = socketio.AsyncClient()
 
 
 @sio.on('connect')
@@ -86,6 +85,10 @@ async def require_auth(salt: str, versions: Dict[str, str]):
     print(f"{len(signature.signature)=} {type(signature.signature)=}")
     await sio.emit('auth', signature.signature)
     print(f"{Fore.BLUE}send auth emit{Style.RESET_ALL}")
+
+# @sio.on('requireAuth')
+# def require_auth(*data: Dict[str, Any]):
+#     print(f"{Fore.BLUE}requireAuth: {data}{Style.RESET_ALL}")
 
 
 @sio.on('auth')
@@ -223,8 +226,8 @@ async def add_message(data: Dict[str, Any]):
 
             await asyncio.sleep(random.random() * 2)
             await sio.emit('sendMessage', message.to_json())
-        elif data['message']['content'] == 'jrrp':
-            randomer = random.Random(f'{sender_id}-{data["message"]["date"]}-jrrp')
+        elif data['message']['content'] == '!!jrrp':
+            randomer = random.Random(f'{sender_id}-{data["message"]["date"]}-jrrp-v2')
             result = randomer.randint(0, 50) + randomer.randint(0, 50)
             print(f'{sender_name} 今日人品值为 {result}')
             reply = ReplyMessage(id=data['message']['_id'])
