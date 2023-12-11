@@ -1,5 +1,4 @@
 use ed25519_dalek::{Signature, Signer, SigningKey};
-use rust_socketio::{ClientBuilder, Event, Payload, RawClient};
 
 pub struct IcalinguaSinger {
     pub host: String,

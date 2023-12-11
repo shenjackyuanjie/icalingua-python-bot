@@ -1,29 +1,29 @@
 mod client;
 
 use ed25519_dalek::{Signature, Signer, SigningKey};
-use rust_socketio::{ClientBuilder, Payload, RawClient, Event};
+use rust_socketio::{ClientBuilder, Event, Payload, RawClient};
 use std::time::Duration;
-
-static KEY: &str = "";
-static HOST: &str = "";
 
 #[allow(unused)]
 fn require_auth_callback(payload: Payload, client: RawClient) {
+    let key = std::env::args().nth(2).expect("No key given");
     let auth_key = match payload {
         Payload::String(str) => Some(str),
         Payload::Binary(_) => None,
     }
-    .unwrap();
-    // 去除前后的 "
+    .expect("Payload should be String");
     let auth_key = &auth_key[1..auth_key.len() - 1];
 
     println!("auth_key: {}", auth_key);
 
-    let array_key: [u8; 32] = hex::decode(KEY).unwrap().try_into().unwrap();
+    let array_key: [u8; 32] = hex::decode(key)
+        .expect("Key should be hex")
+        .try_into()
+        .expect("Key should be 32 bytes");
 
     let signing_key: SigningKey = SigningKey::from_bytes(&array_key);
 
-    let salt = hex::decode(auth_key).unwrap();
+    let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
     let signature: Signature = signing_key.sign(salt.as_slice());
     // let sign = hex::encode(signature.to_bytes());
     let sign = signature.to_bytes().to_vec();
@@ -46,10 +46,12 @@ fn ws_main() {
     let connect_call_back = |payload: Payload, _client: RawClient| {
         println!("Connect callback: {:#?}", payload);
     };
+    // 从命令行获取 host 和 key
+    let host = std::env::args().nth(1).expect("No host given");
 
     // get a socket that is connected to the admin namespace
 
-    let socket = ClientBuilder::new(HOST)
+    let socket = ClientBuilder::new(host)
         // .namespace("/admin")
         .on_any(any_event)
         .on("connect", connect_call_back)
@@ -62,26 +64,6 @@ fn ws_main() {
     socket.disconnect().expect("Disconnect failed")
 }
 
-fn sign_main() {
-    // 生成 SingningKey
-    let array_key: [u8; 32] = hex::decode(KEY).unwrap().try_into().unwrap();
-    let signing_key: SigningKey = SigningKey::from_bytes(&array_key);
-
-    // 要签名的东西
-    let data = "187d0b21becfa7a49e97afc00646e169";
-    let data = hex::decode(data).unwrap();
-
-    // 签名
-    let signature: Signature = signing_key.sign(data.as_slice());
-
-    // 生成签名
-    let sign = hex::encode(signature.to_bytes());
-
-    println!("sign: {} {:?} {}", sign, signature.to_bytes(), signature.to_bytes().len());
-    // println!("hex: {}", hex::encode());
-}
-
 fn main() {
-    sign_main();
     ws_main();
 }
