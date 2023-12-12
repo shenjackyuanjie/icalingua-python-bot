@@ -48,9 +48,10 @@ fn ws_main() {
     let connect_call_back = |payload: Payload, _client: RawClient, _id| {
         match payload {
             Payload::Text(values) => {
-                if values.first() == Some(&Value::String("authSucceed".to_string())) {
-                    // 一个绿色的 "已经连接到 icalingua 服务器"
-                    println!("\x1b[32m已经登录到 icalingua!\x1b[0m");
+                if let Some(value) = values.first() {
+                    if let Some("authSucceed") = value.as_str() {
+                        println!("\x1b[32m已经登录到 icalingua!\x1b[0m");
+                    }
                 }
             },
             _ => ()

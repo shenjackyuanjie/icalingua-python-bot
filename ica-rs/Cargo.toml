@@ -13,4 +13,4 @@ rust_socketio = "0.4.4"
 serde_json = "1.0.108"
 
 [patch.crates-io]
-rust_socketio = { path = "V:/githubs/rust-socketio/socketio" }
+rust_socketio = { path = "../../../rust-socketio/socketio" }
