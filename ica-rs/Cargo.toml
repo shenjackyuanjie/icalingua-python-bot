@@ -11,6 +11,7 @@ ed25519-dalek = "2.1.0"
 hex = "0.4.3"
 rust_socketio = "0.4.4"
 serde_json = "1.0.108"
+toml = "0.8.8"
 
 [patch.crates-io]
 rust_socketio = { path = "../../../rust-socketio/socketio" }

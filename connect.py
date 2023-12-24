@@ -188,13 +188,13 @@ async def add_message(data: Dict[str, Any]):
     room_id = data['roomId']
 
     if not is_self:
-        if data.get('message').get('content') == '/bot':
+        if content == '/bot':
             message = Message(content='icalingua bot test',
                               room_id=data['roomId'])
             await sio.emit('sendMessage', message.to_json())
-        elif data.get('message').get('content').startswith('=='):
+        elif content.startswith('=='):
 
-            evals: str = data.get('message').get('content')[2:]
+            evals: str = content[2:]
 
             # quene = multiprocessing.Queue()
             # def run(quene, evals):
@@ -226,7 +226,7 @@ async def add_message(data: Dict[str, Any]):
 
             await asyncio.sleep(random.random() * 2)
             await sio.emit('sendMessage', message.to_json())
-        elif data['message']['content'] == '!!jrrp':
+        elif content == '!!jrrp':
             randomer = random.Random(f'{sender_id}-{data["message"]["date"]}-jrrp-v2')
             result = randomer.randint(0, 50) + randomer.randint(0, 50)
             print(f'{sender_name} 今日人品值为 {result}')

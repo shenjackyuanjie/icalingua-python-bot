@@ -6,67 +6,49 @@ use serde_json::Value;
 use std::time::Duration;
 
 #[allow(unused)]
-fn require_auth_callback(payload: Payload, client: RawClient, _id: Option<i32>) {
-    let key = std::env::args().nth(2).expect("No key given");
-    let require_data = match payload {
-        Payload::Text(json_value) => Some(json_value),
-        _ => None,
-    }
-    .expect("Payload should be Json data");
-
-    let (auth_key, version) = (&require_data[0], &require_data[1]);
-    // println!("auth_key: {:?}, version: {:?}", auth_key, version);
-    let auth_key = match &require_data.get(0) {
-        Some(Value::String(auth_key)) => Some(auth_key),
-        _ => None,
-    }
-    .expect("auth_key should be string");
-
-    let array_key: [u8; 32] = hex::decode(key)
-        .expect("Key should be hex")
-        .try_into()
-        .expect("Key should be 32 bytes");
-
-    let signing_key = SigningKey::from_bytes(&array_key);
-
-    let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
-    let signature: Signature = signing_key.sign(salt.as_slice());
-    // let sign = hex::encode(signature.to_bytes());
-    let sign = signature.to_bytes().to_vec();
-    client.emit("auth", sign).unwrap();
-}
-
-#[allow(unused)]
 fn any_event(event: Event, payload: Payload, _client: RawClient, id: Option<i32>) {
-    println!("event: {} |{:?}|id{:?}", event, payload, id)
+    match payload {
+        Payload::Binary(ref data) => {
+            println!("event: {} |{:?}|id{:?}", event, data, id)
+        }
+        Payload::Text(ref data) => {
+            print!("\x1b[35mevent: {event}\x1b[0m");
+            for value in data {
+                print!("|{}", value.to_string());
+            }
+            println!("|id:{:?}|", id);
+        }
+        _ => (),
+    }
+    // println!("event: {} |{:?}|id{:?}", event, payload, id)
 }
 
 fn ws_main() {
     // define a callback which is called when a payload is received
     // this callback gets the payload as well as an instance of the
     // socket to communicate with the server
-    let connect_call_back = |payload: Payload, _client: RawClient, _id| {
-        match payload {
-            Payload::Text(values) => {
-                if let Some(value) = values.first() {
-                    if let Some("authSucceed") = value.as_str() {
-                        println!("\x1b[32m已经登录到 icalingua!\x1b[0m");
-                    }
+    let connect_call_back = |payload: Payload, _client: RawClient, _id| match payload {
+        Payload::Text(values) => {
+            if let Some(value) = values.first() {
+                if let Some("authSucceed") = value.as_str() {
+                    println!("\x1b[32m已经登录到 icalingua!\x1b[0m");
                 }
-            },
-            _ => ()
+            }
         }
+        _ => (),
     };
     // 从命令行获取 host 和 key
-    let host = std::env::args().nth(1).expect("No host given");
+    // 从命令行获取配置文件路径
+    let config_path = std::env::args().nth(1).expect("No config path given");
+    let ica_singer = client::IcalinguaSinger::new_from_config(config_path);
 
     // get a socket that is connected to the admin namespace
 
-    let socket = ClientBuilder::new(host)
+    let socket = ClientBuilder::new(ica_singer.host.clone())
         // .namespace("/admin")
         .on_any(any_event)
         .on("message", connect_call_back)
-        .on("requireAuth", require_auth_callback)
+        .on("requireAuth", move |a, b, c| ica_singer.sign_callback(a, b, c))
         .connect()
         .expect("Connection failed");
 
