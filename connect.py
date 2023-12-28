@@ -5,7 +5,7 @@ import traceback
 
 from typing import Dict, List, Tuple, Any, Optional, Union, Literal
 
-import rtoml
+import qtoml
 import socketio
 from colorama import Fore, Style
 from nacl.signing import SigningKey
@@ -14,7 +14,7 @@ from lib_not_dr.types import Options
 
 def get_config() -> Tuple[str, str, int]:
     with open('config.toml', 'r', encoding='utf-8') as f:
-        config = rtoml.load(f)
+        config = qtoml.load(f)
     return config['host'], config['private_key'], config['self_id']
 
 

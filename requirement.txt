@@ -1,5 +1,5 @@
 lib-not-dr
 colorama
-rtoml
+qtoml
 pynacl
 python-socketio[asyncio_client]
