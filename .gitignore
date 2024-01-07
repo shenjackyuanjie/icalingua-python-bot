@@ -1,2 +1,8 @@
-/venv
+venv
+env
+
 config.toml
+
+*.pyc
+*__pycache__/
+
