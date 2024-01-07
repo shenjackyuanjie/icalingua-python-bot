@@ -16,7 +16,7 @@ from lib_not_dr.loggers import config
 
 from data_struct import AtElement, Message, ReplyMessage, get_config, BotConfig, BotStatus
 
-_version_ = "0.2.1"
+_version_ = "0.2.2"
 
 logger = config.get_logger('icalingua')
 
