@@ -163,35 +163,26 @@ async def add_message(data: Dict[str, Any]):
 
     if not is_self:
         if content == '/bot':
-            message = Message(content='icalingua bot test',
-                              room_id=data['roomId'])
+            message = Message(content=f'icalingua bot test v{_version_}',
+                              room_id=data['roomId'],
+                              reply_to=ReplyMessage(id=data['message']['_id']))
             await sio.emit('sendMessage', message.to_json())
         elif content.startswith('=='):
 
             evals: str = content[2:]
 
-            # quene = multiprocessing.Queue()
-            # def run(quene, evals):
-            #     go = safe_eval(evals)
-            #     quene.put(go)
-            # process = multiprocessing.Process(target=run, args=(quene, evals))
-            # process.start()
-            # process.join(1)
-            # if quene.empty():
-            #     result = '超时'
+            result = safe_eval(evals)
+            # whitelist = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '.', '+', '-', '*', '/', '(', ')', '<',
+            #              '>', '=']
+            # evals = evals.replace('**', '')
+            # express = ''
+            # for text in evals:
+            #     if text in whitelist:
+            #         express += text
+            # if express == '':
+            #     result = '你在干嘛'
             # else:
-            #     result = quene.get()
-            whitelist = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '.', '+', '-', '*', '/', '(', ')', '<',
-                         '>', '=']
-            evals = evals.replace('**', '')
-            express = ''
-            for text in evals:
-                if text in whitelist:
-                    express += text
-            if express == '':
-                result = '你在干嘛'
-            else:
-                result = str(eval(express))
+            #     result = str(eval(express))
 
             reply = ReplyMessage(id=data['message']['_id'])
             message = Message(content=result,
