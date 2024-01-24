@@ -1,5 +1,6 @@
 mod client;
 
+use colored::*;
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{ClientBuilder, Event, Payload, RawClient};
 use serde_json::Value;
