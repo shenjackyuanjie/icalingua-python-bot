@@ -2,6 +2,7 @@
 name = "ica-rs"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -15,3 +16,6 @@ toml = "0.8.8"
 
 [patch.crates-io]
 rust_socketio = { path = "../../../rust-socketio/socketio" }
+
+[build-dependencies]
+
