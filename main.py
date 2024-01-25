@@ -232,11 +232,11 @@ async def add_message(data: Dict[str, Any]):
                         online_bandwidth: int = data["bandwidth"]
                         data_lens = ["B", "KB", "MB", "GB", "TB"]
                         for i in range(5):
-                            if data_bandwidth < 1024:
-                                data_bandwidth = round(data_bandwidth, 5)
-                                data_bandwidth = f"{data_bandwidth}{data_lens[i]}"
+                            if data_bytes < 1024:
+                                data_bytes = round(data_bytes, 5)
+                                data_bytes = f"{data_bytes}{data_lens[i]}"
                                 break
-                            data_bandwidth /= 1024
+                            data_bytes /= 1024
 
                         report_msg = (
                             "OpenBMCLAPI 状态:\n"
