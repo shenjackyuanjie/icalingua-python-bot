@@ -10,7 +10,8 @@ fn pyo3_config() {
     // wsl
     #[cfg(target_os = "linux")]
     {
-        env::set_var("PYO3_PYTHON", "python3.10")
+        env::set_var("PYO3_PRINT_CONFIG", "1");
+        env::set_var("PYO3_PYTHON", "/usr/bin/python3.11");
     }
 }
 

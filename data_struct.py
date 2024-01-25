@@ -47,6 +47,10 @@ class Message(Options):
             'sticker':      self.sticker,
             'messageType':  self.message_type
         }
+    
+    def to_content(self, content: str) -> "Message":
+        self.content = content
+        return self
 
 
 class BotConfig(Options):

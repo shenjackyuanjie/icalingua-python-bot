@@ -30,8 +30,17 @@ fn ws_main() {
     let connect_call_back = |payload: Payload, _client: RawClient| match payload {
         Payload::Text(values) => {
             if let Some(value) = values.first() {
-                if let Some("authSucceed") = value.as_str() {
-                    println!("{}", "已经登录到 icalingua!".green());
+                // if let Some("authSucceed") = value.as_str() {
+                //     println!("{}", "已经登录到 icalingua!".green());
+                // }
+                match value.as_str() {
+                    Some("authSucceed") => println!("{}", "已经登录到 icalingua!".green()),
+                    Some("authFailed") => {
+                        println!("{}", "登录到 icalingua 失败!".red());
+                        panic!("登录失败")
+                    }
+                    Some("authRequired") => println!("{}", "需要登录到 icalingua!".yellow()),
+                    _ => (),
                 }
             }
         }

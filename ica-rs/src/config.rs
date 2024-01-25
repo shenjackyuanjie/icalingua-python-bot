@@ -17,7 +17,7 @@ pub struct IcaConfig {
     /// 是否提醒
     pub notice_start: Option<bool>,
     /// Python 插件路径
-    pub py_plugin_path: Option<String>
+    pub py_plugin_path: Option<String>,
 }
 
 impl IcaConfig {
