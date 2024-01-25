@@ -210,7 +210,7 @@ async def add_message(data: Dict[str, Any]):
                     "https://bd.bangbang93.com/openbmclapi/metric/dashboard"
                 ) as response:
                     if not response.status == "200":
-                        sio.emit(
+                        await sio.emit(
                             "sendMessage",
                             reply_msg.to_content(
                                 f"请求数据失败\n{response.status}"
