@@ -233,9 +233,9 @@ async def add_message(data: Dict[str, Any]):
 
                         report_msg = (
                             "OpenBMCLAPI 状态:\n"
-                            f"在线节点: {online_node} 带宽: {online_bandwidth}Mbps\n"
-                            f"实时负载带宽: {data_bandwidth}Mbps  负载: {load_str}%\n"
-                            f"当日 总请求: {data_hits} 总数据量: {data_bytes}"
+                            f"在线节点: {online_node}    带宽: {online_bandwidth}Mbps\n"
+                            f"实时负载带宽: {data_bandwidth:.5f}Mbps   负载: {load_str:.3f}%\n"
+                            f"当日 总请求: {data_hits} 总数据量: {data_bytes / 1024 / 1024:.3f}MB"
                         )
                         await sio.emit(
                             "sendMessage",
