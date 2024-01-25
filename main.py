@@ -209,7 +209,7 @@ async def add_message(data: Dict[str, Any]):
                 async with session.get(
                     "https://bd.bangbang93.com/openbmclapi/metric/dashboard"
                 ) as response:
-                    if not response.status == "200":
+                    if not response.status == 200 or response.reason != "OK":
                         await sio.emit(
                             "sendMessage",
                             reply_msg.to_content(
