@@ -2,6 +2,13 @@ import time
 import random
 import traceback
 
+from main import BOTCONFIG
+
+from colorama import Fore
+from lib_not_dr.loggers import config
+
+logger = config.get_logger("safe_eval")
+
 def safe_eval(code: str) -> str:
     try:
         # code = code.replace('help', '坏东西！\n')

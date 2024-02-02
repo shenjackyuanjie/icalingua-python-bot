@@ -157,13 +157,9 @@ async def main():
         if self.eio.state != 'connected':
             break
     """
-    await sio.connect(BOTCONFIG.host)
-    await sio.wait()
-
-
-if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        await sio.connect(BOTCONFIG.host)
+        await sio.wait()
     except KeyboardInterrupt:
         logger.info("KeyboardInterrupt")
     except Exception:

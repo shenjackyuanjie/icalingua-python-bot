@@ -55,12 +55,23 @@ class SendMessage(Options):
 
 class NewMessage(Options):
     sender_id: int
+    sender_name: str
     room_id: int
     content: str
     msg_id: str
+    data: dict
+
+    def init(self, **kwargs) -> None:
+        data = kwargs.pop('data')
+        
+        self.sender_name = data["message"]["username"]
+        self.sender_id = data["message"]["senderId"]
+        self.content = data["message"]["content"]
+        self.room_id = data["roomId"]
+        self.msg_id = data["message"]["_id"]
     
-    # def is_self(self) -> bool:
-        # return self.sender_id == BOTCONFIG.self_id
+    def is_self(self, self_id: int) -> bool:
+        return self.sender_id == self_id
 
 
 class BotConfig(Options):

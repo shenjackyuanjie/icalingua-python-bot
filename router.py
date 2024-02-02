@@ -4,11 +4,9 @@ import asyncio
 from lib_not_dr.loggers import config
 
 from main import BOTCONFIG, _version_
-from data_struct import SendMessage, ReplyMessage
+from data_struct import SendMessage, ReplyMessage, NewMessage
 
-from plugins.safe_eval import safe_eval
-from plugins.bmcl import bmcl
-from plugins.yw import yw
+from plugins import bmcl, yw, safe_eval
 
 logger = config.get_logger("router")
 
@@ -20,6 +18,7 @@ async def route(data, sio):
     content = data["message"]["content"]
     room_id = data["roomId"]
     msg_id = data["message"]["_id"]
+    msg = NewMessage(data=data)
     
     reply_msg = SendMessage(content="", room_id=room_id, reply_to=ReplyMessage(id=msg_id))
     
@@ -29,7 +28,7 @@ async def route(data, sio):
     elif content.startswith("=="):
         evals: str = content[2:]
 
-        result = safe_eval(evals)
+        result = safe_eval.safe_eval(evals)
         # whitelist = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '.', '+', '-', '*', '/', '(', ')', '<',
         #              '>', '=']
         # evals = evals.replace('**', '')
@@ -55,9 +54,9 @@ async def route(data, sio):
         await asyncio.sleep(0.5)
         await sio.emit("sendMessage", message.to_json())
     elif content == "/bmcl":
-        await bmcl.bmcl(sio)
-    elif content == "/yw":
-        message = yw.yw()
-        await asyncio.sleep(random.random() * 2)
-        await sio.emit("sendMessage", message.to_json())
+        await bmcl.bmcl(sio, reply_msg, msg)
+    # elif content == "/yw":
+    #     message = yw.yw()
+    #     await asyncio.sleep(random.random() * 2)
+    #     await sio.emit("sendMessage", message.to_json())
         

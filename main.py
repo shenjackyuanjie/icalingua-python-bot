@@ -1,9 +1,5 @@
-import time
 import asyncio
 import argparse
-import traceback
-
-import socketio
 
 # from lib_not_dr.types import Options
 from lib_not_dr.loggers import config
@@ -16,6 +12,7 @@ logger = config.get_logger("bot")
 
 BOTCONFIG: BotConfig = get_config()
 BotStatus = BotStatus()
+
 
 if __name__ == "__main__":
     # --debug
@@ -33,4 +30,7 @@ if __name__ == "__main__":
         BOTCONFIG: BotConfig = get_config(args.config)
     if args.no_notice:
         BOTCONFIG.notice_start = False
+    
+    from connect import main
+    asyncio.run(main())
 
