@@ -39,11 +39,6 @@ async def require_auth(salt: str, versions: Dict[str, str]):
     logger.info(f"{Fore.BLUE}send auth emit")
 
 
-# @sio.on('requireAuth')
-# def require_auth(*data: Dict[str, Any]):
-#     logger.info(f"{Fore.BLUE}requireAuth: {data}")
-
-
 @sio.on("auth")  # type: ignore
 def auth(data: Dict[str, Any]):
     logger.info(f"auth: {data}")
