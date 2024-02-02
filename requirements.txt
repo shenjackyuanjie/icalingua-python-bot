@@ -3,5 +3,5 @@ colorama
 qtoml
 pynacl
 
-python-socketio[asyncio_client]
+python-socketio
 aiohttp

@@ -1,6 +1,13 @@
-from safe_eval import safe_eval
-import bmcl
-import yw
+import random
+import asyncio
+
+from lib_not_dr.loggers import config
+
+from plugins.safe_eval import safe_eval
+from plugins.bmcl import bmcl
+from plugins.yw import yw
+
+logger = config.get_logger("router")
 
 async def route(content, sio):
     if content == "/bot":

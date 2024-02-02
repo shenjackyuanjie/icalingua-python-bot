@@ -24,7 +24,7 @@ class ReplyMessage(Options):
         }
 
 
-class Message(Options):
+class SendMessage(Options):
     content: str
     room_id: Optional[int] = None
     room: Optional[int] = None  # room id 和 room 二选一  ( 实际上直接填 room id 就行了 )
@@ -48,9 +48,19 @@ class Message(Options):
             'messageType':  self.message_type
         }
     
-    def to_content(self, content: str) -> "Message":
+    def to_content(self, content: str) -> "SendMessage":
         self.content = content
         return self
+
+
+class NewMessage(Options):
+    sender_id: int
+    room_id: int
+    content: str
+    msg_id: str
+    
+    # def is_self(self) -> bool:
+        # return self.sender_id == BOTCONFIG.self_id
 
 
 class BotConfig(Options):

@@ -1,3 +1,7 @@
+import time
+import random
+import traceback
+
 def safe_eval(code: str) -> str:
     try:
         # code = code.replace('help', '坏东西！\n')
