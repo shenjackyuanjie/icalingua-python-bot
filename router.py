@@ -3,13 +3,26 @@ import asyncio
 
 from lib_not_dr.loggers import config
 
+from main import BOTCONFIG, _version_
+from data_struct import SendMessage, ReplyMessage
+
 from plugins.safe_eval import safe_eval
 from plugins.bmcl import bmcl
 from plugins.yw import yw
 
 logger = config.get_logger("router")
 
-async def route(content, sio):
+async def route(data, sio):
+    
+    is_self = data["message"]["senderId"] == BOTCONFIG.self_id
+    sender_name = data["message"]["username"]
+    sender_id = data["message"]["senderId"]
+    content = data["message"]["content"]
+    room_id = data["roomId"]
+    msg_id = data["message"]["_id"]
+    
+    reply_msg = SendMessage(content="", room_id=room_id, reply_to=ReplyMessage(id=msg_id))
+    
     if content == "/bot":
         message = reply_msg.to_content(f"icalingua bot pong v{_version_}")
         await sio.emit("sendMessage", message.to_json())

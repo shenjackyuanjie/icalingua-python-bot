@@ -15,6 +15,7 @@ _version_ = "0.3.0"
 logger = config.get_logger("bot")
 
 BOTCONFIG: BotConfig = get_config()
+BotStatus = BotStatus()
 
 if __name__ == "__main__":
     # --debug
@@ -32,3 +33,4 @@ if __name__ == "__main__":
         BOTCONFIG: BotConfig = get_config(args.config)
     if args.no_notice:
         BOTCONFIG.notice_start = False
+

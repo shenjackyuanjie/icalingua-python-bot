@@ -14,31 +14,10 @@ from nacl.signing import SigningKey
 from lib_not_dr.loggers import config
 
 from data_struct import SendMessage, ReplyMessage, get_config, BotConfig, BotStatus
-
-_version_ = "0.3.0"
+from main import BOTCONFIG, _version_
+from router import route
 
 logger = config.get_logger("icalingua")
-
-BOTCONFIG: BotConfig = get_config()
-
-if __name__ == "__main__":
-    # --debug
-    # --config=config.toml
-    # -n --no-notice
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", action="store_true")
-    parser.add_argument("-n", "--no-notice", action="store_true")
-    parser.add_argument("-c", "--config", type=str)
-    args = parser.parse_args()
-    if args.debug:
-        logger.global_level = 0
-    if args.config:
-        # global BOTCONFIG
-        BOTCONFIG: BotConfig = get_config(args.config)
-    if args.no_notice:
-        BOTCONFIG.notice_start = False
-
-BotStatus = BotStatus()
 
 sio: socketio.AsyncClient = socketio.AsyncClient()
 
@@ -96,15 +75,9 @@ async def add_message(data: Dict[str, Any]):
     logger.info(f"{Fore.MAGENTA}add_message: {data}")
 
     is_self = data["message"]["senderId"] == BOTCONFIG.self_id
-    sender_name = data["message"]["username"]
-    sender_id = data["message"]["senderId"]
-    content = data["message"]["content"]
-    room_id = data["roomId"]
-    msg_id = data["message"]["_id"]
 
-    reply_msg = SendMessage(content="", room_id=room_id, reply_to=ReplyMessage(id=msg_id))
     if not is_self:
-        route(content, sio)
+        await route(data, sio)
 
 
 @sio.on("deleteMessage")  # type: ignore
