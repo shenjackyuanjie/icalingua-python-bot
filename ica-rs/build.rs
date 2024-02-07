@@ -1,5 +1,6 @@
 use std::env;
 
+#[allow(unused)]
 // 指定 pyo3 的绑定对象
 fn pyo3_config() {
     // PYO3_PYTHON=xxxx
@@ -16,5 +17,5 @@ fn pyo3_config() {
 }
 
 fn main() {
-    pyo3_config();
+    // pyo3_config();
 }

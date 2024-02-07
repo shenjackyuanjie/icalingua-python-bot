@@ -4,9 +4,9 @@ import argparse
 # from lib_not_dr.types import Options
 from lib_not_dr.loggers import config
 
-from data_struct import SendMessage, ReplyMessage, get_config, BotConfig, BotStatus
+from data_struct import get_config, BotConfig, BotStatus
 
-_version_ = "0.3.0"
+_version_ = "0.3.1"
 
 logger = config.get_logger("bot")
 
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # --debug
     # --config=config.toml
     # -n --no-notice
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=f"icalingua bot v{_version_}")
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("-n", "--no-notice", action="store_true")
     parser.add_argument("-c", "--config", type=str)
