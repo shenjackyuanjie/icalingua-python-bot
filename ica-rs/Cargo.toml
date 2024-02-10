@@ -30,4 +30,4 @@ version = "0.20.2"
 rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
 
 [build-dependencies]
-
+pkg-config = "0.3.29"

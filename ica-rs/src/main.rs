@@ -24,6 +24,7 @@ fn any_event(event: Event, payload: Payload, _client: RawClient) {
 }
 
 fn ws_main() {
+    py::init_py();
     // define a callback which is called when a payload is received
     // this callback gets the payload as well as an instance of the
     // socket to communicate with the server
@@ -34,7 +35,10 @@ fn ws_main() {
                 //     println!("{}", "已经登录到 icalingua!".green());
                 // }
                 match value.as_str() {
-                    Some("authSucceed") => println!("{}", "已经登录到 icalingua!".green()),
+                    Some("authSucceed") => {
+                        py::run();
+                        println!("{}", "已经登录到 icalingua!".green())
+                    }
                     Some("authFailed") => {
                         println!("{}", "登录到 icalingua 失败!".red());
                         panic!("登录失败")
@@ -67,7 +71,6 @@ fn ws_main() {
 }
 
 fn main() {
-    
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
