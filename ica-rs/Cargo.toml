@@ -27,7 +27,7 @@ version = "0.20.2"
 # features = ["auto-initialize"]
 
 [patch.crates-io]
-rust_socketio = { path = "D:/githubs/rust-socketio/socketio" }
+rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
 
 [build-dependencies]
 
