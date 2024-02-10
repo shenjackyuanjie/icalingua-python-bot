@@ -54,7 +54,7 @@ fn ws_main() {
     // get a socket that is connected to the admin namespace
 
     let socket = ClientBuilder::new(ica_singer.host.clone())
-        // .namespace("/admin")
+        .transport_type(rust_socketio::TransportType::Websocket)
         .on_any(any_event)
         .on("message", connect_call_back)
         .on("requireAuth", move |a, b| ica_singer.sign_callback(a, b))
@@ -67,5 +67,9 @@ fn ws_main() {
 }
 
 fn main() {
+    
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
     ws_main();
 }
