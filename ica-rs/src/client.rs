@@ -3,6 +3,7 @@ use crate::config::IcaConfig;
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{Payload, RawClient};
 use serde_json::Value;
+use tracing::debug;
 
 pub struct IcalinguaSinger {
     pub host: String,
@@ -40,7 +41,7 @@ impl IcalinguaSinger {
         .expect("Payload should be Json data");
 
         let (auth_key, version) = (&require_data[0], &require_data[1]);
-        println!("auth_key: {:?}, version: {:?}", auth_key, version);
+        debug!("auth_key: {:?}, version: {:?}", auth_key, version);
         let auth_key = match &require_data.get(0) {
             Some(Value::String(auth_key)) => Some(auth_key),
             _ => None,

@@ -9,18 +9,34 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
-            info!("update_online_data {}", format!("{:#?}", online_data).cyan());
+            info!(
+                "update_online_data {}",
+                format!("{:#?}", online_data).cyan()
+            );
+        }
+    }
+}
+
+pub fn add_message(payload: Payload, _client: RawClient) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            info!("add_message {}", value);
         }
     }
 }
 
 pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
     let handled = vec![
+        // 真正处理过的
         "authSucceed",
         "authFailed",
         "authRequired",
         "requireAuth",
         "onlineData",
+        "addMessage",
+        // 忽略的
+        "notify",
+        "updateRoom",
     ];
     match &event {
         Event::Custom(event_name) => {
@@ -48,9 +64,6 @@ pub fn connect_callback(payload: Payload, _client: RawClient) {
     match payload {
         Payload::Text(values) => {
             if let Some(value) = values.first() {
-                // if let Some("authSucceed") = value.as_str() {
-                //     println!("{}", "已经登录到 icalingua!".green());
-                // }
                 match value.as_str() {
                     Some("authSucceed") => {
                         py::run();

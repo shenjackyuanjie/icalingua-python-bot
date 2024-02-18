@@ -4,6 +4,7 @@ use std::fs;
 use serde::Deserialize;
 use toml;
 
+/// Icalingua bot 的配置
 #[derive(Debug, Deserialize)]
 pub struct IcaConfig {
     /// icalingua 私钥

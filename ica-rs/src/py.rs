@@ -1,6 +1,5 @@
-// use inline_python::{python, Context};
-
 use pyo3::{prelude::*, types::IntoPyDict};
+use tracing::{debug, info};
 
 #[pyclass]
 #[pyo3(name = "BotStatus")]
@@ -16,12 +15,7 @@ pub fn run() {
 }
 
 pub fn init_py() {
+    debug!("initing python threads");
     pyo3::prepare_freethreaded_python();
+    info!("python inited")
 }
-
-// pub fn run() {
-//     let con: Context = python! {
-//         print("Hello, world!");
-//     };
-
-// }

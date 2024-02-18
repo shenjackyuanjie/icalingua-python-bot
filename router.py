@@ -6,7 +6,7 @@ from lib_not_dr.loggers import config
 from main import BOTCONFIG, _version_
 from data_struct import SendMessage, ReplyMessage, NewMessage
 
-from plugins import bmcl, yw, safe_eval
+from plugins import bmcl, safe_eval
 
 logger = config.get_logger("router")
 
@@ -23,8 +23,9 @@ async def route(data, sio):
     reply_msg = SendMessage(content="", room_id=room_id, reply_to=ReplyMessage(id=msg_id))
     
     if content == "/bot":
-        message = reply_msg.to_content(f"icalingua bot pong v{_version_}")
+        message = reply_msg.to_content(f"icalingua bot-python pong v{_version_}")
         await sio.emit("sendMessage", message.to_json())
+    
     elif content.startswith("=="):
         evals: str = content[2:]
 
@@ -44,6 +45,7 @@ async def route(data, sio):
 
         await asyncio.sleep(random.random() * 2)
         await sio.emit("sendMessage", message.to_json())
+    
     elif content == "!!jrrp":
         randomer = random.Random(
             f'{sender_id}-{data["message"]["date"]}-jrrp-{_version_}'
@@ -53,10 +55,8 @@ async def route(data, sio):
         message = reply_msg.to_content(f"{sender_name} 今日人品为 {result}")
         await asyncio.sleep(0.5)
         await sio.emit("sendMessage", message.to_json())
+    
     elif content == "/bmcl":
         await bmcl.bmcl(sio, reply_msg, msg)
-    # elif content == "/yw":
-    #     message = yw.yw()
-    #     await asyncio.sleep(random.random() * 2)
-    #     await sio.emit("sendMessage", message.to_json())
+    
         
