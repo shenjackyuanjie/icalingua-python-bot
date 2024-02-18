@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use tracing::info;
 use rust_socketio::ClientBuilder;
 
 mod client;
@@ -26,9 +27,15 @@ fn ws_main() {
         .connect()
         .expect("Connection failed");
 
-    std::thread::sleep(Duration::from_secs(10));
-
-    socket.disconnect().expect("Disconnect failed")
+    info!("Connected");
+    std::thread::sleep(Duration::from_secs(3));
+    // 等待一个输入
+    info!("Press any key to exit");
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
+    socket.disconnect().expect("Disconnect failed");
+    info!("Disconnected");
+    
 }
 
 fn main() {

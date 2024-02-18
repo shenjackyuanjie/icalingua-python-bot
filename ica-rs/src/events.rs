@@ -2,6 +2,7 @@ use colored::Colorize;
 use rust_socketio::{Event, Payload, RawClient};
 use tracing::{info, warn};
 
+use crate::data_struct::new_message::NewMessage;
 use crate::data_struct::online_data::OnlineData;
 use crate::py;
 
@@ -20,7 +21,8 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
 pub fn add_message(payload: Payload, _client: RawClient) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            info!("add_message {}", value);
+            let message = NewMessage::new_from_json(value);
+            info!("add_message {}", format!("{:#?}", message).cyan());
         }
     }
 }
