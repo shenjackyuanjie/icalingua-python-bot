@@ -1,33 +1,27 @@
 [package]
 name = "ica-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 ed25519 = "2.2.3"
-ed25519-dalek = "2.1.0"
+ed25519-dalek = "2.1.1"
 hex = "0.4.3"
 rust_socketio = "0.4.4"
 
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.108"
-toml = "0.8.8"
+serde_json = "1.0"
+toml = "0.8.10"
 
 colored = "2.1.0"
-# inline-python = "0.12.0"
 
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }
 
 [dependencies.pyo3]
 version = "0.20.2"
-# features = ["auto-initialize"]
 
 [patch.crates-io]
 rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
-
-[build-dependencies]
-pkg-config = "0.3.29"
