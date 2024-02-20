@@ -51,9 +51,9 @@ pub struct IcalinguaSinger {
 }
 
 impl IcalinguaSinger {
-    pub fn new_from_config(config: IcaConfig) -> Self {
-        let host = config.host;
-        let pub_key = config.private_key;
+    pub fn new_from_config(config: &IcaConfig) -> Self {
+        let host = config.host.clone();
+        let pub_key = config.private_key.clone();
         Self::new_from_raw(host, pub_key)
     }
 

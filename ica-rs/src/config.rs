@@ -16,9 +16,11 @@ pub struct IcaConfig {
     /// 提醒的房间
     pub notice_room: Vec<i64>,
     /// 是否提醒
-    pub notice_start: Option<bool>,
+    pub notice_start: bool,
+    /// 管理员列表
+    pub admin_list: Vec<i64>,
     /// Python 插件路径
-    pub py_plugin_path: Option<String>,
+    pub py_plugin_path: String,
 }
 
 impl IcaConfig {

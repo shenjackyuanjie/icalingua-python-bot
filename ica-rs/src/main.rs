@@ -29,7 +29,7 @@ fn main() {
     unsafe {
         ClientStatus.update_config(ica_config.clone());
     }
-    let ica_singer = client::IcalinguaSinger::new_from_config(ica_config);
+    let ica_singer = client::IcalinguaSinger::new_from_config(&ica_config);
 
     let socket = ClientBuilder::new(ica_singer.host.clone())
         .transport_type(rust_socketio::TransportType::Websocket)
@@ -46,6 +46,22 @@ fn main() {
         .expect("Connection failed");
 
     info!("Connected");
+
+    if ica_config.notice_start {
+        for room in ica_config.notice_room.iter() {
+            let startup_msg = crate::data_struct::messages::SendMessage::new(
+                format!("ica-rs bot v{}", env!("CARGO_PKG_VERSION")),
+                room.clone(),
+                None,
+            );
+            std::thread::sleep(Duration::from_secs(1));
+            info!("发送启动消息到房间: {}", room);
+            if let Err(e) = socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()) {
+                info!("启动信息发送失败 房间:{}|e:{}", room, e);
+            }
+        }
+    }
+
     std::thread::sleep(Duration::from_secs(3));
     // 等待一个输入
     info!("Press any key to exit");
