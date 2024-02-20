@@ -1,8 +1,5 @@
-import time
 import json
-import asyncio
 import aiohttp
-import socketio
 
 from lib_not_dr.loggers import config
 
@@ -10,11 +7,10 @@ from data_struct import NewMessage, SendMessage
 
 logger = config.get_logger("bmcl")
 
+_version_ = "1.0.0"
+
+
 async def bmcl(sio, reply_msg: SendMessage, msg: NewMessage):
-    await asyncio.sleep(0.1)
-    await sio.emit(
-        "sendMessage", reply_msg.to_content("请求数据中……").to_json()
-    )
     async with aiohttp.ClientSession() as session:
         async with session.get(
                 "https://bd.bangbang93.com/openbmclapi/metric/dashboard"
@@ -51,10 +47,10 @@ async def bmcl(sio, reply_msg: SendMessage, msg: NewMessage):
                         data_bytes /= 1024
 
                 report_msg = (
-                    "OpenBMCLAPI 状态:\n"
-                    f"在线节点: {online_node}    带宽: {online_bandwidth}Mbps\n"
-                    f"实时负载带宽: {data_bandwidth:.5f}Mbps   负载: {load_str:.3f}%\n"
-                    f"当日 总请求: {data_hits} 总数据量: {data_len}"
+                    f"OpenBMCLAPI 状态面板v{_version_} :\n"
+                    f"在线节点: {online_node}  带宽: {online_bandwidth}Mbps\n"
+                    f"实时负载: {load_str:.3f}%  带宽: {data_bandwidth:.5f}Mbps\n"
+                    f"当日请求: {data_hits} 总数据量: {data_len}"
                 )
                 await sio.emit(
                     "sendMessage",
