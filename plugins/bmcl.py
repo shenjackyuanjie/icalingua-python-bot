@@ -8,7 +8,7 @@ from data_struct import NewMessage, SendMessage
 
 logger = config.get_logger("bmcl")
 
-_version_ = "1.1.0"
+_version_ = "1.1.1"
 
 
 def format_data_size(data_bytes: float) -> str:
@@ -79,9 +79,9 @@ async def bmcl(sio, reply_msg: SendMessage, msg: NewMessage):
 
                 report_msg = (
                     f"OpenBMCLAPI 状态面板v{_version_} :\n"
-                    f"在线节点: {online_node}  带宽: {online_bandwidth}Mbps\n"
-                    f"实时负载: {load_str:.3f}%  带宽: {data_bandwidth:.5f}Mbps\n"
-                    f"当日请求: {hits_count} 总数据量: {data_len}\n"
+                    f"实时信息: {online_node}  带宽: {online_bandwidth}Mbps\n"
+                    f"负载: {load_str:.2f}%  带宽: {data_bandwidth:.2f}Mbps\n"
+                    f"当日请求: {hits_count} 数据量: {data_len}\n"
                     f"请求时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(req_time))}\n"
                      "数据源: https://bd.bangbang93.com/pages/dashboard"
                 )

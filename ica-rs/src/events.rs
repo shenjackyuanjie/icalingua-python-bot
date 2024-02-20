@@ -38,7 +38,7 @@ pub fn add_message(payload: Payload, client: RawClient) {
             }
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
-            if message.content.eq("/bot ping") {
+            if message.content.eq("/bot-rs") {
                 let reply = message.reply_with(&format!("ica-rs pong v{}", VERSION));
                 send_message(client, reply)
             }
