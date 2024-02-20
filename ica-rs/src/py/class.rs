@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};
 use crate::ClientStatus;
 
 #[pyclass]
@@ -102,5 +103,41 @@ impl IcaStatusPy {
 impl IcaStatusPy {
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+#[pyclass]
+#[pyo3(name = "NewMessage")]
+pub struct NewMessagePy {
+    pub msg: NewMessage,
+}
+
+impl NewMessagePy {
+    pub fn new(msg: &NewMessage) -> Self {
+        Self { msg: msg.clone() }
+    }
+}
+
+#[pyclass]
+#[pyo3(name = "ReplyMessage")]
+pub struct ReplyMessagePy {
+    pub msg: ReplyMessage,
+}
+
+impl ReplyMessagePy {
+    pub fn new(msg: ReplyMessage) -> Self {
+        Self { msg }
+    }
+}
+
+#[pyclass]
+#[pyo3(name = "SendMessage")]
+pub struct SendMessagePy {
+    pub msg: SendMessage,
+}
+
+impl SendMessagePy {
+    pub fn new(msg: SendMessage) -> Self {
+        Self { msg }
     }
 }
