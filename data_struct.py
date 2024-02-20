@@ -77,11 +77,13 @@ class NewMessage(Options):
 class BotConfig(Options):
     name = 'icalingua bot config'
     # _check_filled = True
-    host: str
     private_key: str
+    host: str
     self_id: int
     notice_room: List[int]
     notice_start: bool = False
+    admin_list: List[int]
+    py_plugin_path: str
     
     def init(self, **kwargs) -> None:
         if self.notice_room is None:
