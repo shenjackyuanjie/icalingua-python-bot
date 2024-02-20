@@ -1,9 +1,39 @@
 use crate::config::IcaConfig;
+use crate::data_struct::{all_rooms::Room, online_data::OnlineData};
 
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{Payload, RawClient};
 use serde_json::Value;
 use tracing::debug;
+
+#[derive(Debug, Clone)]
+pub struct IcalinguaStatus {
+    pub login: bool,
+    pub online_data: Option<OnlineData>,
+    pub rooms: Option<Vec<Room>>,
+}
+
+impl IcalinguaStatus {
+    pub fn new() -> Self {
+        Self {
+            login: false,
+            online_data: None,
+            rooms: None,
+        }
+    }
+
+    pub fn update_online_data(&mut self, online_data: OnlineData) {
+        self.online_data = Some(online_data);
+    }
+
+    pub fn update_rooms(&mut self, rooms: Vec<Room>) {
+        self.rooms = Some(rooms);
+    }
+
+    pub fn update_login_status(&mut self, login: bool) {
+        self.login = login;
+    }
+}
 
 pub struct IcalinguaSinger {
     pub host: String,

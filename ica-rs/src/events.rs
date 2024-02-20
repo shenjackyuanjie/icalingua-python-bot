@@ -2,7 +2,7 @@ use colored::Colorize;
 use rust_socketio::{Event, Payload, RawClient};
 use tracing::{info, warn};
 
-use crate::data_struct::new_message::NewMessage;
+use crate::data_struct::messages::NewMessage;
 use crate::data_struct::online_data::OnlineData;
 use crate::py;
 
@@ -14,6 +14,9 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
                 "update_online_data {}",
                 format!("{:#?}", online_data).cyan()
             );
+            unsafe {
+                crate::ClientStatus.update_online_data(online_data);
+            }
         }
     }
 }
@@ -36,6 +39,7 @@ pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
         "requireAuth",
         "onlineData",
         "addMessage",
+        // "setAllRooms",
         // 忽略的
         "notify",
         "updateRoom",

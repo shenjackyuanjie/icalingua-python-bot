@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use tracing::info;
 use rust_socketio::ClientBuilder;
+use tracing::info;
 
 mod client;
 mod config;
@@ -9,7 +9,19 @@ mod data_struct;
 mod events;
 mod py;
 
-fn ws_main() {
+#[allow(non_upper_case_globals)]
+pub static mut ClientStatus: client::IcalinguaStatus = client::IcalinguaStatus {
+    login: false,
+    online_data: None,
+    rooms: None,
+};
+
+fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+    py::init_py();
+
     // 从命令行获取 host 和 key
     // 从命令行获取配置文件路径
     let ica_config = config::IcaConfig::new_from_cli();
@@ -35,13 +47,4 @@ fn ws_main() {
     std::io::stdin().read_line(&mut input).unwrap();
     socket.disconnect().expect("Disconnect failed");
     info!("Disconnected");
-    
-}
-
-fn main() {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
-    py::init_py();
-    ws_main();
 }
