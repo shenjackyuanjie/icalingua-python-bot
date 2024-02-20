@@ -3,7 +3,7 @@ use crate::data_struct::{MessageId, RoomId, UserId};
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
+use serde_json::{json, Value as JsonValue};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum At {
@@ -41,7 +41,7 @@ pub struct LastMessage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ReplyedMessage {
+pub struct ReplyMessage {
     #[serde(rename = "_id")]
     pub msg_id: String,
     pub content: String,
@@ -72,7 +72,7 @@ pub struct NewMessage {
     /// 文件
     pub files: Vec<MessageFile>,
     /// 回复的消息
-    pub reply: Option<ReplyedMessage>,
+    pub reply: Option<ReplyMessage>,
     /// At
     pub at: At,
     /// 是否已撤回
@@ -136,8 +136,8 @@ impl NewMessage {
             }
         }
         // 回复的消息
-        let reply: Option<ReplyedMessage> = match message.get("replyMessage") {
-            Some(value) => serde_json::from_value::<ReplyedMessage>(value.clone()).ok(),
+        let reply: Option<ReplyMessage> = match message.get("replyMessage") {
+            Some(value) => serde_json::from_value::<ReplyMessage>(value.clone()).ok(),
             None => None,
         };
         // At
@@ -193,23 +193,59 @@ impl NewMessage {
         }
     }
 
+    /// 作为回复消息使用
+    pub fn as_reply(&self) -> ReplyMessage {
+        ReplyMessage {
+            // 虽然其实只要这一条就行
+            msg_id: self.msg_id.clone(),
+            // 但是懒得动上面的了, 就这样吧
+            content: self.content.clone(),
+            files: json!([]),
+            sender_name: self.sender_name.clone(),
+        }
+    }
+
+    /// 创建一条对这条消息的回复
+    pub fn reply_with(&self, content: &String) -> SendMessage {
+        SendMessage::new(content.clone(), self.room_id, Some(self.as_reply()))
+    }
+
     /// 是否是回复
     pub fn is_reply(&self) -> bool {
         self.reply.is_some()
     }
 
     /// 获取回复
-    pub fn get_reply(&self) -> Option<&ReplyedMessage> {
+    pub fn get_reply(&self) -> Option<&ReplyMessage> {
         self.reply.as_ref()
     }
 
-    pub fn get_reply_mut(&mut self) -> Option<&mut ReplyedMessage> {
+    pub fn get_reply_mut(&mut self) -> Option<&mut ReplyMessage> {
         self.reply.as_mut()
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SendMessage {}
+pub struct SendMessage {
+    pub content: String,
+    #[serde(rename = "roomId")]
+    pub room_id: RoomId,
+    #[serde(rename = "replyMessage")]
+    pub reply_to: Option<ReplyMessage>,
+    #[serde(rename = "at")]
+    pub at: JsonValue,
+}
+
+impl SendMessage {
+    pub fn new(content: String, room_id: RoomId, reply_to: Option<ReplyMessage>) -> Self {
+        Self {
+            content,
+            room_id,
+            reply_to,
+            at: json!([]),
+        }
+    }
+}
 
 #[cfg(test)]
 mod test {
