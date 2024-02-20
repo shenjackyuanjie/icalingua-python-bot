@@ -20,7 +20,7 @@ pub struct IcaConfig {
     /// 管理员列表
     pub admin_list: Vec<i64>,
     /// Python 插件路径
-    pub py_plugin_path: String,
+    pub py_plugin_path: Option<String>,
 }
 
 impl IcaConfig {

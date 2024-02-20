@@ -20,6 +20,16 @@ impl IcaStatusPy {
     }
 
     #[getter]
+    pub fn get_online(&self) -> bool {
+        unsafe {
+            match ClientStatus.online_data.as_ref() {
+                Some(data) => data.online,
+                None => false,
+            }
+        }
+    }
+
+    #[getter]
     pub fn get_self_id(&self) -> Option<i64> {
         unsafe {
             match ClientStatus.online_data.as_ref() {
@@ -30,21 +40,11 @@ impl IcaStatusPy {
     }
 
     #[getter]
-    pub fn get_nicn_name(&self) -> Option<String> {
+    pub fn get_nick_name(&self) -> Option<String> {
         unsafe {
             match ClientStatus.online_data.as_ref() {
                 Some(data) => Some(data.nick.clone()),
                 None => None,
-            }
-        }
-    }
-
-    #[getter]
-    pub fn get_online(&self) -> bool {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => data.online,
-                None => false,
             }
         }
     }

@@ -21,7 +21,6 @@ fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
-    py::init_py();
 
     // 从命令行获取 host 和 key
     // 从命令行获取配置文件路径
@@ -29,6 +28,7 @@ fn main() {
     unsafe {
         ClientStatus.update_config(ica_config.clone());
     }
+    py::init_py(&ica_config);
     let ica_singer = client::IcalinguaSinger::new_from_config(&ica_config);
 
     let socket = ClientBuilder::new(ica_singer.host.clone())
