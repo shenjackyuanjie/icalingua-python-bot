@@ -17,6 +17,8 @@ pub static mut ClientStatus: client::IcalinguaStatus = client::IcalinguaStatus {
     config: None,
 };
 
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
@@ -50,7 +52,7 @@ fn main() {
     if ica_config.notice_start {
         for room in ica_config.notice_room.iter() {
             let startup_msg = crate::data_struct::messages::SendMessage::new(
-                format!("ica-rs bot v{}", env!("CARGO_PKG_VERSION")),
+                format!("ica-rs bot v{}", VERSION),
                 room.clone(),
                 None,
             );

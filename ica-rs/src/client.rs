@@ -1,10 +1,21 @@
 use crate::config::IcaConfig;
+use crate::data_struct::messages::SendMessage;
 use crate::data_struct::{all_rooms::Room, online_data::OnlineData};
 
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::{Payload, RawClient};
 use serde_json::Value;
-use tracing::debug;
+use colored::Colorize;
+use tracing::{debug, warn};
+
+/// "安全" 的 发送一条消息
+pub fn send_message(client: RawClient, message: SendMessage) {
+    let value = message.as_value();
+    match client.emit("sendMessage", value) {
+        Ok(_) => debug!("send_message {}", format!("{:#?}", message).cyan()),
+        Err(e) => warn!("send_message faild:{}", format!("{:#?}", e).red()),
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct IcalinguaStatus {
@@ -38,6 +49,10 @@ impl IcalinguaStatus {
 
     pub fn update_config(&mut self, config: IcaConfig) {
         self.config = Some(config);
+    }
+
+    pub fn get_online_data(&self) -> &OnlineData {
+        self.online_data.as_ref().unwrap()
     }
 
     pub fn get_config(&self) -> &IcaConfig {

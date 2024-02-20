@@ -2,10 +2,11 @@ use colored::Colorize;
 use rust_socketio::{Event, Payload, RawClient};
 use tracing::{info, warn};
 
+use crate::client::send_message;
 use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::NewMessage;
 use crate::data_struct::online_data::OnlineData;
-use crate::py;
+use crate::{py, VERSION};
 
 /// 获取在线数据
 pub fn get_online_data(payload: Payload, _client: RawClient) {
@@ -24,11 +25,23 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
 }
 
 /// 接收消息
-pub fn add_message(payload: Payload, _client: RawClient) {
+pub fn add_message(payload: Payload, client: RawClient) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let message = NewMessage::new_from_json(value);
             info!("add_message {}", format!("{:#?}", message).cyan());
+            if message.is_reply() {
+                return;
+            }
+            if message.is_from_self() {
+                return;
+            }
+            // 就在这里处理掉最基本的消息
+            // 之后的处理交给插件
+            if message.content.eq("/bot ping") {
+                let reply = message.reply_with(&format!("ica-rs pong v{}", VERSION));
+                send_message(client, reply)
+            }
         }
     }
 }

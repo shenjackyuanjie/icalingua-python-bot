@@ -1,5 +1,6 @@
 use crate::data_struct::files::MessageFile;
 use crate::data_struct::{MessageId, RoomId, UserId};
+use crate::ClientStatus;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
@@ -215,6 +216,13 @@ impl NewMessage {
         self.reply.is_some()
     }
 
+    pub fn is_from_self(&self) -> bool {
+        let qq_id = unsafe {
+            ClientStatus.get_online_data().qqid
+        };
+        self.sender_id == qq_id
+    }
+
     /// 获取回复
     pub fn get_reply(&self) -> Option<&ReplyMessage> {
         self.reply.as_ref()
@@ -244,6 +252,10 @@ impl SendMessage {
             reply_to,
             at: json!([]),
         }
+    }
+
+    pub fn as_value(&self) -> JsonValue {
+        serde_json::to_value(self).unwrap()
     }
 }
 
