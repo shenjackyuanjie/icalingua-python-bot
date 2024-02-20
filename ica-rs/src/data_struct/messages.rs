@@ -218,6 +218,12 @@ impl NewMessage {
         }
     }
 
+    /// 是否是回复
+    pub fn is_reply(&self) -> bool {
+        self.reply.is_some()
+    }
+
+    /// 获取回复
     pub fn get_reply(&self) -> Option<&ReplyedMessage> {
         self.reply.as_ref()
     }
@@ -237,21 +243,28 @@ mod test {
     fn test_new_from_json() {
         let value = json!({"message": {"_id":"idddddd","anonymousId":null,"anonymousflag":null,"bubble_id":0,"content":"test","date":"2024/02/18","files":[],"role":"admin","senderId":123456,"subid":1,"time":1708267062000_i64,"timestamp":"22:37:42","title":"索引管理员","username":"shenjack"},"roomId":-123456});
         let new_message = NewMessage::new_from_json(&value);
-        assert_eq!(new_message.sender_id, 123456);
-        assert_eq!(new_message.room_id, -123456);
-        assert_eq!(new_message.sender_name, "shenjack");
         assert_eq!(new_message.msg_id, "idddddd");
-        assert_eq!(new_message.role, "admin");
-        assert_eq!(new_message.title, "索引管理员");
+        assert_eq!(new_message.sender_id, 123456);
+        assert_eq!(new_message.sender_name, "shenjack");
         assert_eq!(new_message.content, "test");
-        assert_eq!(new_message.bubble_id, 0);
-        assert!(new_message.reply.is_none());
-        assert_eq!(new_message.raw_msg, value["message"]);
+        assert_eq!(new_message.role, "admin");
         assert_eq!(
             new_message.time,
             NaiveDateTime::from_timestamp_micros(1708267062000_i64).unwrap()
         );
+        assert!(new_message.files.is_empty());
+        assert!(new_message.get_reply().is_none());
+        assert!(!new_message.is_reply());
+        assert!(!new_message.deleted);
+        assert!(!new_message.system);
+        assert!(!new_message.reveal);
+        assert!(!new_message.flash);
+        assert_eq!(new_message.title, "索引管理员");
+        assert!(new_message.anonymous_id.is_none());
+        assert!(!new_message.hide);
+        assert_eq!(new_message.bubble_id, 0);
         assert_eq!(new_message.subid, 1);
+        assert!(new_message.head_img.is_null());
     }
 
     #[test]
