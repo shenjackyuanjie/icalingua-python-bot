@@ -31,7 +31,7 @@ fn main() {
         .transport_type(rust_socketio::TransportType::Websocket)
         .on_any(events::any_event)
         .on("requireAuth", move |a, b| ica_singer.sign_callback(a, b))
-        .on("authRequired", events::connect_callback)
+        .on("message", events::connect_callback)
         .on("authSucceed", events::connect_callback)
         .on("authFailed", events::connect_callback)
         .on("onlineData", events::get_online_data)

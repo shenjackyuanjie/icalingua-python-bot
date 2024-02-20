@@ -4,7 +4,6 @@ use crate::data_struct::{MessageId, RoomId, UserId};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use tracing::warn;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum At {
@@ -103,33 +102,6 @@ pub struct NewMessage {
 }
 
 impl NewMessage {
-    /// export default interface Message {
-    /// _id: string | number
-    /// senderId?: number
-    /// username: string
-    /// content: string
-    /// code?: string
-    /// timestamp?: string
-    /// date?: string
-    /// role?: string
-    /// file?: MessageFile
-    /// files: MessageFile[]
-    /// time?: number
-    /// replyMessage?: Message
-    /// at?: boolean | 'all'
-    /// deleted?: boolean
-    /// system?: boolean
-    /// mirai?: MessageMirai
-    /// reveal?: boolean
-    /// flash?: boolean
-    /// title?: string
-    /// anonymousId?: number
-    /// anonymousflag?: string
-    /// hide?: boolean
-    /// bubble_id?: number
-    /// subid?: number
-    /// head_img?: string
-    /// }
     pub fn new_from_json(json: &JsonValue) -> Self {
         // room id 还是必定有的
         let room_id = json["roomId"].as_i64().unwrap();
@@ -155,16 +127,19 @@ impl NewMessage {
         // 身份
         let role = message["role"].as_str().unwrap_or("unknown");
         // 文件
-        let files: Vec<MessageFile> = message["files"]
-            .as_array()
-            .unwrap_or(&Vec::new())
-            .iter()
-            .map(|value| serde_json::from_value(value.clone()).unwrap())
-            .collect();
+        let value_files = message["files"].as_array().unwrap_or(&Vec::new()).to_vec();
+        let mut files = Vec::with_capacity(value_files.len());
+        for file in &value_files {
+            let file = serde_json::from_value::<MessageFile>(file.clone());
+            if let Ok(file) = file {
+                files.push(file);
+            }
+        }
         // 回复的消息
-        let reply: Option<ReplyedMessage> = message
-            .get("replyMessage")
-            .map(|value| serde_json::from_value(value.clone()).unwrap());
+        let reply: Option<ReplyedMessage> = match message.get("replyMessage") {
+            Some(value) => serde_json::from_value::<ReplyedMessage>(value.clone()).ok(),
+            None => None,
+        };
         // At
         let at = At::new_from_json(&message["at"]);
         // 是否已撤回
@@ -178,7 +153,7 @@ impl NewMessage {
         // flash
         let flash = message["flash"].as_bool().unwrap_or(false);
         // "群主授予的头衔"
-        let title = message["title"].as_str().unwrap();
+        let title = message["title"].as_str().unwrap_or("");
         // anonymous id
         let anonymous_id = message["anonymousId"].as_i64();
         // 是否已被隐藏
@@ -232,6 +207,9 @@ impl NewMessage {
         self.reply.as_mut()
     }
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SendMessage {}
 
 #[cfg(test)]
 mod test {

@@ -1,3 +1,5 @@
+pub mod class;
+
 use pyo3::{prelude::*, types::IntoPyDict};
 use tracing::{debug, info};
 

@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 
 use serde::Deserialize;
-use toml;
+use toml::from_str;
 
 /// Icalingua bot 的配置
 #[derive(Debug, Deserialize)]
@@ -25,7 +25,7 @@ impl IcaConfig {
     pub fn new_from_path(config_file_path: String) -> Self {
         // try read config from file
         let config = fs::read_to_string(&config_file_path).expect("Failed to read config file");
-        let ret: Self = toml::from_str(&config)
+        let ret: Self = from_str(&config)
             .expect(format!("Failed to parse config file {}", &config_file_path).as_str());
         ret
     }

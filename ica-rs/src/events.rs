@@ -2,9 +2,9 @@ use colored::Colorize;
 use rust_socketio::{Event, Payload, RawClient};
 use tracing::{info, warn};
 
+use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::NewMessage;
 use crate::data_struct::online_data::OnlineData;
-use crate::data_struct::all_rooms::Room;
 use crate::py;
 
 /// 获取在线数据
@@ -53,7 +53,10 @@ pub fn update_all_room(payload: Payload, _client: RawClient) {
                     .iter()
                     .map(|room| Room::new_from_json(room))
                     .collect();
-                info!("update_all_room {}", format!("{:#?}", rooms).purple());
+                unsafe {
+                    crate::ClientStatus.update_rooms(rooms.clone());
+                }
+                info!("update_all_room {}", rooms.len());
             }
         }
     }
@@ -81,6 +84,20 @@ pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
             if handled.contains(&event_name.as_str()) {
                 return;
             }
+        }
+        Event::Message => {
+            match payload {
+                Payload::Text(values) => {
+                    if let Some(value) = values.first() {
+                        if handled.contains(&value.as_str().unwrap()) {
+                            return;
+                        }
+                        info!("收到消息 {}", value.to_string().yellow());
+                    }
+                }
+                _ => (),
+            }
+            return;
         }
         _ => (),
     }
@@ -114,7 +131,10 @@ pub fn connect_callback(payload: Payload, _client: RawClient) {
                     Some("authRequired") => {
                         warn!("{}", "需要登录到 icalingua!".yellow())
                     }
-                    _ => (),
+                    Some(msg) => {
+                        warn!("未知消息 {}", msg.yellow())
+                    }
+                    None => (),
                 }
             }
         }
