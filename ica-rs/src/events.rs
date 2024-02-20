@@ -30,6 +30,18 @@ pub fn add_message(payload: Payload, _client: RawClient) {
     }
 }
 
+/// 撤回消息
+pub fn delete_message(payload: Payload, _client: RawClient) {
+    if let Payload::Text(values) = payload {
+        // 消息 id
+        if let Some(value) = values.first() {
+            if let Some(msg_id) = value.as_str() {
+                warn!("delete_message {}", format!("{}", msg_id).yellow());
+            }
+        }
+    }
+}
+
 pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
     let handled = vec![
         // 真正处理过的
@@ -39,9 +51,11 @@ pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
         "requireAuth",
         "onlineData",
         "addMessage",
+        "deleteMessage",
         // "setAllRooms",
         // 忽略的
         "notify",
+        "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "updateRoom",
     ];
     match &event {

@@ -36,6 +36,7 @@ fn main() {
         .on("authFailed", events::connect_callback)
         .on("onlineData", events::get_online_data)
         .on("addMessage", events::add_message)
+        .on("deleteMessage", events::delete_message)
         .connect()
         .expect("Connection failed");
 
