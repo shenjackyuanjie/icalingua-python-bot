@@ -11,6 +11,7 @@ pub struct IcalinguaStatus {
     pub login: bool,
     pub online_data: Option<OnlineData>,
     pub rooms: Option<Vec<Room>>,
+    pub config: Option<IcaConfig>,
 }
 
 impl IcalinguaStatus {
@@ -19,6 +20,7 @@ impl IcalinguaStatus {
             login: false,
             online_data: None,
             rooms: None,
+            config: Some(IcaConfig::new_from_cli()),
         }
     }
 
@@ -32,6 +34,14 @@ impl IcalinguaStatus {
 
     pub fn update_login_status(&mut self, login: bool) {
         self.login = login;
+    }
+
+    pub fn update_config(&mut self, config: IcaConfig) {
+        self.config = Some(config);
+    }
+
+    pub fn get_config(&self) -> &IcaConfig {
+        self.config.as_ref().unwrap()
     }
 }
 

@@ -5,7 +5,7 @@ use serde::Deserialize;
 use toml::from_str;
 
 /// Icalingua bot 的配置
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct IcaConfig {
     /// icalingua 私钥
     pub private_key: String,
