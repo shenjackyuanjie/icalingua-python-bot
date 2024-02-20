@@ -153,7 +153,7 @@ impl NewMessage {
             .map(|t| NaiveDateTime::from_timestamp_micros(t).unwrap_or(current))
             .unwrap_or(current);
         // 身份
-        let role = message["role"].as_str().unwrap();
+        let role = message["role"].as_str().unwrap_or("unknown");
         // 文件
         let files: Vec<MessageFile> = message["files"]
             .as_array()

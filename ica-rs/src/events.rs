@@ -4,8 +4,10 @@ use tracing::{info, warn};
 
 use crate::data_struct::messages::NewMessage;
 use crate::data_struct::online_data::OnlineData;
+use crate::data_struct::all_rooms::Room;
 use crate::py;
 
+/// 获取在线数据
 pub fn get_online_data(payload: Payload, _client: RawClient) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
@@ -21,6 +23,7 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
     }
 }
 
+/// 接收消息
 pub fn add_message(payload: Payload, _client: RawClient) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
@@ -42,6 +45,21 @@ pub fn delete_message(payload: Payload, _client: RawClient) {
     }
 }
 
+pub fn update_all_room(payload: Payload, _client: RawClient) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            if let Some(raw_rooms) = value.as_array() {
+                let rooms: Vec<Room> = raw_rooms
+                    .iter()
+                    .map(|room| Room::new_from_json(room))
+                    .collect();
+                info!("update_all_room {}", format!("{:#?}", rooms).purple());
+            }
+        }
+    }
+}
+
+/// 所有
 pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
     let handled = vec![
         // 真正处理过的
@@ -52,7 +70,7 @@ pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
         "onlineData",
         "addMessage",
         "deleteMessage",
-        // "setAllRooms",
+        "setAllRooms",
         // 忽略的
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading

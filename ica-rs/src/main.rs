@@ -35,6 +35,7 @@ fn main() {
         .on("authSucceed", events::connect_callback)
         .on("authFailed", events::connect_callback)
         .on("onlineData", events::get_online_data)
+        .on("setAllRooms", events::update_all_room)
         .on("addMessage", events::add_message)
         .on("deleteMessage", events::delete_message)
         .connect()
