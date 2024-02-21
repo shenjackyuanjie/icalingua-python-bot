@@ -1,17 +1,19 @@
 use crate::config::IcaConfig;
 use crate::data_struct::messages::SendMessage;
 use crate::data_struct::{all_rooms::Room, online_data::OnlineData};
+use crate::ClientStatus;
 
-use ed25519_dalek::{Signature, Signer, SigningKey};
-use rust_socketio::{Payload, RawClient};
-use serde_json::Value;
 use colored::Colorize;
+use ed25519_dalek::{Signature, Signer, SigningKey};
+use rust_socketio::asynchronous::Client;
+use rust_socketio::Payload;
+use serde_json::Value;
 use tracing::{debug, warn};
 
 /// "安全" 的 发送一条消息
-pub fn send_message(client: RawClient, message: SendMessage) {
+pub async fn send_message(client: Client, message: SendMessage) {
     let value = message.as_value();
-    match client.emit("sendMessage", value) {
+    match client.emit("sendMessage", value).await {
         Ok(_) => debug!("send_message {}", format!("{:#?}", message).cyan()),
         Err(e) => warn!("send_message faild:{}", format!("{:#?}", e).red()),
     }
@@ -51,64 +53,48 @@ impl IcalinguaStatus {
         self.config = Some(config);
     }
 
-    pub fn get_online_data(&self) -> &OnlineData {
-        self.online_data.as_ref().unwrap()
+    pub fn get_online_data() -> &'static OnlineData {
+        unsafe {
+            ClientStatus
+                .online_data
+                .as_ref()
+                .expect("online_data should be set")
+        }
     }
 
-    pub fn get_config(&self) -> &IcaConfig {
-        self.config.as_ref().unwrap()
+    pub fn get_config() -> &'static IcaConfig {
+        unsafe { ClientStatus.config.as_ref().expect("config should be set") }
     }
 }
 
-pub struct IcalinguaSinger {
-    pub host: String,
-    pub private_key: SigningKey,
-}
-
-impl IcalinguaSinger {
-    pub fn new_from_config(config: &IcaConfig) -> Self {
-        let host = config.host.clone();
-        let pub_key = config.private_key.clone();
-        Self::new_from_raw(host, pub_key)
+pub async fn sign_callback(payload: Payload, client: Client) {
+    // 获取数据
+    let require_data = match payload {
+        Payload::Text(json_value) => Some(json_value),
+        _ => None,
     }
+    .expect("Payload should be Json data");
 
-    pub fn new_from_raw(host: String, pub_key: String) -> Self {
-        let array_key: [u8; 32] = hex::decode(pub_key)
-            .expect("Not a vaild pub key")
-            .try_into()
-            .expect("Not a vaild pub key");
-
-        let signing_key: SigningKey = SigningKey::from_bytes(&array_key);
-        Self {
-            host,
-            private_key: signing_key,
-        }
+    let (auth_key, version) = (&require_data[0], &require_data[1]);
+    debug!("auth_key: {:?}, version: {:?}", auth_key, version);
+    let auth_key = match &require_data.get(0) {
+        Some(Value::String(auth_key)) => Some(auth_key),
+        _ => None,
     }
+    .expect("auth_key should be string");
+    let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
+    // 签名
+    let private_key = IcalinguaStatus::get_config().private_key.clone();
+    let array_key: [u8; 32] = hex::decode(private_key)
+        .expect("Not a vaild pub key")
+        .try_into()
+        .expect("Not a vaild pub key");
+    let signing_key: SigningKey = SigningKey::from_bytes(&array_key);
+    let signature: Signature = signing_key.sign(salt.as_slice());
 
-    /// 最痛苦的一集
-    ///
-    /// 签名的回调函数
-    pub fn sign_callback(&self, payload: Payload, client: RawClient) {
-        let require_data = match payload {
-            Payload::Text(json_value) => Some(json_value),
-            _ => None,
-        }
-        .expect("Payload should be Json data");
-
-        let (auth_key, version) = (&require_data[0], &require_data[1]);
-        debug!("auth_key: {:?}, version: {:?}", auth_key, version);
-        let auth_key = match &require_data.get(0) {
-            Some(Value::String(auth_key)) => Some(auth_key),
-            _ => None,
-        }
-        .expect("auth_key should be string");
-
-        let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
-        let signature: Signature = self.private_key.sign(salt.as_slice());
-
-        let sign = signature.to_bytes().to_vec();
-        client
-            .emit("auth", sign)
-            .expect("Faild to send signin data");
-    }
+    let sign = signature.to_bytes().to_vec();
+    client
+        .emit("auth", sign)
+        .await
+        .expect("Faild to send signin data");
 }

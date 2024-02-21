@@ -1,6 +1,6 @@
+use crate::client::IcalinguaStatus;
 use crate::data_struct::files::MessageFile;
 use crate::data_struct::{MessageId, RoomId, UserId};
-use crate::ClientStatus;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
@@ -217,9 +217,7 @@ impl NewMessage {
     }
 
     pub fn is_from_self(&self) -> bool {
-        let qq_id = unsafe {
-            ClientStatus.get_online_data().qqid
-        };
+        let qq_id = IcalinguaStatus::get_online_data().qqid;
         self.sender_id == qq_id
     }
 

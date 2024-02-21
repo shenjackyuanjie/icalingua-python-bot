@@ -2,9 +2,9 @@ pub mod class;
 
 use std::{collections::HashMap, path::PathBuf};
 
+use blake3::Hasher;
 use pyo3::{prelude::*, types::IntoPyDict};
 use tracing::{debug, info, warn};
-use blake3::Hasher;
 
 use crate::config::IcaConfig;
 
@@ -22,7 +22,7 @@ impl PyStatus {
                     debug!("No files in py status");
                     PYSTATUS.files = Some(HashMap::new());
                     PYSTATUS.files.as_ref().unwrap()
-                },
+                }
             }
         }
     }
@@ -32,12 +32,12 @@ impl PyStatus {
             match PYSTATUS.files.as_mut() {
                 Some(files) => {
                     files.insert(path, (content, hash));
-                },
+                }
                 None => {
                     let mut files = HashMap::new();
                     files.insert(path, (content, hash));
                     PYSTATUS.files = Some(files);
-                },
+                }
             }
         }
     }
@@ -45,11 +45,9 @@ impl PyStatus {
     pub fn verify_file(path: &PathBuf, hash: &String) -> bool {
         unsafe {
             match PYSTATUS.files.as_ref() {
-                Some(files) => {
-                    match files.get(path) {
-                        Some((_, file_hash)) => file_hash == hash,
-                        None => false,
-                    }
+                Some(files) => match files.get(path) {
+                    Some((_, file_hash)) => file_hash == hash,
+                    None => false,
                 },
                 None => false,
             }
@@ -65,7 +63,12 @@ pub fn run() {
         let _bot_status: &PyCell<_> = PyCell::new(py, bot_status).unwrap();
 
         let locals = [("state", _bot_status)].into_py_dict(py);
-        py.run("from pathlib import Path\nprint(Path.cwd())\nprint(state)", None, Some(locals)).unwrap();
+        py.run(
+            "from pathlib import Path\nprint(Path.cwd())\nprint(state)",
+            None,
+            Some(locals),
+        )
+        .unwrap();
     });
 }
 
@@ -94,9 +97,7 @@ pub fn init_py(config: &IcaConfig) {
                         if let Ok(entry) = entry {
                             let path = entry.path();
                             if let Some(ext) = path.extension() {
-                                if ext == "py" {
-
-                                }
+                                if ext == "py" {}
                             }
                         }
                     }

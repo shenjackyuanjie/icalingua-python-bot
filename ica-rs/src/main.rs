@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use rust_socketio::ClientBuilder;
+use futures_util::FutureExt;
+use rust_socketio::asynchronous::{Client, ClientBuilder};
+use rust_socketio::{Event, Payload, TransportType};
 use tracing::info;
 
 mod client;
@@ -19,7 +21,20 @@ pub static mut ClientStatus: client::IcalinguaStatus = client::IcalinguaStatus {
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-fn main() {
+macro_rules! wrap_callback {
+    ($f:expr) => {
+        |payload: Payload, client: Client| $f(payload, client).boxed()
+    };
+}
+
+macro_rules! wrap_any_callback {
+    ($f:expr) => {
+        |event: Event, payload: Payload, client: Client| $f(event, payload, client).boxed()
+    };
+}
+
+#[tokio::main]
+async fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
@@ -31,20 +46,20 @@ fn main() {
         ClientStatus.update_config(ica_config.clone());
     }
     py::init_py(&ica_config);
-    let ica_singer = client::IcalinguaSinger::new_from_config(&ica_config);
 
-    let socket = ClientBuilder::new(ica_singer.host.clone())
-        .transport_type(rust_socketio::TransportType::Websocket)
-        .on_any(events::any_event)
-        .on("requireAuth", move |a, b| ica_singer.sign_callback(a, b))
-        .on("message", events::connect_callback)
-        .on("authSucceed", events::connect_callback)
-        .on("authFailed", events::connect_callback)
-        .on("onlineData", events::get_online_data)
-        .on("setAllRooms", events::update_all_room)
-        .on("addMessage", events::add_message)
-        .on("deleteMessage", events::delete_message)
+    let socket = ClientBuilder::new(ica_config.host.clone())
+        .transport_type(TransportType::Websocket)
+        .on_any(wrap_any_callback!(events::any_event))
+        .on("requireAuth", wrap_callback!(client::sign_callback))
+        .on("message", wrap_callback!(events::connect_callback))
+        .on("authSucceed", wrap_callback!(events::connect_callback))
+        .on("authFailed", wrap_callback!(events::connect_callback))
+        .on("onlineData", wrap_callback!(events::get_online_data))
+        .on("setAllRooms", wrap_callback!(events::update_all_room))
+        .on("addMessage", wrap_callback!(events::add_message))
+        .on("deleteMessage", wrap_callback!(events::delete_message))
         .connect()
+        .await
         .expect("Connection failed");
 
     info!("Connected");
@@ -58,7 +73,10 @@ fn main() {
             );
             std::thread::sleep(Duration::from_secs(1));
             info!("发送启动消息到房间: {}", room);
-            if let Err(e) = socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()) {
+            if let Err(e) = socket
+                .emit("sendMessage", serde_json::to_value(startup_msg).unwrap())
+                .await
+            {
                 info!("启动信息发送失败 房间:{}|e:{}", room, e);
             }
         }
@@ -69,6 +87,7 @@ fn main() {
     info!("Press any key to exit");
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
-    socket.disconnect().expect("Disconnect failed");
+
+    socket.disconnect().await.expect("Disconnect failed");
     info!("Disconnected");
 }

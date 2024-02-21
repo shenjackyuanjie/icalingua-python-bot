@@ -1,5 +1,6 @@
 use colored::Colorize;
-use rust_socketio::{Event, Payload, RawClient};
+use rust_socketio::asynchronous::Client;
+use rust_socketio::{Event, Payload};
 use tracing::{info, warn};
 
 use crate::client::send_message;
@@ -9,7 +10,7 @@ use crate::data_struct::online_data::OnlineData;
 use crate::{py, VERSION};
 
 /// 获取在线数据
-pub fn get_online_data(payload: Payload, _client: RawClient) {
+pub async fn get_online_data(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
@@ -25,7 +26,7 @@ pub fn get_online_data(payload: Payload, _client: RawClient) {
 }
 
 /// 接收消息
-pub fn add_message(payload: Payload, client: RawClient) {
+pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let message = NewMessage::new_from_json(value);
@@ -40,14 +41,14 @@ pub fn add_message(payload: Payload, client: RawClient) {
             // 之后的处理交给插件
             if message.content.eq("/bot-rs") {
                 let reply = message.reply_with(&format!("ica-rs pong v{}", VERSION));
-                send_message(client, reply)
+                send_message(client, reply).await;
             }
         }
     }
 }
 
 /// 撤回消息
-pub fn delete_message(payload: Payload, _client: RawClient) {
+pub async fn delete_message(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         // 消息 id
         if let Some(value) = values.first() {
@@ -58,7 +59,7 @@ pub fn delete_message(payload: Payload, _client: RawClient) {
     }
 }
 
-pub fn update_all_room(payload: Payload, _client: RawClient) {
+pub async fn update_all_room(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             if let Some(raw_rooms) = value.as_array() {
@@ -76,7 +77,7 @@ pub fn update_all_room(payload: Payload, _client: RawClient) {
 }
 
 /// 所有
-pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
+pub async fn any_event(event: Event, payload: Payload, _client: Client) {
     let handled = vec![
         // 真正处理过的
         "authSucceed",
@@ -128,7 +129,7 @@ pub fn any_event(event: Event, payload: Payload, _client: RawClient) {
     }
 }
 
-pub fn connect_callback(payload: Payload, _client: RawClient) {
+pub async fn connect_callback(payload: Payload, _client: Client) {
     match payload {
         Payload::Text(values) => {
             if let Some(value) = values.first() {
