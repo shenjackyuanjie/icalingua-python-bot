@@ -67,7 +67,7 @@ async fn main() {
     if ica_config.notice_start {
         for room in ica_config.notice_room.iter() {
             let startup_msg = crate::data_struct::messages::SendMessage::new(
-                format!("ica-rs bot v{}", VERSION),
+                format!("ica-async-rs bot v{}", VERSION),
                 room.clone(),
                 None,
             );
@@ -90,4 +90,5 @@ async fn main() {
 
     socket.disconnect().await.expect("Disconnect failed");
     info!("Disconnected");
+
 }
