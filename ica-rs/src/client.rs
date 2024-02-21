@@ -11,11 +11,17 @@ use serde_json::Value;
 use tracing::{debug, warn};
 
 /// "安全" 的 发送一条消息
-pub async fn send_message(client: Client, message: SendMessage) {
+pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
     let value = message.as_value();
     match client.emit("sendMessage", value).await {
-        Ok(_) => debug!("send_message {}", format!("{:#?}", message).cyan()),
-        Err(e) => warn!("send_message faild:{}", format!("{:#?}", e).red()),
+        Ok(_) => {
+            debug!("send_message {}", format!("{:#?}", message).cyan());
+            true
+        }
+        Err(e) => {
+            warn!("send_message faild:{}", format!("{:#?}", e).red());
+            false
+        }
     }
 }
 

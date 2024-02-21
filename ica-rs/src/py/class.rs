@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
+use rust_socketio::asynchronous::Client;
 
+use crate::client::send_message;
 use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};
 use crate::ClientStatus;
 
@@ -137,6 +139,7 @@ impl ReplyMessagePy {
     }
 }
 
+#[derive(Clone)]
 #[pyclass]
 #[pyo3(name = "SendMessage")]
 pub struct SendMessagePy {
@@ -146,5 +149,38 @@ pub struct SendMessagePy {
 impl SendMessagePy {
     pub fn new(msg: SendMessage) -> Self {
         Self { msg }
+    }
+}
+
+#[derive(Clone)]
+#[pyclass]
+#[pyo3(name = "IcaClient")]
+pub struct IcaClientPy {
+    pub client: Client,
+}
+
+#[pymethods]
+impl IcaClientPy {
+    // fn send_message(&self, message: SendMessagePy) -> bool {
+    //     // Some(send_message(&self.client, &message.msg).await)
+    //     true
+    //     // // Ok(send_message(&self.client, &message.msg).await)
+    //     // let mut future;
+    //     // Python::with_gil(|gil| {
+    //     //     let this = self_.borrow(gil);
+    //     //     future = send_message(&this.client, &message.msg);
+    //     // });
+    //     // Ok(future.await)
+    // }
+    #[staticmethod]
+    pub fn send_message(
+        py: Python,
+        client: IcaClientPy,
+        message: SendMessagePy,
+    ) -> PyResult<&PyAny> {
+        // send_message(&client.client, &message.msg).await
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(send_message(&client.client, &message.msg).await)
+        })
     }
 }

@@ -44,3 +44,9 @@ class SendMessage:
 class NewMessage:
     def reply_with(self, message: str) -> SendMessage:
         ...
+
+
+class IcaClient:
+    @staticmethod
+    async def send_message(client: "IcaClient", message: SendMessage) -> bool:
+        ...

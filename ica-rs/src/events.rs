@@ -41,7 +41,7 @@ pub async fn add_message(payload: Payload, client: Client) {
             // 之后的处理交给插件
             if message.content.eq("/bot-rs") {
                 let reply = message.reply_with(&format!("ica-async-rs pong v{}", VERSION));
-                send_message(client, reply).await;
+                send_message(&client, &reply).await;
             }
         }
     }
