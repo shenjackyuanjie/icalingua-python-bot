@@ -90,5 +90,4 @@ async fn main() {
 
     socket.disconnect().await.expect("Disconnect failed");
     info!("Disconnected");
-
 }

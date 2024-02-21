@@ -112,6 +112,13 @@ pub struct NewMessagePy {
     pub msg: NewMessage,
 }
 
+#[pymethods]
+impl NewMessagePy {
+    pub fn reply_with(&self, content: String) -> SendMessagePy {
+        SendMessagePy::new(self.msg.reply_with(&content))
+    }
+}
+
 impl NewMessagePy {
     pub fn new(msg: &NewMessage) -> Self {
         Self { msg: msg.clone() }

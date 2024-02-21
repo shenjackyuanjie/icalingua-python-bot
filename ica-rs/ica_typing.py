@@ -33,13 +33,14 @@ class IcaStatus:
         ...
 
 
-class NewMessage:
-    ...
-
-
 class ReplyMessage:
     ...
 
 
 class SendMessage:
     ...
+
+
+class NewMessage:
+    def reply_with(self, message: str) -> SendMessage:
+        ...
