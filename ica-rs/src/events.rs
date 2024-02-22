@@ -137,7 +137,6 @@ pub async fn connect_callback(payload: Payload, _client: Client) {
             if let Some(value) = values.first() {
                 match value.as_str() {
                     Some("authSucceed") => {
-                        py::run();
                         info!("{}", "已经登录到 icalingua!".green())
                     }
                     Some("authFailed") => {

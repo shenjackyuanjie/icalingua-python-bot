@@ -195,33 +195,22 @@ pub struct IcaClientPy {
 
 #[pymethods]
 impl IcaClientPy {
-    // fn send_message(&self, message: SendMessagePy) -> bool {
-    //     // Some(send_message(&self.client, &message.msg).await)
-    //     true
-    //     // // Ok(send_message(&self.client, &message.msg).await)
-    //     // let mut future;
-    //     // Python::with_gil(|gil| {
-    //     //     let this = self_.borrow(gil);
-    //     //     future = send_message(&this.client, &message.msg);
-    //     // });
-    //     // Ok(future.await)
-    // }
     pub fn send_message(&self, message: SendMessagePy) -> bool {
-        // let handle = tokio::runtime::Handle::current();
-        // handle.block_on(send_message(&self.client, &message.msg))
         tokio::task::block_in_place(|| {
             let rt = Runtime::new().unwrap();
             rt.block_on(send_message(&self.client, &message.msg))
         })
     }
 
+    /// 仅作占位
+    /// (因为目前来说, rust调用 Python端没法启动一个异步运行时
+    /// 所以只能 tokio::task::block_in_place 转换成同步调用)
     #[staticmethod]
     pub fn send_message_a(
         py: Python,
         client: IcaClientPy,
         message: SendMessagePy,
     ) -> PyResult<&PyAny> {
-        // send_message(&client.client, &message.msg).await
         pyo3_asyncio::tokio::future_into_py(py, async move {
             Ok(send_message(&client.client, &message.msg).await)
         })

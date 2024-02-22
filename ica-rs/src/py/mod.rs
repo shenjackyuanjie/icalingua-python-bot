@@ -34,8 +34,10 @@ impl PyStatus {
             match PYSTATUS.files.as_mut() {
                 Some(files) => {
                     files.insert(path, (changed_time, py_module));
+                    debug!("Added file to py status, {:?}", files);
                 }
                 None => {
+                    warn!("No files in py status, creating new");
                     let mut files = HashMap::new();
                     files.insert(path, (changed_time, py_module));
                     PYSTATUS.files = Some(files);
@@ -44,11 +46,20 @@ impl PyStatus {
         }
     }
 
-    pub fn verify_file(path: &PathBuf, change_time: &Option<SystemTime>) -> bool {
+    pub fn verify_file(path: &PathBuf) -> bool {
         unsafe {
             match PYSTATUS.files.as_ref() {
                 Some(files) => match files.get(path) {
-                    Some((changed_time, _)) => change_time == changed_time,
+                    Some((changed_time, _)) => {
+                        if let Some(changed_time) = changed_time {
+                            if let Some(new_changed_time) = get_change_time(path) {
+                                if new_changed_time != *changed_time {
+                                    return false;
+                                }
+                            }
+                        }
+                        true
+                    },
                     None => false,
                 },
                 None => false,
@@ -58,21 +69,6 @@ impl PyStatus {
 }
 
 pub static mut PYSTATUS: PyStatus = PyStatus { files: None };
-
-pub fn run() {
-    Python::with_gil(|py| {
-        let bot_status = class::IcaStatusPy::new();
-        let _bot_status: &PyCell<_> = PyCell::new(py, bot_status).unwrap();
-
-        let locals = [("state", _bot_status)].into_py_dict(py);
-        py.run(
-            "from pathlib import Path\nprint(Path.cwd())\nprint(state)",
-            None,
-            Some(locals),
-        )
-        .unwrap();
-    });
-}
 
 pub fn load_py_plugins(path: &PathBuf) {
     if path.exists() {
@@ -90,18 +86,25 @@ pub fn load_py_plugins(path: &PathBuf) {
                             if ext == "py" {
                                 match load_py_file(&path) {
                                     Ok((changed_time, content)) => {
-                                        let py_module = Python::with_gil(|py| -> Py<PyAny> {
-                                            let module: Py<PyAny> = PyModule::from_code(
+                                        let py_module: PyResult<Py<PyAny>> = Python::with_gil(|py| -> PyResult<Py<PyAny>> {
+                                            let module: PyResult<Py<PyAny>> = PyModule::from_code(
                                                 py,
                                                 &content,
                                                 &path.to_string_lossy(),
-                                                "",
+                                                &path.to_string_lossy()
                                             )
-                                            .unwrap()
-                                            .into();
+                                            .map(|module| module.into());
                                             module
                                         });
-                                        PyStatus::add_file(path, changed_time, py_module);
+                                        match py_module {
+                                            Ok(py_module) => {
+                                                info!("加载到插件: {:?}", path);
+                                                PyStatus::add_file(path, changed_time, py_module);
+                                            }
+                                            Err(e) => {
+                                                warn!("failed to load file: {:?} | e: {:?}", path, e);
+                                            }
+                                        }
                                     }
                                     Err(e) => {
                                         warn!("failed to load file: {:?} | e: {:?}", path, e);
@@ -121,6 +124,31 @@ pub fn load_py_plugins(path: &PathBuf) {
         path,
         PyStatus::get_files().len()
     );
+}
+
+pub fn verify_plugins() {
+    let plugins = PyStatus::get_files();
+    for (path, _) in plugins.iter() {
+        if !PyStatus::verify_file(path) {
+            info!("file changed: {:?}", path);
+            if let Ok((changed_time, content)) = load_py_file(path) {
+                let py_module = Python::with_gil(|py| -> Py<PyAny> {
+                    let module: Py<PyAny> = PyModule::from_code(
+                        py,
+                        &content,
+                        &path.to_string_lossy(),
+                        &path.to_string_lossy(),
+                        // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
+                    )
+                    .unwrap()
+                    .into();
+                    module
+                });
+                PyStatus::add_file(path.clone(), changed_time, py_module);
+            }
+        }
+    }
+
 }
 
 pub fn get_change_time(path: &PathBuf) -> Option<SystemTime> {
@@ -149,13 +177,20 @@ pub fn init_py(config: &IcaConfig) {
 
 /// 执行 new message 的 python 插件
 pub async fn new_message_py(message: &NewMessage, client: &Client) {
+    // 验证插件是否改变
+    verify_plugins();
     let cwd = std::env::current_dir().unwrap();
+
     let plugins = PyStatus::get_files();
     for (path, (_, py_module)) in plugins.iter() {
         // 切换工作目录到运行的插件的位置
-        if let Err(e) = std::env::set_current_dir(path.parent().unwrap()) {
-            warn!("failed to set current dir: {:?}", e);
+        let mut goto = cwd.clone();
+        goto.push(path.parent().unwrap());
+        
+        if let Err(e) = std::env::set_current_dir(&goto) {
+            warn!("移动工作目录到 {:?} 失败 {:?} cwd: {:?}", goto, e, cwd);
         }
+
         Python::with_gil(|py| {
             let msg = class::NewMessagePy::new(message);
             let client = class::IcaClientPy::new(client);
@@ -171,8 +206,9 @@ pub async fn new_message_py(message: &NewMessage, client: &Client) {
             }
         });
     }
+
     // 最后切换回来
-    if let Err(e) = std::env::set_current_dir(cwd) {
-        warn!("failed to set current dir: {:?}", e);
+    if let Err(e) = std::env::set_current_dir(&cwd) {
+        warn!("设置工作目录{:?} 失败:{:?}", cwd, e);
     }
 }
