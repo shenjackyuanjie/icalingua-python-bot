@@ -94,7 +94,7 @@ def parse_rank(data: dict) -> dict:
     return {
         "name": data["name"],
         "start": data["isEnabled"],
-        "full": "全量" if "fullSize" in data else "分片",
+        # "full": "全量" if "fullSize" in data else "分片",
         # "version": data["version"] if "version" in data else "未知版本",
         "owner": data["sponsor"]["name"] if "sponsor" in data else "未知用户",
         "rank": rank_data
@@ -148,7 +148,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
                 reply = msg.reply_with(f"搜索|{name}|到{len(counts)}个节点, 请用更精确的名字")
             else:
                 # 4~10  个节点 只显示名称和次序
-                find_msg = [f"{r['full']}-{'✅' if r['start'] else '❌'}{r['name']}-No.{i+1}" for i, r in enumerate(ranks) if finds[i]]
+                find_msg = [f"{'✅' if r['start'] else '❌'}{r['name']}-No.{i+1}" for i, r in enumerate(ranks) if finds[i]]
                 find_msg = "\n".join(find_msg)
                 report_msg = f"OpenBMCLAPI 面板v{_version_}-搜索|{name}|\n{find_msg}\n"
                 reply = msg.reply_with(report_msg)
