@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
+use tokio::runtime::Runtime;
 
 use crate::client::send_message;
 use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};
@@ -120,6 +121,23 @@ impl NewMessagePy {
     pub fn reply_with(&self, content: String) -> SendMessagePy {
         SendMessagePy::new(self.msg.reply_with(&content))
     }
+
+    pub fn __str__(&self) -> String {
+        format!("{:?}", self.msg)
+    }
+
+    #[getter]
+    pub fn get_content(&self) -> String {
+        self.msg.content.clone()
+    }
+    #[getter]
+    pub fn get_sender_id(&self) -> i64 {
+        self.msg.sender_id
+    }
+    #[getter]
+    pub fn get_is_from_self(&self) -> bool {
+        self.msg.is_from_self()
+    }
 }
 
 impl NewMessagePy {
@@ -134,6 +152,13 @@ pub struct ReplyMessagePy {
     pub msg: ReplyMessage,
 }
 
+#[pymethods]
+impl ReplyMessagePy {
+    pub fn __str__(&self) -> String {
+        format!("{:?}", self.msg)
+    }
+}
+
 impl ReplyMessagePy {
     pub fn new(msg: ReplyMessage) -> Self {
         Self { msg }
@@ -145,6 +170,13 @@ impl ReplyMessagePy {
 #[pyo3(name = "SendMessage")]
 pub struct SendMessagePy {
     pub msg: SendMessage,
+}
+
+#[pymethods]
+impl SendMessagePy {
+    pub fn __str__(&self) -> String {
+        format!("{:?}", self.msg)
+    }
 }
 
 impl SendMessagePy {
@@ -173,8 +205,17 @@ impl IcaClientPy {
     //     // });
     //     // Ok(future.await)
     // }
+    pub fn send_message(&self, message: SendMessagePy) -> bool {
+        // let handle = tokio::runtime::Handle::current();
+        // handle.block_on(send_message(&self.client, &message.msg))
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(send_message(&self.client, &message.msg))
+        })
+    }
+
     #[staticmethod]
-    pub fn send_message(
+    pub fn send_message_a(
         py: Python,
         client: IcaClientPy,
         message: SendMessagePy,

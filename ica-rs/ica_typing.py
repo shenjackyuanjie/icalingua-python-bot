@@ -44,11 +44,25 @@ class SendMessage:
 class NewMessage:
     def reply_with(self, message: str) -> SendMessage:
         ...
+    def __str__(self) -> str:
+        ...
+    @property
+    def content(self) -> str:
+        ...
+    @property
+    def sender_id(self) -> int:
+        ...
+    @property
+    def is_from_self(self) -> bool:
+        ...
 
 
 class IcaClient:
     @staticmethod
-    async def send_message(client: "IcaClient", message: SendMessage) -> bool:
+    async def send_message_a(client: "IcaClient", message: SendMessage) -> bool:
+        ...
+    
+    def send_message(self, message: SendMessage) -> bool:
         ...
 
 
