@@ -3,7 +3,7 @@ pub mod class;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
 
-use pyo3::{prelude::*, types::IntoPyDict};
+use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
