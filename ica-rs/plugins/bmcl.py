@@ -178,7 +178,13 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
 
 help = """/bmcl -> dashboard
 /bmcl rank -> all rank
-/bmcl rank <name> -> rank of <name>"""
+/bmcl rank <name> -> rank of <name>
+/brrs <name> -> rank of <name>
+搜索限制:
+1- 3 显示全部信息
+4-10 显示状态、名称
+11+  不显示
+"""
 
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
@@ -194,3 +200,11 @@ def on_message(msg: NewMessage, client: IcaClient) -> None:
             else:
                 reply = msg.reply_with(help)
                 client.send_message(reply)
+        elif msg.content.startswith("/brrs"):
+            if msg.content == "/brrs":
+                reply = msg.reply_with(help)
+                client.send_message(reply)
+            else:
+                if len(msg.content) > 6:
+                    name = msg.content[6:]
+                    bmcl_rank(msg, client, name)
