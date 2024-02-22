@@ -7,6 +7,7 @@ use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
+use crate::client::IcalinguaStatus;
 use crate::config::IcaConfig;
 use crate::data_struct::messages::NewMessage;
 
@@ -21,7 +22,6 @@ impl PyStatus {
             match PYSTATUS.files.as_ref() {
                 Some(files) => files,
                 None => {
-                    debug!("No files in py status");
                     PYSTATUS.files = Some(HashMap::new());
                     PYSTATUS.files.as_ref().unwrap()
                 }
@@ -34,10 +34,8 @@ impl PyStatus {
             match PYSTATUS.files.as_mut() {
                 Some(files) => {
                     files.insert(path, (changed_time, py_module));
-                    debug!("Added file to py status, {:?}", files);
                 }
                 None => {
-                    warn!("No files in py status, creating new");
                     let mut files = HashMap::new();
                     files.insert(path, (changed_time, py_module));
                     PYSTATUS.files = Some(files);
@@ -127,28 +125,47 @@ pub fn load_py_plugins(path: &PathBuf) {
 }
 
 pub fn verify_plugins() {
-    let plugins = PyStatus::get_files();
-    for (path, _) in plugins.iter() {
-        if !PyStatus::verify_file(path) {
-            info!("file changed: {:?}", path);
-            if let Ok((changed_time, content)) = load_py_file(path) {
+    let mut need_reload_files: Vec<PathBuf> = Vec::new();
+    let plugin_path = IcalinguaStatus::get_config().py_plugin_path.as_ref().unwrap().to_owned();
+    for entry in std::fs::read_dir(&plugin_path).unwrap() {
+        if let Ok(entry) = entry {
+            let path = entry.path();
+            if let Some(ext) = path.extension() {
+                if ext == "py" {
+                    if !PyStatus::verify_file(&path) {
+                        need_reload_files.push(path);
+                    }
+                }
+            }
+        }
+    }
+
+    if need_reload_files.is_empty() {
+        return;
+    }
+    info!("file change list: {:?}", need_reload_files);
+    for reload_file in need_reload_files {
+        match load_py_file(&reload_file) {
+            Ok((changed_time, content)) => {
                 let py_module = Python::with_gil(|py| -> Py<PyAny> {
                     let module: Py<PyAny> = PyModule::from_code(
                         py,
                         &content,
-                        &path.to_string_lossy(),
-                        &path.to_string_lossy(),
+                        &reload_file.to_string_lossy(),
+                        &reload_file.to_string_lossy(),
                         // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
                     )
                     .unwrap()
                     .into();
                     module
                 });
-                PyStatus::add_file(path.clone(), changed_time, py_module);
+                PyStatus::add_file(reload_file.clone(), changed_time, py_module);
+            },
+            Err(e) => {
+                warn!("重载 Python 插件: {:?} 失败, e: {:?}", reload_file, e);
             }
         }
     }
-
 }
 
 pub fn get_change_time(path: &PathBuf) -> Option<SystemTime> {

@@ -30,13 +30,7 @@ pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let message = NewMessage::new_from_json(value);
-            info!("add_message {}", format!("{:#?}", message).cyan());
-            // if message.is_reply() {
-            //     return;
-            // }
-            // if message.is_from_self() {
-            //     return;
-            // }
+            info!("add_message {}", message.output().cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if message.content.eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {

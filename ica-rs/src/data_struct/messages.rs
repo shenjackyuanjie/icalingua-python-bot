@@ -194,6 +194,13 @@ impl NewMessage {
         }
     }
 
+    pub fn output(&self) -> String {
+        format!(
+            "Room: {}, Sender: {}|{}, Content: {}",
+            self.room_id, self.sender_id, self.sender_name, self.content
+        )
+    }
+
     /// 作为回复消息使用
     pub fn as_reply(&self) -> ReplyMessage {
         ReplyMessage {
