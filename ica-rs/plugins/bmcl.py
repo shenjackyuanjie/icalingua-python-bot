@@ -152,7 +152,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
             if find:
                 rank = ranks[i]
                 rank_msg = (
-                    f"名称: {rank['name']}-No.{i}\n"
+                    f"名称: {rank['name']}-No.{i+1}\n"
                     # f"-{rank['full']} \n"
                     # f"版本: {rank['version']}\n"
                     f"拥有者: {rank['owner']} 状态: {rank['start']}|"
