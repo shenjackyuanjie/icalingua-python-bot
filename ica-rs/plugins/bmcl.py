@@ -144,8 +144,16 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
         # 如果找到 > 3 个节点, 则提示 不显示
         counts = [True for find in finds if find]
         if len(counts) > 3:
-            reply = msg.reply_with(f"搜索|{name}|到{len(counts)}个节点, 请用更精确的名字")
-            client.send_message(reply)
+            if len(counts) > 10:
+                reply = msg.reply_with(f"搜索|{name}|到{len(counts)}个节点, 请用更精确的名字")
+                client.send_message(reply)
+            else:
+                # 4~10  个节点 只显示名称和次序
+                find_msg = [f"{r['name']}-No.{i+1}" for i, r in enumerate(ranks) if finds[i]]
+                find_msg = "\n".join(find_msg)
+                report_msg = f"OpenBMCLAPI 面板v{_version_}-搜索|{name}|\n{find_msg}\n"
+                reply = msg.reply_with(report_msg)
+                client.info(report_msg)
             return
         rank_msgs = []
         for i, find in enumerate(finds):
