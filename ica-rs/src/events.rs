@@ -88,6 +88,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "updateRoom",
+        "syncRead",
     ];
     match &event {
         Event::Custom(event_name) => {
