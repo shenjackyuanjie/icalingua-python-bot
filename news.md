@@ -1,5 +1,9 @@
 # 更新日志
 
+## 0.4.5
+
+添加 `is_reply` api 到 `NewMessagePy`
+
 ## 0.4.4
 
 现在正式支持 Python 插件了
