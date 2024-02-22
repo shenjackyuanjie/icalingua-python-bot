@@ -10,7 +10,7 @@ else:
     NewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.1.0-rs"
+_version_ = "2.1.1-rs"
 
 def format_data_size(data_bytes: float) -> str:
     data_lens = ["B", "KB", "MB", "GB", "TB"]
@@ -88,15 +88,15 @@ def bmcl_dashboard(msg: NewMessage, client: IcaClient) -> None:
 
 def parse_rank(data: dict) -> dict:
     rank_data = {"hits": 0, "bytes": 0}
-    if "metric" in rank_data:
+    if "metric" in data:
         rank_data["hits"] = data["metric"]["hits"]
         rank_data["bytes"] = data["metric"]["bytes"]
     return {
         "name": data["name"],
         "start": data["isEnabled"],
-        "full": data["fullSize"],
-        "version": data["version"] if "version" in data else "未知版本",
-        "owner": data["user"]["name"],
+        "full": "全量" if "fullSize" in data else "分片",
+        # "version": data["version"] if "version" in data else "未知版本",
+        "owner": data["sponsor"]["name"] if "sponsor" in data else "未知用户",
         "rank": rank_data
     }
 
@@ -110,22 +110,24 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
     ranks = [parse_rank(data) for data in rank_data] 
     if name is None:
         # 全部排名
-        # 显示前10名
-        if len(ranks) < 10:
+        # 显示前3名
+        limit = 3
+        if len(ranks) < limit:
             show_ranks = ranks
         else:
-            show_ranks = ranks[:10]
+            show_ranks = ranks[:limit]
         rank_msg = (
-            f"名称: {r["name"]}-{"全" if r["full"] else "分"} 版本: {r["version"]}\n"
-            f"拥有者: {r["owner"]} 状态: {r["start"]}\n"
-            f"h/d {format_hit_count(r["rank"]["hits"])}|{format_data_size(r["rank"]["bytes"])}\n"
+            f"名称: {r['name']}\n"
+            # f"-{rank['full']} \n"
+            # f"版本: {r['version']}\n"
+            f"拥有者: {r['owner']} 状态: {r['start']}|"
+            f"h/d {format_hit_count(r['rank']['hits'])}|{format_data_size(r['rank']['bytes'])}"
             for r in show_ranks
         )
+        rank_msg = "\n".join(rank_msg)
         report_msg = (
-            f"OpenBMCLAPI 面板v{_version_}-排名\n"
-            f"{'\n'.join(rank_msg)}"
+            f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msg}\n"
             f"请求时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(req_time))}\n"
-            "数据源: https://bd.bangbang93.com/openbmclapi/metric/rank"
         )
         reply = msg.reply_with(report_msg)
         client.info(report_msg)
@@ -133,8 +135,8 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
         return
     else:
         # 搜索是否有这个名字的节点
-        names = [r["name"] for r in ranks]
-        finds = [re.search(name, n) for n in names]
+        names = [r["name"].lower() for r in ranks]
+        finds = [re.search(name.lower(), n) for n in names]
         if not finds:
             reply = msg.reply_with(f"未找到名为{name}的节点")
             client.send_message(reply)
@@ -149,16 +151,13 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
             if find:
                 rank = ranks[i]
                 rank_msg = (
-                    f"名称: {rank["name"]}-{"全" if rank["full"] else "分"} 版本: {rank["version"]}\n"
-                    f"拥有者: {rank["owner"]} 状态: {rank["start"]}\n"
-                    f"h/d {format_hit_count(rank["rank"]["hits"])}|{format_data_size(rank["rank"]["bytes"])}\n"
+                    f"名称: {rank['name']}\n"
+                    # f"-{rank['full']} \n"
+                    # f"版本: {rank['version']}\n"
+                    f"拥有者: {rank['owner']} 状态: {rank['start']}|"
+                    f"h/d {format_hit_count(rank['rank']['hits'])}|{format_data_size(rank['rank']['bytes'])}"
                 )
-                report_msg = (
-                    f"OpenBMCLAPI 面板v{_version_}-排名\n"
-                    f"{rank_msg}"
-                    f"请求时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(req_time))}\n"
-                    "数据源: https://bd.bangbang93.com/openbmclapi/metric/rank"
-                )
+                report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msg}\n"
                 reply = msg.reply_with(report_msg)
                 client.info(report_msg)
                 client.send_message(reply)

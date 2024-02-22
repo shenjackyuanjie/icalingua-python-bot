@@ -82,30 +82,12 @@ pub fn load_py_plugins(path: &PathBuf) {
                         let path = entry.path();
                         if let Some(ext) = path.extension() {
                             if ext == "py" {
-                                match load_py_file(&path) {
-                                    Ok((changed_time, content)) => {
-                                        let py_module: PyResult<Py<PyAny>> = Python::with_gil(|py| -> PyResult<Py<PyAny>> {
-                                            let module: PyResult<Py<PyAny>> = PyModule::from_code(
-                                                py,
-                                                &content,
-                                                &path.to_string_lossy(),
-                                                &path.to_string_lossy()
-                                            )
-                                            .map(|module| module.into());
-                                            module
-                                        });
-                                        match py_module {
-                                            Ok(py_module) => {
-                                                info!("加载到插件: {:?}", path);
-                                                PyStatus::add_file(path, changed_time, py_module);
-                                            }
-                                            Err(e) => {
-                                                warn!("failed to load file: {:?} | e: {:?}", path, e);
-                                            }
-                                        }
+                                match load_py_module(&path) {
+                                    Some((changed_time, py_module)) => {
+                                        PyStatus::add_file(path.clone(), changed_time, py_module);
                                     }
-                                    Err(e) => {
-                                        warn!("failed to load file: {:?} | e: {:?}", path, e);
+                                    None => {
+                                        warn!("加载 Python 插件: {:?} 失败", path);
                                     }
                                 }
                             }
@@ -145,24 +127,12 @@ pub fn verify_plugins() {
     }
     info!("file change list: {:?}", need_reload_files);
     for reload_file in need_reload_files {
-        match load_py_file(&reload_file) {
-            Ok((changed_time, content)) => {
-                let py_module = Python::with_gil(|py| -> Py<PyAny> {
-                    let module: Py<PyAny> = PyModule::from_code(
-                        py,
-                        &content,
-                        &reload_file.to_string_lossy(),
-                        &reload_file.to_string_lossy(),
-                        // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
-                    )
-                    .unwrap()
-                    .into();
-                    module
-                });
+        match load_py_module(&reload_file) {
+            Some((changed_time, py_module)) => {
                 PyStatus::add_file(reload_file.clone(), changed_time, py_module);
-            },
-            Err(e) => {
-                warn!("重载 Python 插件: {:?} 失败, e: {:?}", reload_file, e);
+            }
+            None => {
+                warn!("重载 Python 插件: {:?} 失败", reload_file);
             }
         }
     }
@@ -178,6 +148,35 @@ pub fn load_py_file(path: &PathBuf) -> std::io::Result<(Option<SystemTime>, Stri
     let changed_time = get_change_time(&path);
     let content = std::fs::read_to_string(path)?;
     Ok((changed_time, content))
+}
+
+pub fn load_py_module(path: &PathBuf) -> Option<(Option<SystemTime>, Py<PyAny>)> {
+    let (changed_time, content) = match load_py_file(&path) {
+        Ok((changed_time, content)) => (changed_time, content),
+        Err(e) => {
+            warn!("failed to load file: {:?} | e: {:?}", path, e);
+            return None;
+        }
+    };
+    let py_module: PyResult<Py<PyAny>> = Python::with_gil(|py| -> PyResult<Py<PyAny>> {
+        let module: PyResult<Py<PyAny>> = PyModule::from_code(
+            py,
+            &content,
+            &path.to_string_lossy(),
+            &path.to_string_lossy(),
+            // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
+        ).map(|module| module.into());
+        module
+    });
+    match py_module {
+        Ok(py_module) => {
+            Some((changed_time, py_module))
+        }
+        Err(e) => {
+            warn!("failed to load file: {:?} | e: {:?}", path, e);
+            None
+        }
+    }
 }
 
 pub fn init_py(config: &IcaConfig) {
