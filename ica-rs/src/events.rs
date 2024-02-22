@@ -3,7 +3,7 @@ use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
 use tracing::{info, warn};
 
-use crate::client::send_message;
+use crate::client::{send_message, IcalinguaStatus};
 use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::NewMessage;
 use crate::data_struct::online_data::OnlineData;
@@ -16,7 +16,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
             let online_data = OnlineData::new_from_json(value);
             info!(
                 "update_online_data {}",
-                format!("{:#?}", online_data).cyan()
+                format!("{:?}", online_data).cyan()
             );
             unsafe {
                 crate::ClientStatus.update_online_data(online_data);
@@ -30,7 +30,12 @@ pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let message = NewMessage::new_from_json(value);
+            // 检测是否在过滤列表内
+            if IcalinguaStatus::get_config().filter_list.contains(&message.sender_id) {
+                return;
+            }
             info!("add_message {}", message.output().cyan());
+            // info!("add_message {}", format!("{:#?}", message).cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if message.content.eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
@@ -49,7 +54,7 @@ pub async fn delete_message(payload: Payload, _client: Client) {
         // 消息 id
         if let Some(value) = values.first() {
             if let Some(msg_id) = value.as_str() {
-                warn!("delete_message {}", format!("{}", msg_id).yellow());
+                info!("delete_message {}", format!("{}", msg_id).yellow());
             }
         }
     }

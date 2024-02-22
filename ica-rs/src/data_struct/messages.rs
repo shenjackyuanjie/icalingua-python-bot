@@ -2,6 +2,7 @@ use crate::client::IcalinguaStatus;
 use crate::data_struct::files::MessageFile;
 use crate::data_struct::{MessageId, RoomId, UserId};
 
+use tracing::warn;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
@@ -138,7 +139,15 @@ impl NewMessage {
         }
         // 回复的消息
         let reply: Option<ReplyMessage> = match message.get("replyMessage") {
-            Some(value) => serde_json::from_value::<ReplyMessage>(value.clone()).ok(),
+            Some(value) => {
+                match serde_json::from_value::<ReplyMessage>(value.clone()) {
+                    Ok(reply) => Some(reply),
+                    Err(e) => {
+                        warn!("Failed to parse reply message: {}", e);
+                        None
+                    }
+                }
+            },
             None => None,
         };
         // At
@@ -196,7 +205,8 @@ impl NewMessage {
 
     pub fn output(&self) -> String {
         format!(
-            "Room: {}, Sender: {}|{}, Content: {}",
+            // >10 >10 >15
+            "{:>10}|{:>12}|{:<20}|{}",
             self.room_id, self.sender_id, self.sender_name, self.content
         )
     }

@@ -10,6 +10,8 @@ notice_start = true # 是否在启动 bot 后通知
 
 # 机器人的管理员
 admin_list = [0] # 机器人的管理员
+# 过滤的人
+filter_list = [0]
 
 # python 插件路径
 py_plugin_path = "/path/to/your/plugin"

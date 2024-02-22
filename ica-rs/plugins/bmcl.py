@@ -96,7 +96,7 @@ def parse_rank(data: dict) -> dict:
         "start": data["isEnabled"],
         # "full": "全量" if "fullSize" in data else "分片",
         # "version": data["version"] if "version" in data else "未知版本",
-        "owner": data["sponsor"]["name"] if "sponsor" in data else "未知用户",
+        "owner": data["sponsor"]["name"] if "sponsor" in data else "未知",
         "rank": rank_data
     }
 
@@ -137,7 +137,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
         # 搜索是否有这个名字的节点
         names = [r["name"].lower() for r in ranks]
         finds = [re.search(name.lower(), n) for n in names]
-        if not finds:
+        if not any(finds):
             reply = msg.reply_with(f"未找到名为{name}的节点")
             client.send_message(reply)
             return
@@ -150,7 +150,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
                 # 4~10  个节点 只显示名称和次序
                 find_msg = [f"{'✅' if r['start'] else '❌'}{r['name']}-No.{i+1}" for i, r in enumerate(ranks) if finds[i]]
                 find_msg = "\n".join(find_msg)
-                report_msg = f"OpenBMCLAPI 面板v{_version_}-搜索|{name}|\n{find_msg}\n"
+                report_msg = f"OpenBMCLAPI 面板v{_version_}-搜索|{name}|\n{find_msg}"
                 reply = msg.reply_with(report_msg)
             client.send_message(reply)
             return
@@ -167,7 +167,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
                 )
                 rank_msgs.append(rank_msg)
         rank_msgs = "\n".join(rank_msgs)
-        report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msgs}\n"
+        report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msgs}"
         reply = msg.reply_with(report_msg)
         client.info(report_msg)
         client.send_message(reply)
@@ -178,8 +178,7 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
 
 help = """/bmcl -> dashboard
 /bmcl rank -> all rank
-/bmcl rank <name> -> rank of <name>
-"""
+/bmcl rank <name> -> rank of <name>"""
 
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
