@@ -43,6 +43,8 @@ pub async fn add_message(payload: Payload, client: Client) {
                 let reply = message.reply_with(&format!("ica-async-rs pong v{}", VERSION));
                 send_message(&client, &reply).await;
             }
+            // python 插件
+            py::new_message_py(&message, &client).await;
         }
     }
 }

@@ -10,6 +10,8 @@ use tracing::{debug, info, warn};
 use crate::config::IcaConfig;
 use crate::data_struct::messages::NewMessage;
 
+use self::class::{IcaClientPy, NewMessagePy};
+
 #[derive(Debug, Clone)]
 pub struct PyStatus {
     pub files: Option<HashMap<PathBuf, (Option<SystemTime>, Py<PyAny>)>>,
@@ -147,7 +149,60 @@ pub fn init_py(config: &IcaConfig) {
     info!("python inited")
 }
 
+// #[pyfunction]
+// pub fn call_new_message(py: Python, func: PyA,msg: NewMessagePy, client: IcaClientPy) -> PyResult<&PyAny> {
+//     pyo3_asyncio::tokio::future_into_py(py, async move {
+//         let py_sleep = Python::with_gil(|py| {
+//             pyo3_asyncio::tokio::into_future(
+//                 // py.import("asyncio")?.call_method1("sleep", (1,))?
+//             )
+//         })?;
+
+//         py_sleep.await?;
+
+//         Ok(Python::with_gil(|py| py.None()))
+//     })
+// }
+
 /// 执行 new message 的 python 插件
-pub fn new_message_py(message: &NewMessage, client: &Client) {
-    let msg = class::NewMessagePy::new(message);
+pub async fn new_message_py(message: &NewMessage, client: &Client) {
+    let plugins = PyStatus::get_files();
+    for (_, (_, py_module)) in plugins.iter() {
+        Python::with_gil(|py| {
+            let msg = class::NewMessagePy::new(message);
+            let client = class::IcaClientPy::new(client);
+            let args = (("message", msg), ("client", client));
+            // py.run("message.reply_with('')", None, Some(locals))
+            //     .unwrap();
+            let async_py_func = py_module.getattr(py, "on_message");
+            match async_py_func {
+                Ok(async_py_func) => {
+                    // pyo3_asyncio::tokio::future_into_py(py, async move {
+                    //     let call = pyo3_asyncio::tokio::into_future({
+                    //         async_py_func.call1(py, args)
+                    //     })
+                    //     .unwrap();
+                    //     Ok(call.await?)
+                    // });
+                    let future = pyo3_asyncio::tokio::into_future(
+                        async_py_func.as_ref(py).call1(args).unwrap(),
+                    )
+                    .unwrap();
+                    tokio::spawn(async move {
+                        match future.await {
+                            Ok(_) => {
+                                info!("python 插件执行成功");
+                            }
+                            Err(e) => {
+                                warn!("python 插件执行失败: {:?}", e);
+                            }
+                        }
+                    });
+                }
+                Err(e) => {
+                    warn!("failed to get on_message function: {:?}", e);
+                }
+            }
+        });
+    }
 }

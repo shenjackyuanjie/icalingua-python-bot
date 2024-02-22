@@ -50,3 +50,7 @@ class IcaClient:
     @staticmethod
     async def send_message(client: "IcaClient", message: SendMessage) -> bool:
         ...
+
+
+def on_message(msg: NewMessage, client: IcaClient) -> None:
+    ...

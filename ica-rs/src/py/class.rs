@@ -108,6 +108,7 @@ impl IcaStatusPy {
     }
 }
 
+#[derive(Clone)]
 #[pyclass]
 #[pyo3(name = "NewMessage")]
 pub struct NewMessagePy {
@@ -182,5 +183,13 @@ impl IcaClientPy {
         pyo3_asyncio::tokio::future_into_py(py, async move {
             Ok(send_message(&client.client, &message.msg).await)
         })
+    }
+}
+
+impl IcaClientPy {
+    pub fn new(client: &Client) -> Self {
+        Self {
+            client: client.clone(),
+        }
     }
 }
