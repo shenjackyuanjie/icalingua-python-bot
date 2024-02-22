@@ -10,7 +10,7 @@ else:
     NewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.1.1-rs"
+_version_ = "2.1.2-rs"
 
 def format_data_size(data_bytes: float) -> str:
     data_lens = ["B", "KB", "MB", "GB", "TB"]
@@ -147,21 +147,23 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
             reply = msg.reply_with(f"搜索|{name}|到{len(counts)}个节点, 请用更精确的名字")
             client.send_message(reply)
             return
+        rank_msgs = []
         for i, find in enumerate(finds):
             if find:
                 rank = ranks[i]
                 rank_msg = (
-                    f"名称: {rank['name']}\n"
+                    f"名称: {rank['name']}-No.{i}\n"
                     # f"-{rank['full']} \n"
                     # f"版本: {rank['version']}\n"
                     f"拥有者: {rank['owner']} 状态: {rank['start']}|"
                     f"h/d {format_hit_count(rank['rank']['hits'])}|{format_data_size(rank['rank']['bytes'])}"
                 )
-                report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msg}\n"
-                reply = msg.reply_with(report_msg)
-                client.info(report_msg)
-                client.send_message(reply)
-                return
+                rank_msgs.append(rank_msg)
+        report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{'\n'.join(rank_msgs)}\n"
+        reply = msg.reply_with(report_msg)
+        client.info(report_msg)
+        client.send_message(reply)
+        return
                 
 
 
