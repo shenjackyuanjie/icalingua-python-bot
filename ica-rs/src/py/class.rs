@@ -139,6 +139,10 @@ impl NewMessagePy {
     pub fn get_is_from_self(&self) -> bool {
         self.msg.is_from_self()
     }
+    #[getter]
+    pub fn get_is_reply(&self) -> bool {
+        self.msg.is_reply()
+    }
 }
 
 impl NewMessagePy {

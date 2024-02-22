@@ -81,6 +81,6 @@ def bmcl(msg: NewMessage, client: IcaClient) -> None:
     
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
-    if not msg.is_from_self:
-        if msg.content == "/bmcl-rs":
+    if not (msg.is_from_self or msg.is_reply):
+        if msg.content == "/bmcl":
             bmcl(msg, client)

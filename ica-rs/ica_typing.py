@@ -55,6 +55,9 @@ class NewMessage:
     @property
     def is_from_self(self) -> bool:
         ...
+    @property
+    def is_reply(self) -> bool:
+        ...
 
 
 class IcaClient:
