@@ -214,7 +214,12 @@ pub async fn new_message_py(message: &NewMessage, client: &Client) {
             let async_py_func = py_module.getattr(py, "on_message");
             match async_py_func {
                 Ok(async_py_func) => {
-                    async_py_func.as_ref(py).call1(args).unwrap();
+                    match async_py_func.as_ref(py).call1(args) {
+                        Err(e) => {
+                            warn!("get a PyErr when call on_message from {:?}: {:?}", path, e);
+                        },
+                        _ => ()
+                    }
                 }
                 Err(e) => {
                     warn!("failed to get on_message function: {:?}", e);

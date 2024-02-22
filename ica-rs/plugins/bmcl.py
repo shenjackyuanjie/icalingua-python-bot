@@ -136,7 +136,12 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
     else:
         # 搜索是否有这个名字的节点
         names = [r["name"].lower() for r in ranks]
-        finds = [re.search(name.lower(), n) for n in names]
+        try:
+            finds = [re.search(name.lower(), n) for n in names]
+        except re.error as e:
+            reply = msg.reply_with(f"正则表达式错误: {e}, 请检查输入")
+            client.send_message(reply)
+            return
         if not any(finds):
             reply = msg.reply_with(f"未找到名为{name}的节点")
             client.send_message(reply)
