@@ -159,7 +159,8 @@ def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
                     f"h/d {format_hit_count(rank['rank']['hits'])}|{format_data_size(rank['rank']['bytes'])}"
                 )
                 rank_msgs.append(rank_msg)
-        report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{'\n'.join(rank_msgs)}\n"
+        rank_msgs = "\n".join(rank_msgs)
+        report_msg = f"OpenBMCLAPI 面板v{_version_}-排名\n{rank_msgs}\n"
         reply = msg.reply_with(report_msg)
         client.info(report_msg)
         client.send_message(reply)
