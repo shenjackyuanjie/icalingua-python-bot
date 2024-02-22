@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use tracing::{debug, info, warn};
 use rust_socketio::asynchronous::Client;
 use tokio::runtime::Runtime;
 
@@ -224,6 +225,18 @@ impl IcaClientPy {
         pyo3_asyncio::tokio::future_into_py(py, async move {
             Ok(send_message(&client.client, &message.msg).await)
         })
+    }
+
+    pub fn debug(&self, content: String) {
+        debug!("{}", content);
+    }
+
+    pub fn info(&self, content: String) {
+        info!("{}", content);
+    }
+
+    pub fn warn(&self, content: String) {
+        warn!("{}", content);
     }
 }
 
