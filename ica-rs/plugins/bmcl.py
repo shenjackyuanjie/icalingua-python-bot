@@ -205,6 +205,7 @@ def on_message(msg: NewMessage, client: IcaClient) -> None:
                 reply = msg.reply_with(help)
                 client.send_message(reply)
             else:
-                if len(msg.content) > 6:
-                    name = msg.content[6:]
+                name = msg.content.split(" ")
+                if len(name) > 1:
+                    name = name[1]
                     bmcl_rank(msg, client, name)
