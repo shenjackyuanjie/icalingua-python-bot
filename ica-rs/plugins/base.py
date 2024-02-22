@@ -6,7 +6,7 @@ else:
     NewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "1.0.0"
+_version_ = "1.1.0"
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
     if not (msg.is_from_self or msg.is_reply):
