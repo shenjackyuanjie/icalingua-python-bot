@@ -38,6 +38,7 @@ async fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
+    info!("ica-async-rs v{}", VERSION);
 
     // 从命令行获取 host 和 key
     // 从命令行获取配置文件路径
