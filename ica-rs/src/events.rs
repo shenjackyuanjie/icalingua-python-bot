@@ -14,10 +14,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
-            info!(
-                "update_online_data {}",
-                format!("{:?}", online_data).cyan()
-            );
+            info!("update_online_data {}", format!("{:?}", online_data).cyan());
             unsafe {
                 crate::ClientStatus.update_online_data(online_data);
             }
@@ -31,7 +28,10 @@ pub async fn add_message(payload: Payload, client: Client) {
         if let Some(value) = values.first() {
             let message = NewMessage::new_from_json(value);
             // 检测是否在过滤列表内
-            if IcalinguaStatus::get_config().filter_list.contains(&message.sender_id) {
+            if IcalinguaStatus::get_config()
+                .filter_list
+                .contains(&message.sender_id)
+            {
                 return;
             }
             info!("add_message {}", message.output().cyan());

@@ -57,7 +57,7 @@ impl PyStatus {
                             }
                         }
                         true
-                    },
+                    }
                     None => false,
                 },
                 None => false,
@@ -108,7 +108,11 @@ pub fn load_py_plugins(path: &PathBuf) {
 
 pub fn verify_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
-    let plugin_path = IcalinguaStatus::get_config().py_plugin_path.as_ref().unwrap().to_owned();
+    let plugin_path = IcalinguaStatus::get_config()
+        .py_plugin_path
+        .as_ref()
+        .unwrap()
+        .to_owned();
     for entry in std::fs::read_dir(&plugin_path).unwrap() {
         if let Ok(entry) = entry {
             let path = entry.path();
@@ -165,13 +169,12 @@ pub fn load_py_module(path: &PathBuf) -> Option<(Option<SystemTime>, Py<PyAny>)>
             &path.to_string_lossy(),
             &path.to_string_lossy(),
             // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
-        ).map(|module| module.into());
+        )
+        .map(|module| module.into());
         module
     });
     match py_module {
-        Ok(py_module) => {
-            Some((changed_time, py_module))
-        }
+        Ok(py_module) => Some((changed_time, py_module)),
         Err(e) => {
             warn!("failed to load file: {:?} | e: {:?}", path, e);
             None

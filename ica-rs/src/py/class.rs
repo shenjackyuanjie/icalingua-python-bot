@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
-use tracing::{debug, info, warn};
 use rust_socketio::asynchronous::Client;
 use tokio::runtime::Runtime;
+use tracing::{debug, info, warn};
 
 use crate::client::send_message;
 use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};

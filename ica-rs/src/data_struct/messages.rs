@@ -2,10 +2,10 @@ use crate::client::IcalinguaStatus;
 use crate::data_struct::files::MessageFile;
 use crate::data_struct::{MessageId, RoomId, UserId};
 
-use tracing::warn;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
+use tracing::warn;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum At {
@@ -139,13 +139,11 @@ impl NewMessage {
         }
         // 回复的消息
         let reply: Option<ReplyMessage> = match message.get("replyMessage") {
-            Some(value) => {
-                match serde_json::from_value::<ReplyMessage>(value.clone()) {
-                    Ok(reply) => Some(reply),
-                    Err(e) => {
-                        warn!("Failed to parse reply message: {}", e);
-                        None
-                    }
+            Some(value) => match serde_json::from_value::<ReplyMessage>(value.clone()) {
+                Ok(reply) => Some(reply),
+                Err(e) => {
+                    warn!("Failed to parse reply message: {}", e);
+                    None
                 }
             },
             None => None,
