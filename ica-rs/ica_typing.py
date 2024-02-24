@@ -1,6 +1,16 @@
 # Python 兼容版本 3.8+
 
-from typing import Optional
+from typing import Optional, Callable
+
+"""
+pub type RoomId = i64;
+pub type UserId = i64;
+pub type MessageId = String;
+"""
+
+RoomId = int
+UserId = int
+MessageId = str
 
 
 class IcaStatus:
@@ -11,7 +21,7 @@ class IcaStatus:
     def online(self) -> bool:
         ...
     @property
-    def self_id(self) -> Optional[bool]:
+    def self_id(self) -> Optional[UserId]:
         ...
     @property
     def nick_name(self) -> Optional[str]:
@@ -58,10 +68,13 @@ class NewMessage:
     def __str__(self) -> str:
         ...
     @property
+    def id(self) -> MessageId:
+        ...
+    @property
     def content(self) -> str:
         ...
     @property
-    def sender_id(self) -> int:
+    def sender_id(self) -> UserId:
         ...
     @property
     def is_from_self(self) -> bool:
@@ -82,12 +95,19 @@ class IcaClient:
     def send_message(self, message: SendMessage) -> bool:
         ...
     def debug(self, message: str) -> None:
-        ...
+        """向日志中输出调试信息"""
     def info(self, message: str) -> None:
-        ...
+        """向日志中输出信息"""
     def warn(self, message: str) -> None:
-        ...
+        """向日志中输出警告信息"""
 
 
-def on_message(msg: NewMessage, client: IcaClient) -> None:
-    ...
+on_load = Callable[[IcaClient], None]
+# def on_load(client: IcaClient) -> None:
+#     ...
+
+on_message = Callable[[NewMessage, IcaClient], None]
+# def on_message(msg: NewMessage, client: IcaClient) -> None:
+#     ...
+
+on_delete_message = Callable[[int, IcaClient], None]

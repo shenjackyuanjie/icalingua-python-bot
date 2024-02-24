@@ -5,6 +5,7 @@ use tracing::{debug, info, warn};
 
 use crate::client::send_message;
 use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};
+use crate::data_struct::MessageId;
 use crate::ClientStatus;
 
 #[pyclass]
@@ -126,7 +127,10 @@ impl NewMessagePy {
     pub fn __str__(&self) -> String {
         format!("{:?}", self.msg)
     }
-
+    #[getter]
+    pub fn get_id(&self) -> MessageId {
+        self.msg.msg_id.clone()
+    }
     #[getter]
     pub fn get_content(&self) -> String {
         self.msg.content.clone()
