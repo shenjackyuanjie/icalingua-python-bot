@@ -35,9 +35,7 @@ macro_rules! wrap_any_callback {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
+    tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
     info!("ica-async-rs v{}", VERSION);
 
     // 从命令行获取 host 和 key
@@ -59,6 +57,7 @@ async fn main() {
         .on("messageFailed", wrap_callback!(events::failed_message))
         .on("onlineData", wrap_callback!(events::get_online_data))
         .on("setAllRooms", wrap_callback!(events::update_all_room))
+        .on("setMessages", wrap_callback!(events::set_messages))
         .on("addMessage", wrap_callback!(events::add_message))
         .on("deleteMessage", wrap_callback!(events::delete_message))
         .connect()

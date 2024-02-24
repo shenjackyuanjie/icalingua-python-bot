@@ -1,5 +1,5 @@
-pub mod class;
 pub mod call;
+pub mod class;
 
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};

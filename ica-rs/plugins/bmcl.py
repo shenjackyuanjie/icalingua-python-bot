@@ -69,7 +69,7 @@ def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]
 def bmcl_dashboard(msg: NewMessage, client: IcaClient) -> None:
     req_time = time.time()
     # 记录请求时间
-    data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/dashboard", client)
+    data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/dashboard", msg, client)
     if data is None:
         return
     data_bytes: float = data["bytes"]

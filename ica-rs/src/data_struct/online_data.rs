@@ -197,10 +197,7 @@ mod tests {
         assert_eq!(online_data.online, true);
         assert_eq!(online_data.qqid, 123456);
         assert_eq!(online_data.icalingua_info.ica_version, "2.11.1");
-        assert_eq!(
-            online_data.icalingua_info.os_info,
-            "Linux c038fad79f13 4.4.302+"
-        );
+        assert_eq!(online_data.icalingua_info.os_info, "Linux c038fad79f13 4.4.302+");
         assert_eq!(online_data.icalingua_info.resident_set_size, "95.43MB");
         assert_eq!(online_data.icalingua_info.heap_used, "37.31MB");
         assert_eq!(online_data.icalingua_info.load, "4.23 2.15 1.59");
