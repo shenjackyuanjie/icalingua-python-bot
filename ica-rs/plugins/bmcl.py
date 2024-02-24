@@ -44,7 +44,13 @@ def format_hit_count(count: int) -> str:
     if count_len <= 4:
         return count_str
     else:
-        return "_".join(count_str[i:i + 4] for i in range(0, count_len, 4))
+        # 先倒序
+        # 再插入
+        # 最后再倒序
+        count_str = count_str[::-1]
+        count_str = "_".join([count_str[i:i+4] for i in range(0, count_len, 4)])
+        count_str = count_str[::-1]
+        return count_str
 
 
 def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]:
