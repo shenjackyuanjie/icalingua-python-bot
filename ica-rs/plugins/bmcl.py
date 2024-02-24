@@ -47,8 +47,16 @@ def format_hit_count(count: int) -> str:
         return "_".join(count_str[i:i + 4] for i in range(0, count_len, 4))
 
 
-def wrap_request(url: str, client: IcaClient) -> Optional[dict]:
-    response = requests.get(url)
+def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]:
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException as e:
+        client.warn(
+            f"数据请求失败, 请检查网络\n{e}"
+        )
+        reply = msg.reply_with(f"数据请求失败, 请检查网络\n{e}")
+        client.send_message(reply)
+        return None
     if not response.status_code == 200 or response.reason != "OK":
         client.warn(
             f"数据请求失败, 请检查网络\n{response.status}"
@@ -104,7 +112,7 @@ def parse_rank(data: dict) -> dict:
 def bmcl_rank(msg: NewMessage, client: IcaClient, name: Optional[str]) -> None:
     req_time = time.time()
     # 记录请求时间
-    rank_data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/rank", client)
+    rank_data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/rank", msg, client)
     if rank_data is None:
         return
     ranks = [parse_rank(data) for data in rank_data] 
