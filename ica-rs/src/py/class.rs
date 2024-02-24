@@ -238,6 +238,11 @@ impl IcaClientPy {
         })
     }
 
+    #[getter]
+    pub fn get_status(&self) -> IcaStatusPy {
+        IcaStatusPy::new()
+    }
+
     pub fn debug(&self, content: String) {
         debug!("{}", content);
     }

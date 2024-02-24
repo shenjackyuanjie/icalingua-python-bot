@@ -94,6 +94,11 @@ class IcaClient:
         """
     def send_message(self, message: SendMessage) -> bool:
         ...
+    
+    @property
+    def status() -> IcaStatus:
+        ...
+    
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
     def info(self, message: str) -> None:
