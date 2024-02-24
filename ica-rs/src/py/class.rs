@@ -182,6 +182,20 @@ impl SendMessagePy {
     pub fn __str__(&self) -> String {
         format!("{:?}", self.msg)
     }
+    /// 设置消息内容
+    /// 用于链式调用 
+    pub fn with_content(&mut self, content: String) -> Self {
+        self.msg.content = content;
+        self.clone()
+    }
+    #[getter]
+    pub fn get_content(&self) -> String {
+        self.msg.content.clone()
+    }
+    #[setter]
+    pub fn set_content(&mut self, content: String) {
+        self.msg.content = content;
+    }
 }
 
 impl SendMessagePy {

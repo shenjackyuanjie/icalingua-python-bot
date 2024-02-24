@@ -38,7 +38,18 @@ class ReplyMessage:
 
 
 class SendMessage:
-    ...
+    @property
+    def content(self) -> str:
+        ...
+    @content.setter
+    def content(self, value: str) -> None:
+        ...
+    def with_content(self, content: str) -> "SendMessage":
+        """
+        为了链式调用, 返回自身
+        """
+        self.content = content
+        return self
 
 
 class NewMessage:
@@ -64,7 +75,7 @@ class IcaClient:
     @staticmethod
     async def send_message_a(client: "IcaClient", message: SendMessage) -> bool:
         """
-        仅作占位
+        仅作占位, 不能使用
         (因为目前来说, rust调用 Python端没法启动一个异步运行时
         所以只能 tokio::task::block_in_place 转换成同步调用)
         """
