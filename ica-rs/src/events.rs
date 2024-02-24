@@ -43,18 +43,20 @@ pub async fn add_message(payload: Payload, client: Client) {
                 send_message(&client, &reply).await;
             }
             // python 插件
-            py::new_message_py(&message, &client).await;
+            py::call::new_message_py(&message, &client).await;
         }
     }
 }
 
 /// 撤回消息
-pub async fn delete_message(payload: Payload, _client: Client) {
+pub async fn delete_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         // 消息 id
         if let Some(value) = values.first() {
             if let Some(msg_id) = value.as_str() {
                 info!("delete_message {}", format!("{}", msg_id).yellow());
+
+                py::call::delete_message_py(msg_id.to_string(), &client).await;
             }
         }
     }
@@ -77,6 +79,22 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
     }
 }
 
+pub async fn succes_message(payload: Payload, _client: Client) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            info!("messageSuccess {}", value.to_string().green());
+        }
+    }
+}
+
+pub async fn failed_message(payload: Payload, _client: Client) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            warn!("messageFailed {}", value.to_string().red());
+        }
+    }
+}
+
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client) {
     let handled = vec![
@@ -89,11 +107,14 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "addMessage",
         "deleteMessage",
         "setAllRooms",
+        // 也许以后会用到
+        "messageSuccess",
+        "messageFailed",
         // 忽略的
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "updateRoom",
-        "syncRead",
+        // "syncRead",
     ];
     match &event {
         Event::Custom(event_name) => {

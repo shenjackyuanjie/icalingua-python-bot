@@ -110,4 +110,6 @@ on_message = Callable[[NewMessage, IcaClient], None]
 # def on_message(msg: NewMessage, client: IcaClient) -> None:
 #     ...
 
-on_delete_message = Callable[[int, IcaClient], None]
+on_delete_message = Callable[[MessageId, IcaClient], None]
+# def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
+#     ...

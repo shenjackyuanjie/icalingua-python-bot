@@ -55,6 +55,8 @@ async fn main() {
         .on("message", wrap_callback!(events::connect_callback))
         .on("authSucceed", wrap_callback!(events::connect_callback))
         .on("authFailed", wrap_callback!(events::connect_callback))
+        .on("messageSuccess", wrap_callback!(events::succes_message))
+        .on("messageFailed", wrap_callback!(events::failed_message))
         .on("onlineData", wrap_callback!(events::get_online_data))
         .on("setAllRooms", wrap_callback!(events::update_all_room))
         .on("addMessage", wrap_callback!(events::add_message))
