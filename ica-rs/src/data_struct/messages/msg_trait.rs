@@ -1,12 +1,35 @@
 use std::fmt::Display;
 
 use chrono::NaiveDateTime;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
 use crate::client::IcalinguaStatus;
-use crate::data_struct::messages::{Message, NewMessage};
+use crate::data_struct::messages::{At, Message, NewMessage};
 use crate::data_struct::{MessageId, UserId};
+
+impl Serialize for At {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        match self {
+            At::All => serializer.serialize_str("all"),
+            At::Bool(b) => serializer.serialize_bool(*b),
+            At::None => serializer.serialize_none(),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for At {
+    fn deserialize<D>(deserializer: D) -> Result<At, D::Error>
+    where
+        D: serde::de::Deserializer<'de>,
+    {
+        let value = JsonValue::deserialize(deserializer)?;
+        Ok(At::new_from_json(&value))
+    }
+}
 
 pub trait MessageTrait {
     fn is_reply(&self) -> bool;

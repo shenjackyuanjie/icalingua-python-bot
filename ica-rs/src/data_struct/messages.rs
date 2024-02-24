@@ -17,29 +17,6 @@ pub enum At {
     None,
 }
 
-impl Serialize for At {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::ser::Serializer,
-    {
-        match self {
-            At::All => serializer.serialize_str("all"),
-            At::Bool(b) => serializer.serialize_bool(*b),
-            At::None => serializer.serialize_none(),
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for At {
-    fn deserialize<D>(deserializer: D) -> Result<At, D::Error>
-    where
-        D: serde::de::Deserializer<'de>,
-    {
-        let value = JsonValue::deserialize(deserializer)?;
-        Ok(At::new_from_json(&value))
-    }
-}
-
 impl At {
     /// new_from_json(&message["at"])
     pub fn new_from_json(json: &JsonValue) -> Self {
@@ -160,11 +137,6 @@ pub struct Message {
 
 impl Message {
     pub fn new_from_json(json: &JsonValue) -> Self {
-        // // room id 还是必定有的
-        // 但是他现在是 Message 了, Message 没有 room_id
-        // let room_id = json["roomId"].as_i64().unwrap();
-        // message 本体也是
-        // let json = json.get("message").unwrap();
         // 消息 id
         let msg_id = json["_id"].as_str().unwrap();
         // 发送者 id (Optional)
@@ -195,13 +167,19 @@ impl Message {
         }
         // 回复的消息
         let reply: Option<ReplyMessage> = match json.get("replyMessage") {
-            Some(value) => match serde_json::from_value::<ReplyMessage>(value.clone()) {
-                Ok(reply) => Some(reply),
-                Err(e) => {
-                    warn!("Failed to parse reply message: {}", e);
+            Some(value) => {
+                if !value.is_null() {
+                    match serde_json::from_value::<ReplyMessage>(value.clone()) {
+                        Ok(reply) => Some(reply),
+                        Err(e) => {
+                            warn!("Failed to parse reply message: {}", e);
+                            None
+                        }
+                    }
+                } else {
                     None
                 }
-            },
+            }
             None => None,
         };
         // At

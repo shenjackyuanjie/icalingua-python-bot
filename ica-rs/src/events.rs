@@ -5,7 +5,7 @@ use tracing::{info, warn};
 
 use crate::client::{send_message, IcalinguaStatus};
 use crate::data_struct::all_rooms::Room;
-use crate::data_struct::messages::{MessageTrait, NewMessage};
+use crate::data_struct::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::online_data::OnlineData;
 use crate::{py, VERSION};
 
@@ -51,7 +51,8 @@ pub async fn add_message(payload: Payload, client: Client) {
 pub async fn set_messages(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let messages: Vec<NewMessage> = serde_json::from_value(value.clone()).unwrap();
+            println!("{:#?}", value);
+            let messages: Vec<Message> = serde_json::from_value(value["messages"].clone()).unwrap();
             let room_id = value["roomId"].as_i64().unwrap();
             info!("set_messages {} len: {}", room_id.to_string().cyan(), messages.len());
         }
@@ -119,6 +120,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         // 也许以后会用到
         "messageSuccess",
         "messageFailed",
+        "setAllChatGroups",
         // 忽略的
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading

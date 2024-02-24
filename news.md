@@ -8,6 +8,8 @@
 添加了 `rustfmt.toml` 用于格式化代码
 **注意**: 请在提交代码前使用 `cargo +nightly fmt` 格式化代码
 
+修复了 `Message` 解析 `replyMessage` 字段是 如果是 null 则会解析失败的问题
+
 ## 0.4.9
 
 修复了 Python 插件运行错误会导致整个程序崩溃的问题
