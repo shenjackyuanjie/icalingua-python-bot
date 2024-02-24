@@ -5,7 +5,7 @@ use tracing::{info, warn};
 
 use crate::client::{send_message, IcalinguaStatus};
 use crate::data_struct::all_rooms::Room;
-use crate::data_struct::messages::NewMessage;
+use crate::data_struct::messages::{MessageTrait, NewMessage};
 use crate::data_struct::online_data::OnlineData;
 use crate::{py, VERSION};
 
@@ -26,24 +26,37 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let message = NewMessage::new_from_json(value);
+            let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
             if IcalinguaStatus::get_config()
                 .filter_list
-                .contains(&message.sender_id)
+                .contains(&message.msg.sender_id)
             {
                 return;
             }
-            info!("add_message {}", message.output().cyan());
+            info!("add_message {}", message.to_string().cyan());
             // info!("add_message {}", format!("{:#?}", message).cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
-            if message.content.eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
+            if message.content().eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
                 let reply = message.reply_with(&format!("ica-async-rs pong v{}", VERSION));
                 send_message(&client, &reply).await;
             }
             // python 插件
             py::call::new_message_py(&message, &client).await;
+        }
+    }
+}
+
+/// 理论上不会用到 (因为依赖一个客户端去请求)
+/// 但反正实际上还是我去请求, 所以只是暂时
+/// 加载一个房间的所有消息
+pub async fn set_messages(payload: Payload, _client: Client) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            let messages: Vec<NewMessage> = serde_json::from_value(value.clone()).unwrap();
+            let room_id = value["roomId"].as_i64().unwrap();
+            info!("set_messages {} len: {}", room_id.to_string().cyan(), messages.len());
         }
     }
 }
@@ -66,10 +79,8 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             if let Some(raw_rooms) = value.as_array() {
-                let rooms: Vec<Room> = raw_rooms
-                    .iter()
-                    .map(|room| Room::new_from_json(room))
-                    .collect();
+                let rooms: Vec<Room> =
+                    raw_rooms.iter().map(|room| Room::new_from_json(room)).collect();
                 unsafe {
                     crate::ClientStatus.update_rooms(rooms.clone());
                 }
@@ -107,6 +118,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "addMessage",
         "deleteMessage",
         "setAllRooms",
+        "setMessages",
         // 也许以后会用到
         "messageSuccess",
         "messageFailed",

@@ -4,7 +4,7 @@ use tokio::runtime::Runtime;
 use tracing::{debug, info, warn};
 
 use crate::client::send_message;
-use crate::data_struct::messages::{NewMessage, ReplyMessage, SendMessage};
+use crate::data_struct::messages::{MessageTrait, NewMessage, ReplyMessage, SendMessage};
 use crate::data_struct::MessageId;
 use crate::ClientStatus;
 
@@ -15,14 +15,10 @@ pub struct IcaStatusPy {}
 #[pymethods]
 impl IcaStatusPy {
     #[new]
-    pub fn py_new() -> Self {
-        Self {}
-    }
+    pub fn py_new() -> Self { Self {} }
 
     #[getter]
-    pub fn get_login(&self) -> bool {
-        unsafe { ClientStatus.login }
-    }
+    pub fn get_login(&self) -> bool { unsafe { ClientStatus.login } }
 
     #[getter]
     pub fn get_online(&self) -> bool {
@@ -106,9 +102,7 @@ impl IcaStatusPy {
 }
 
 impl IcaStatusPy {
-    pub fn new() -> Self {
-        Self {}
-    }
+    pub fn new() -> Self { Self {} }
 }
 
 #[derive(Clone)]
@@ -124,35 +118,21 @@ impl NewMessagePy {
         SendMessagePy::new(self.msg.reply_with(&content))
     }
 
-    pub fn __str__(&self) -> String {
-        format!("{:?}", self.msg)
-    }
+    pub fn __str__(&self) -> String { format!("{:?}", self.msg) }
     #[getter]
-    pub fn get_id(&self) -> MessageId {
-        self.msg.msg_id.clone()
-    }
+    pub fn get_id(&self) -> MessageId { self.msg.msg_id().clone() }
     #[getter]
-    pub fn get_content(&self) -> String {
-        self.msg.content.clone()
-    }
+    pub fn get_content(&self) -> String { self.msg.content().clone() }
     #[getter]
-    pub fn get_sender_id(&self) -> i64 {
-        self.msg.sender_id
-    }
+    pub fn get_sender_id(&self) -> i64 { self.msg.sender_id() }
     #[getter]
-    pub fn get_is_from_self(&self) -> bool {
-        self.msg.is_from_self()
-    }
+    pub fn get_is_from_self(&self) -> bool { self.msg.is_from_self() }
     #[getter]
-    pub fn get_is_reply(&self) -> bool {
-        self.msg.is_reply()
-    }
+    pub fn get_is_reply(&self) -> bool { self.msg.is_reply() }
 }
 
 impl NewMessagePy {
-    pub fn new(msg: &NewMessage) -> Self {
-        Self { msg: msg.clone() }
-    }
+    pub fn new(msg: &NewMessage) -> Self { Self { msg: msg.clone() } }
 }
 
 #[pyclass]
@@ -163,15 +143,11 @@ pub struct ReplyMessagePy {
 
 #[pymethods]
 impl ReplyMessagePy {
-    pub fn __str__(&self) -> String {
-        format!("{:?}", self.msg)
-    }
+    pub fn __str__(&self) -> String { format!("{:?}", self.msg) }
 }
 
 impl ReplyMessagePy {
-    pub fn new(msg: ReplyMessage) -> Self {
-        Self { msg }
-    }
+    pub fn new(msg: ReplyMessage) -> Self { Self { msg } }
 }
 
 #[derive(Clone)]
@@ -183,29 +159,21 @@ pub struct SendMessagePy {
 
 #[pymethods]
 impl SendMessagePy {
-    pub fn __str__(&self) -> String {
-        format!("{:?}", self.msg)
-    }
+    pub fn __str__(&self) -> String { format!("{:?}", self.msg) }
     /// 设置消息内容
-    /// 用于链式调用 
+    /// 用于链式调用
     pub fn with_content(&mut self, content: String) -> Self {
         self.msg.content = content;
         self.clone()
     }
     #[getter]
-    pub fn get_content(&self) -> String {
-        self.msg.content.clone()
-    }
+    pub fn get_content(&self) -> String { self.msg.content.clone() }
     #[setter]
-    pub fn set_content(&mut self, content: String) {
-        self.msg.content = content;
-    }
+    pub fn set_content(&mut self, content: String) { self.msg.content = content; }
 }
 
 impl SendMessagePy {
-    pub fn new(msg: SendMessage) -> Self {
-        Self { msg }
-    }
+    pub fn new(msg: SendMessage) -> Self { Self { msg } }
 }
 
 #[derive(Clone)]
@@ -239,9 +207,7 @@ impl IcaClientPy {
     }
 
     #[getter]
-    pub fn get_status(&self) -> IcaStatusPy {
-        IcaStatusPy::new()
-    }
+    pub fn get_status(&self) -> IcaStatusPy { IcaStatusPy::new() }
 
     pub fn debug(&self, content: String) {
         debug!("{}", content);

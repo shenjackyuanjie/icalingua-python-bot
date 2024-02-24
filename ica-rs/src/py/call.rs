@@ -1,17 +1,15 @@
-
-
 use std::path::PathBuf;
 
-use tracing::{warn, debug};
 use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
+use tracing::{debug, warn};
 
-use crate::data_struct::MessageId;
 use crate::data_struct::messages::NewMessage;
+use crate::data_struct::MessageId;
 use crate::py::{class, verify_plugins, PyStatus};
 
 pub fn get_func<'a>(py_module: &'a PyAny, path: &PathBuf, name: &'a str) -> Option<&'a PyAny> {
-    // 要处理的情况: 
+    // 要处理的情况:
     // 1. 有这个函数
     // 2. 没有这个函数
     // 3. 函数不是 Callable
@@ -26,7 +24,7 @@ pub fn get_func<'a>(py_module: &'a PyAny, path: &PathBuf, name: &'a str) -> Opti
                             warn!("function<{}>: {:#?} in {:?} is not callable", name, func, path);
                             None
                         }
-                    },
+                    }
                     Err(e) => {
                         warn!("failed to get function<{}> from {:?}: {:?}", name, path, e);
                         None
