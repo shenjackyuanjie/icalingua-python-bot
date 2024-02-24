@@ -75,9 +75,8 @@ async fn main() {
             );
             std::thread::sleep(Duration::from_secs(1));
             info!("发送启动消息到房间: {}", room);
-            if let Err(e) = socket
-                .emit("sendMessage", serde_json::to_value(startup_msg).unwrap())
-                .await
+            if let Err(e) =
+                socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()).await
             {
                 info!("启动信息发送失败 房间:{}|e:{}", room, e);
             }

@@ -3,7 +3,7 @@
 # 最大行长
 max_width = 100
 # 链式调用的最大长度
-chain_width = 70
+chain_width = 80
 # 数组的最大长度
 array_width = 70
 # 函数参数的最大长度

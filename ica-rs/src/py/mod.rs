@@ -107,11 +107,7 @@ pub fn load_py_plugins(path: &PathBuf) {
 
 pub fn verify_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
-    let plugin_path = IcalinguaStatus::get_config()
-        .py_plugin_path
-        .as_ref()
-        .unwrap()
-        .to_owned();
+    let plugin_path = IcalinguaStatus::get_config().py_plugin_path.as_ref().unwrap().to_owned();
     for entry in std::fs::read_dir(&plugin_path).unwrap() {
         if let Ok(entry) = entry {
             let path = entry.path();

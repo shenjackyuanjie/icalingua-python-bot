@@ -28,10 +28,7 @@ pub async fn add_message(payload: Payload, client: Client) {
         if let Some(value) = values.first() {
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
-            if IcalinguaStatus::get_config()
-                .filter_list
-                .contains(&message.msg.sender_id)
-            {
+            if IcalinguaStatus::get_config().filter_list.contains(&message.msg.sender_id) {
                 return;
             }
             info!("add_message {}", message.to_string().cyan());
