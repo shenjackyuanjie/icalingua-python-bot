@@ -47,25 +47,14 @@ impl IcalinguaStatus {
         self.online_data = Some(online_data);
     }
 
-    pub fn update_rooms(&mut self, rooms: Vec<Room>) {
-        self.rooms = Some(rooms);
-    }
+    pub fn update_rooms(&mut self, rooms: Vec<Room>) { self.rooms = Some(rooms); }
 
-    pub fn update_login_status(&mut self, login: bool) {
-        self.login = login;
-    }
+    pub fn update_login_status(&mut self, login: bool) { self.login = login; }
 
-    pub fn update_config(&mut self, config: IcaConfig) {
-        self.config = Some(config);
-    }
+    pub fn update_config(&mut self, config: IcaConfig) { self.config = Some(config); }
 
     pub fn get_online_data() -> &'static OnlineData {
-        unsafe {
-            ClientStatus
-                .online_data
-                .as_ref()
-                .expect("online_data should be set")
-        }
+        unsafe { ClientStatus.online_data.as_ref().expect("online_data should be set") }
     }
 
     pub fn get_config() -> &'static IcaConfig {
@@ -99,8 +88,5 @@ pub async fn sign_callback(payload: Payload, client: Client) {
     let signature: Signature = signing_key.sign(salt.as_slice());
 
     let sign = signature.to_bytes().to_vec();
-    client
-        .emit("auth", sign)
-        .await
-        .expect("Faild to send signin data");
+    client.emit("auth", sign).await.expect("Faild to send signin data");
 }
