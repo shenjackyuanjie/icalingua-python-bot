@@ -18,7 +18,7 @@ pub enum At {
 }
 
 impl At {
-    /// new_from_json(&message["at"])
+    #[inline]
     pub fn new_from_json(json: &JsonValue) -> Self {
         match json {
             JsonValue::Bool(b) => Self::Bool(*b),

@@ -51,7 +51,6 @@ pub async fn add_message(payload: Payload, client: Client) {
 pub async fn set_messages(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            println!("{:#?}", value);
             let messages: Vec<Message> = serde_json::from_value(value["messages"].clone()).unwrap();
             let room_id = value["roomId"].as_i64().unwrap();
             info!("set_messages {} len: {}", room_id.to_string().cyan(), messages.len());
