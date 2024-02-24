@@ -87,7 +87,7 @@ impl<'de> Deserialize<'de> for Message {
 
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}|{}|{}", self.sender_id, self.sender_name, self.content)
+        write!(f, "{}|{}|{}|{}", self.msg_id(), self.sender_id, self.sender_name, self.content)
     }
 }
 
@@ -115,8 +115,12 @@ impl Display for NewMessage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}|{}|{}|{}",
-            self.room_id, self.msg.sender_id, self.msg.sender_name, self.msg.content
+            "{}|{}|{}|{}|{}",
+            self.msg_id(),
+            self.room_id,
+            self.msg.sender_id,
+            self.msg.sender_name,
+            self.msg.content
         )
     }
 }

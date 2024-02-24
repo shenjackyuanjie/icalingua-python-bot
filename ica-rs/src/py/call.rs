@@ -8,7 +8,7 @@ use crate::data_struct::messages::NewMessage;
 use crate::data_struct::MessageId;
 use crate::py::{class, verify_plugins, PyStatus};
 
-pub fn get_func<'a>(py_module: &'a PyAny, path: &PathBuf, name: &'a str) -> Option<&'a PyAny> {
+pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> Option<&'py PyAny> {
     // 要处理的情况:
     // 1. 有这个函数
     // 2. 没有这个函数
@@ -57,7 +57,7 @@ pub async fn new_message_py(message: &NewMessage, client: &Client) {
                 let args = (msg, client);
                 if let Some(py_func) = get_func(py_module.as_ref(py), &path, "on_message") {
                     if let Err(e) = py_func.call1(args) {
-                        warn!("failed to call function<on_new_message>: {:?}", e);
+                        warn!("failed to call function<on_message>: {:?}", e);
                     }
                 }
             })
