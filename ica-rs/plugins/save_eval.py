@@ -42,6 +42,7 @@ def safe_eval(code: str, msg: NewMessage) -> str:
                 "__import__": "<built-in function __import__>",
                 "globals": "<built-in function globals>",
                 "compile": "<built-in function compile>",
+                "open": "<built-in function open>",
                 "help": "<built-in function help>",
                 "exit": "<built-in function exit>",
                 "input": "<built-in function input>",
