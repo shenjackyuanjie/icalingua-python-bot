@@ -29,11 +29,6 @@ jobs:
       with:
         # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
         python-version: 3.8
-    
-    - name: 准备
-      shell: pwsh
-      run: |
-        cd ica-rs
 
     - name: Run tests
       run: cargo test --verbose
@@ -46,4 +41,4 @@ jobs:
       with:
         # ica-rs-{version}-{build-count}.exe
         name: ica-rs-${{ steps.get_version.outputs.value }}-${{ github.run_number }}
-        path: ica-rs/target/release/ica-rs.exe
+        path: ./target/release/ica-rs.exe

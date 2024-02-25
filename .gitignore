@@ -6,3 +6,8 @@ config.toml
 *.pyc
 *__pycache__/
 
+
+
+# Added by cargo
+
+/target

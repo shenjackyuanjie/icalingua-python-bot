@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "ica-rs"
+]
+resolver = "2"
+
+[patch.crates-io]
+rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
+# pyo3 = { git = "https://github.com/PyO3/pyo3.git", branch = "main" }

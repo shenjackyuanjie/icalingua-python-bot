@@ -25,7 +25,3 @@ pyo3-asyncio = { version = "0.20.0", features = ["attributes", "tokio-runtime"] 
 
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }
-
-[patch.crates-io]
-rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
-# pyo3 = { git = "https://github.com/PyO3/pyo3.git", branch = "main" }
