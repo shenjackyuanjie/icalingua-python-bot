@@ -2,7 +2,6 @@ use crate::config::IcaConfig;
 use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::{DeleteMessage, SendMessage};
 use crate::data_struct::online_data::OnlineData;
-use crate::data_struct::RoomId;
 use crate::ClientStatus;
 
 use colored::Colorize;
