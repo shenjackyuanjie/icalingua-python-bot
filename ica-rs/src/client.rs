@@ -44,6 +44,7 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
 /// ```typescript
 /// async fetchHistory(messageId: string, roomId: number, currentLoadedMessagesCount: number)
 /// ```
+#[allow(dead_code)]
 pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
 
 #[derive(Debug, Clone)]

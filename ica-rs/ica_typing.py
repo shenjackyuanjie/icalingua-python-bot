@@ -120,6 +120,18 @@ class IcaClient:
         """向日志中输出警告信息"""
 
 
+class ConfigRequest:
+    def __init__(self, path: str, ) -> None:
+        ...
+
+
+class ConfigData:
+    def __getitem__(self, key: str):
+        ...
+    def have_key(self, key: str) -> bool:
+        ...
+
+
 on_load = Callable[[IcaClient], None]
 # def on_load(client: IcaClient) -> None:
 #     ...
@@ -131,3 +143,7 @@ on_message = Callable[[NewMessage, IcaClient], None]
 on_delete_message = Callable[[MessageId, IcaClient], None]
 # def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
 #     ...
+
+config = Callable[[None], ConfigRequest]
+
+CONFIG_DATA: ConfigData = ConfigData()
