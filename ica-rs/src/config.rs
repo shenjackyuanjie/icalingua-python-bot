@@ -23,6 +23,8 @@ pub struct IcaConfig {
     pub filter_list: Vec<i64>,
     /// Python 插件路径
     pub py_plugin_path: Option<String>,
+    /// Python 配置文件路径
+    pub py_config_path: Option<String>,
 }
 
 impl IcaConfig {

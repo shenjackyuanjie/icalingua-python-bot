@@ -162,6 +162,14 @@ impl IcaClientPy {
         })
     }
 
+    pub fn send_and_warn(&self, message: SendMessagePy) -> bool {
+        warn!(message.msg.content);
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(send_message(&self.client, &message.msg))
+        })
+    }
+
     pub fn delete_message(&self, message: DeleteMessagePy) -> bool {
         tokio::task::block_in_place(|| {
             let rt = Runtime::new().unwrap();

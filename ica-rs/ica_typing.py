@@ -105,6 +105,10 @@ class IcaClient:
         """
     def send_message(self, message: SendMessage) -> bool:
         ...
+    def send_and_warn(self, message: SendMessage) -> bool:
+        """发送消息, 并在日志中输出警告信息"""
+        self.warn(message.content)
+        return self.send_message(message)
     def delete_message(self, message: DeleteMessage) -> bool:
         ...
     

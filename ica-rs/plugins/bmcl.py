@@ -1,6 +1,7 @@
 import re
 import time
 import requests
+import traceback
 
 from typing import TYPE_CHECKING, TypeVar, Optional, Tuple
 
@@ -56,19 +57,27 @@ def format_hit_count(count: int) -> str:
 
 
 def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]:
+    # if CONFIG_DATA
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException as e:
-        client.warn(
-            f"数据请求失败, 请检查网络\n{e}"
-        )
-        reply = msg.reply_with(f"数据请求失败, 请检查网络\n{e}")
-        client.send_message(reply)
+        cookie = CONFIG_DATA["cookie"]
+        if cookie == "填写你的 cookie" or cookie is None:
+            response = requests.get(url)
+        else:
+            response = requests.get(url, cookies={"openbmclapi-jwt": cookie})
+    except requests.exceptions.RequestException:
+        warn_msg = f"数据请求失败, 请检查网络\n{traceback.format_exc()}"
+        reply = msg.reply_with(warn_msg)
+        client.send_and_warn(reply)
+        return None
+    except Exception as _:
+        warn_msg = f"数据请求中发生未知错误, 请呼叫 shenjack\n{traceback.format_exc()}"
+        reply = msg.reply_with(warn_msg)
+        client.send_and_warn(reply)
         return None
     if not response.status_code == 200 or response.reason != "OK":
-        client.warn(
-            f"数据请求失败, 请检查网络\n{response.status}"
-        )
+        warn_msg = f"请求失败, 请检查网络\n{response.status_code} {response.reason}"
+        reply = msg.reply_with(warn_msg)
+        client.send_and_warn(reply)
         return None
     return response.json()
 
@@ -209,7 +218,6 @@ help = """/bmcl -> dashboard
 
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
-    print(CONFIG_DATA)
     if not (msg.is_from_self or msg.is_reply):
         if msg.content.startswith("/bmcl"):
             if msg.content == "/bmcl":
@@ -236,5 +244,5 @@ def on_message(msg: NewMessage, client: IcaClient) -> None:
 def on_config() -> Tuple[str, str]:
     return (
         "bmcl.toml",
-        ""
+        """cookie = \"填写你的 cookie\""""
     )
