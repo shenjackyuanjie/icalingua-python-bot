@@ -72,7 +72,7 @@ async fn main() {
                 room.clone(),
                 None,
             );
-            std::thread::sleep(Duration::from_secs(1));
+            tokio::time::sleep(Duration::from_secs(1)).await;
             info!("发送启动消息到房间: {}", room);
             if let Err(e) =
                 socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()).await
@@ -82,7 +82,7 @@ async fn main() {
         }
     }
 
-    std::thread::sleep(Duration::from_secs(3));
+    tokio::time::sleep(Duration::from_secs(2)).await;
     // 等待一个输入
     info!("Press any key to exit");
     let mut input = String::new();

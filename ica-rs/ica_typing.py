@@ -1,6 +1,6 @@
 # Python 兼容版本 3.8+
 
-from typing import Callable
+from typing import Callable, Tuple
 
 """
 pub type RoomId = i64;
@@ -120,11 +120,6 @@ class IcaClient:
         """向日志中输出警告信息"""
 
 
-class ConfigRequest:
-    def __init__(self, path: str, ) -> None:
-        ...
-
-
 class ConfigData:
     def __getitem__(self, key: str):
         ...
@@ -144,6 +139,6 @@ on_delete_message = Callable[[MessageId, IcaClient], None]
 # def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
 #     ...
 
-config = Callable[[None], ConfigRequest]
+on_config = Callable[[None], Tuple[str, str]]
 
 CONFIG_DATA: ConfigData = ConfigData()

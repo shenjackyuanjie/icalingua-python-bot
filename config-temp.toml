@@ -15,3 +15,4 @@ filter_list = [0]
 
 # python 插件路径
 py_plugin_path = "/path/to/your/plugin"
+py_config_path = "/path/to/your/config"

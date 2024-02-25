@@ -10,7 +10,7 @@ else:
     NewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-def safe_eval(code: str) -> str:
+def safe_eval(code: str, msg: NewMessage) -> str:
     try:
         # code = code.replace('help', '坏东西！\n')
         # code = code.replace('bytes', '坏东西！\n')
@@ -48,6 +48,7 @@ def safe_eval(code: str) -> str:
                 "return": "别惦记你那个 return 了",
                 "getattr": "<built-in function getattr>",
                 "setattr": "<built-in function setattr>",
+                "msg": msg,
             }
             os.system = "不许"
             result = str(eval(code, global_val, {}))
@@ -73,6 +74,6 @@ def on_message(message: NewMessage, client: IcaClient) -> None:
     if not (message.is_from_self or message.is_reply):
         if message.content.startswith("/="):
             code = message.content[2:]
-            result = safe_eval(code)
+            result = safe_eval(code, message)
             reply = message.reply_with(result)
             client.send_message(reply)

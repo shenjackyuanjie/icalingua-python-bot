@@ -2,11 +2,13 @@ import re
 import time
 import requests
 
-from typing import TYPE_CHECKING, TypeVar, Optional
+from typing import TYPE_CHECKING, TypeVar, Optional, Tuple
 
 if TYPE_CHECKING:
-    from ica_typing import NewMessage, IcaClient
+    from ica_typing import NewMessage, IcaClient, ConfigData
+    CONFIG_DATA: ConfigData
 else:
+    CONFIG_DATA = None
     NewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
@@ -207,6 +209,7 @@ help = """/bmcl -> dashboard
 
 
 def on_message(msg: NewMessage, client: IcaClient) -> None:
+    print(CONFIG_DATA)
     if not (msg.is_from_self or msg.is_reply):
         if msg.content.startswith("/bmcl"):
             if msg.content == "/bmcl":
@@ -228,3 +231,10 @@ def on_message(msg: NewMessage, client: IcaClient) -> None:
                 if len(name) > 1:
                     name = name[1]
                     bmcl_rank(msg, client, name)
+
+
+def on_config() -> Tuple[str, str]:
+    return (
+        "bmcl.toml",
+        ""
+    )
