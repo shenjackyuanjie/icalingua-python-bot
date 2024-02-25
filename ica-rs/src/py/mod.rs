@@ -141,6 +141,20 @@ pub fn get_change_time(path: &PathBuf) -> Option<SystemTime> {
     path.metadata().ok()?.modified().ok()
 }
 
+pub fn py_module_from_code(content: &str, path: &str) -> PyResult<Py<PyAny>> {
+    Python::with_gil(|py| -> PyResult<Py<PyAny>> {
+        let module: PyResult<Py<PyAny>> = PyModule::from_code(
+            py,
+            &content,
+            &path,
+            &path,
+            // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
+        )
+        .map(|module| module.into());
+        module
+    })
+}
+
 /// 传入文件路径
 /// 返回 hash 和 文件内容
 pub fn load_py_file(path: &PathBuf) -> std::io::Result<(Option<SystemTime>, String)> {
