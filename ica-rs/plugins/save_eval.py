@@ -71,10 +71,10 @@ def safe_eval(code: str, msg: NewMessage) -> str:
         return result
 
 
-def on_message(message: NewMessage, client: IcaClient) -> None:
-    if not (message.is_from_self or message.is_reply):
-        if message.content.startswith("/="):
-            code = message.content[2:]
-            result = safe_eval(code, message)
-            reply = message.reply_with(result)
-            client.send_message(reply)
+# def on_message(message: NewMessage, client: IcaClient) -> None:
+#     if not (message.is_from_self or message.is_reply):
+#         if message.content.startswith("/="):
+#             code = message.content[2:]
+#             result = safe_eval(code, message)
+#             reply = message.reply_with(result)
+#             client.send_message(reply)
