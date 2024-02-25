@@ -193,6 +193,8 @@ impl IcaClientPy {
 
     #[getter]
     pub fn get_status(&self) -> IcaStatusPy { IcaStatusPy::new() }
+    #[getter]
+    pub fn get_verison(&self) -> String { crate::VERSION.to_string() }
 
     pub fn debug(&self, content: String) {
         debug!("{}", content);

@@ -115,6 +115,9 @@ class IcaClient:
     @property
     def status() -> IcaStatus:
         ...
+    @property
+    def version() -> str:
+        ...
     
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""

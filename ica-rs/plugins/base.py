@@ -11,5 +11,5 @@ _version_ = "1.1.0"
 def on_message(msg: NewMessage, client: IcaClient) -> None:
     if not (msg.is_from_self or msg.is_reply):
         if msg.content == "/bot":
-            reply = msg.reply_with(f"ica-async-rs-sync-py {_version_}")
+            reply = msg.reply_with(f"ica-async-rs-sync-py {_version_}({client.version})")
             client.send_message(reply)
