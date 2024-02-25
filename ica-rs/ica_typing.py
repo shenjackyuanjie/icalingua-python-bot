@@ -1,6 +1,6 @@
 # Python 兼容版本 3.8+
 
-from typing import Optional, Callable
+from typing import Callable
 
 """
 pub type RoomId = i64;
@@ -14,6 +14,10 @@ MessageId = str
 
 
 class IcaStatus:
+    """
+    ica状态信息
+    此类并不存储信息, 所有方法都是实时获取
+    """
     @property
     def login(self) -> bool:
         ...
@@ -21,25 +25,25 @@ class IcaStatus:
     def online(self) -> bool:
         ...
     @property
-    def self_id(self) -> Optional[UserId]:
+    def self_id(self) -> UserId:
         ...
     @property
-    def nick_name(self) -> Optional[str]:
+    def nick_name(self) -> str:
         ...
     @property
-    def ica_version(self) -> Optional[str]:
+    def ica_version(self) -> str:
         ...
     @property
-    def os_info(self) -> Optional[str]:
+    def os_info(self) -> str:
         ...
     @property
-    def resident_set_size(self) -> Optional[str]:
+    def resident_set_size(self) -> str:
         ...
     @property
-    def head_used(self) -> Optional[str]:
+    def head_used(self) -> str:
         ...
     @property
-    def load_average(self) -> Optional[str]:
+    def load_average(self) -> str:
         ...
 
 
@@ -62,8 +66,15 @@ class SendMessage:
         return self
 
 
+class DeleteMessage:
+    def __str__(self):
+        ...
+
+
 class NewMessage:
     def reply_with(self, message: str) -> SendMessage:
+        ...
+    def as_deleted(self) -> DeleteMessage:
         ...
     def __str__(self) -> str:
         ...
@@ -93,6 +104,8 @@ class IcaClient:
         所以只能 tokio::task::block_in_place 转换成同步调用)
         """
     def send_message(self, message: SendMessage) -> bool:
+        ...
+    def delete_message(self, message: DeleteMessage) -> bool:
         ...
     
     @property

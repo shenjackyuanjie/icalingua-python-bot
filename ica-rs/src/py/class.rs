@@ -3,8 +3,10 @@ use rust_socketio::asynchronous::Client;
 use tokio::runtime::Runtime;
 use tracing::{debug, info, warn};
 
-use crate::client::send_message;
-use crate::data_struct::messages::{MessageTrait, NewMessage, ReplyMessage, SendMessage};
+use crate::client::{delete_message, send_message, IcalinguaStatus};
+use crate::data_struct::messages::{
+    DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
+};
 use crate::data_struct::MessageId;
 use crate::ClientStatus;
 
@@ -16,88 +18,39 @@ pub struct IcaStatusPy {}
 impl IcaStatusPy {
     #[new]
     pub fn py_new() -> Self { Self {} }
-
     #[getter]
     pub fn get_login(&self) -> bool { unsafe { ClientStatus.login } }
-
     #[getter]
-    pub fn get_online(&self) -> bool {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => data.online,
-                None => false,
-            }
-        }
+    pub fn get_online(&self) -> bool { IcalinguaStatus::get_online_data().online }
+    #[getter]
+    pub fn get_self_id(&self) -> i64 { IcalinguaStatus::get_online_data().qqid }
+    #[getter]
+    pub fn get_nick_name(&self) -> String { IcalinguaStatus::get_online_data().nick.clone() }
+    #[getter]
+    pub fn get_loaded_messages_count(&self) -> u64 { IcalinguaStatus::get_loaded_messages_count() }
+    #[getter]
+    pub fn get_ica_version(&self) -> String {
+        IcalinguaStatus::get_online_data().icalingua_info.ica_version.clone()
     }
 
     #[getter]
-    pub fn get_self_id(&self) -> Option<i64> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.qqid),
-                None => None,
-            }
-        }
+    pub fn get_os_info(&self) -> String {
+        IcalinguaStatus::get_online_data().icalingua_info.os_info.clone()
     }
 
     #[getter]
-    pub fn get_nick_name(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.nick.clone()),
-                None => None,
-            }
-        }
+    pub fn get_resident_set_size(&self) -> String {
+        IcalinguaStatus::get_online_data().icalingua_info.resident_set_size.clone()
     }
 
     #[getter]
-    pub fn get_ica_version(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.icalingua_info.ica_version.clone()),
-                None => None,
-            }
-        }
+    pub fn get_heap_used(&self) -> String {
+        IcalinguaStatus::get_online_data().icalingua_info.heap_used.clone()
     }
 
     #[getter]
-    pub fn get_os_info(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.icalingua_info.os_info.clone()),
-                None => None,
-            }
-        }
-    }
-
-    #[getter]
-    pub fn get_resident_set_size(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.icalingua_info.resident_set_size.clone()),
-                None => None,
-            }
-        }
-    }
-
-    #[getter]
-    pub fn get_heap_used(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.icalingua_info.heap_used.clone()),
-                None => None,
-            }
-        }
-    }
-
-    #[getter]
-    pub fn get_load(&self) -> Option<String> {
-        unsafe {
-            match ClientStatus.online_data.as_ref() {
-                Some(data) => Some(data.icalingua_info.load.clone()),
-                None => None,
-            }
-        }
+    pub fn get_load(&self) -> String {
+        IcalinguaStatus::get_online_data().icalingua_info.load.clone()
     }
 }
 
@@ -117,7 +70,7 @@ impl NewMessagePy {
     pub fn reply_with(&self, content: String) -> SendMessagePy {
         SendMessagePy::new(self.msg.reply_with(&content))
     }
-
+    pub fn as_deleted(&self) -> DeleteMessagePy { DeleteMessagePy::new(self.msg.as_deleted()) }
     pub fn __str__(&self) -> String { format!("{:?}", self.msg) }
     #[getter]
     pub fn get_id(&self) -> MessageId { self.msg.msg_id().clone() }
@@ -178,6 +131,22 @@ impl SendMessagePy {
 
 #[derive(Clone)]
 #[pyclass]
+#[pyo3(name = "DeleteMessage")]
+pub struct DeleteMessagePy {
+    pub msg: DeleteMessage,
+}
+
+#[pymethods]
+impl DeleteMessagePy {
+    pub fn __str__(&self) -> String { format!("{:?}", self.msg) }
+}
+
+impl DeleteMessagePy {
+    pub fn new(msg: DeleteMessage) -> Self { Self { msg } }
+}
+
+#[derive(Clone)]
+#[pyclass]
 #[pyo3(name = "IcaClient")]
 pub struct IcaClientPy {
     pub client: Client,
@@ -189,6 +158,13 @@ impl IcaClientPy {
         tokio::task::block_in_place(|| {
             let rt = Runtime::new().unwrap();
             rt.block_on(send_message(&self.client, &message.msg))
+        })
+    }
+
+    pub fn delete_message(&self, message: DeleteMessagePy) -> bool {
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(delete_message(&self.client, &message.msg))
         })
     }
 

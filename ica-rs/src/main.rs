@@ -14,6 +14,7 @@ mod py;
 #[allow(non_upper_case_globals)]
 pub static mut ClientStatus: client::IcalinguaStatus = client::IcalinguaStatus {
     login: false,
+    current_loaded_messages_count: 0,
     online_data: None,
     rooms: None,
     config: None,
@@ -41,9 +42,7 @@ async fn main() {
     // 从命令行获取 host 和 key
     // 从命令行获取配置文件路径
     let ica_config = config::IcaConfig::new_from_cli();
-    unsafe {
-        ClientStatus.update_config(ica_config.clone());
-    }
+    client::IcalinguaStatus::update_config(ica_config.clone());
     py::init_py(&ica_config);
 
     let socket = ClientBuilder::new(ica_config.host.clone())

@@ -277,6 +277,14 @@ impl NewMessage {
     pub fn reply_with(&self, content: &String) -> SendMessage {
         SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()))
     }
+
+    /// 作为被删除的消息
+    pub fn as_deleted(&self) -> DeleteMessage {
+        DeleteMessage {
+            room_id: self.room_id,
+            message_id: self.msg.msg_id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -297,6 +305,25 @@ impl SendMessage {
             room_id,
             reply_to,
             at: json!([]),
+        }
+    }
+
+    pub fn as_value(&self) -> JsonValue { serde_json::to_value(self).unwrap() }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeleteMessage {
+    #[serde(rename = "roomId")]
+    pub room_id: RoomId,
+    #[serde(rename = "messageId")]
+    pub message_id: MessageId,
+}
+
+impl DeleteMessage {
+    pub fn new(room_id: RoomId, message_id: MessageId) -> Self {
+        Self {
+            room_id,
+            message_id,
         }
     }
 

@@ -15,9 +15,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
             info!("update_online_data {}", format!("{:?}", online_data).cyan());
-            unsafe {
-                crate::ClientStatus.update_online_data(online_data);
-            }
+            IcalinguaStatus::update_online_data(online_data);
         }
     }
 }
@@ -78,9 +76,7 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
             if let Some(raw_rooms) = value.as_array() {
                 let rooms: Vec<Room> =
                     raw_rooms.iter().map(|room| Room::new_from_json(room)).collect();
-                unsafe {
-                    crate::ClientStatus.update_rooms(rooms.clone());
-                }
+                IcalinguaStatus::update_rooms(rooms.clone());
                 info!("update_all_room {}", rooms.len());
             }
         }

@@ -1,6 +1,8 @@
 use crate::config::IcaConfig;
-use crate::data_struct::messages::SendMessage;
-use crate::data_struct::{all_rooms::Room, online_data::OnlineData};
+use crate::data_struct::all_rooms::Room;
+use crate::data_struct::messages::{DeleteMessage, SendMessage};
+use crate::data_struct::online_data::OnlineData;
+use crate::data_struct::RoomId;
 use crate::ClientStatus;
 
 use colored::Colorize;
@@ -24,10 +26,31 @@ pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
         }
     }
 }
+/// "安全" 的 删除一条消息
+pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
+    let value = message.as_value();
+    match client.emit("deleteMessage", value).await {
+        Ok(_) => {
+            debug!("delete_message {}", format!("{:#?}", message).yellow());
+            true
+        }
+        Err(e) => {
+            warn!("delete_message faild:{}", format!("{:#?}", e).red());
+            false
+        }
+    }
+}
+/// "安全" 的 获取历史消息
+/// ```typescript
+/// async fetchHistory(messageId: string, roomId: number, currentLoadedMessagesCount: number)
+/// ```
+pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
 
 #[derive(Debug, Clone)]
 pub struct IcalinguaStatus {
     pub login: bool,
+    /// currentLoadedMessagesCount
+    pub current_loaded_messages_count: u64,
     pub online_data: Option<OnlineData>,
     pub rooms: Option<Vec<Room>>,
     pub config: Option<IcaConfig>,
@@ -37,26 +60,58 @@ impl IcalinguaStatus {
     pub fn new() -> Self {
         Self {
             login: false,
+            current_loaded_messages_count: 0,
             online_data: None,
             rooms: None,
             config: Some(IcaConfig::new_from_cli()),
         }
     }
 
-    pub fn update_online_data(&mut self, online_data: OnlineData) {
-        self.online_data = Some(online_data);
+    #[inline]
+    pub fn update_online_data(online_data: OnlineData) {
+        unsafe {
+            ClientStatus.online_data = Some(online_data);
+        }
     }
-
-    pub fn update_rooms(&mut self, rooms: Vec<Room>) { self.rooms = Some(rooms); }
-
-    pub fn update_login_status(&mut self, login: bool) { self.login = login; }
-
-    pub fn update_config(&mut self, config: IcaConfig) { self.config = Some(config); }
-
+    #[inline]
+    pub fn update_rooms(rooms: Vec<Room>) {
+        unsafe {
+            ClientStatus.rooms = Some(rooms);
+        }
+    }
+    #[inline]
+    pub fn update_login_status(login: bool) {
+        unsafe {
+            ClientStatus.login = login;
+        }
+    }
+    #[inline]
+    pub fn update_config(config: IcaConfig) {
+        unsafe {
+            ClientStatus.config = Some(config);
+        }
+    }
+    #[inline]
+    pub fn update_loaded_messages_count(count: u64) {
+        unsafe {
+            ClientStatus.current_loaded_messages_count = count;
+        }
+    }
+    #[inline]
+    pub fn get_login_status() -> bool { unsafe { ClientStatus.login } }
+    #[inline]
+    pub fn get_rooms() -> &'static Vec<Room> {
+        unsafe { ClientStatus.rooms.as_ref().expect("rooms should be set") }
+    }
+    #[inline]
+    pub fn get_loaded_messages_count() -> u64 {
+        unsafe { ClientStatus.current_loaded_messages_count }
+    }
+    #[inline]
     pub fn get_online_data() -> &'static OnlineData {
         unsafe { ClientStatus.online_data.as_ref().expect("online_data should be set") }
     }
-
+    #[inline]
     pub fn get_config() -> &'static IcaConfig {
         unsafe { ClientStatus.config.as_ref().expect("config should be set") }
     }

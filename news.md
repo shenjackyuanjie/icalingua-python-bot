@@ -1,5 +1,26 @@
 # 更新日志
 
+## 0.4.11
+
+这几天就是在刷版本号的感觉
+
+- 添加
+  - `DeleteMessage` 用于删除消息
+  - `NewMessage.as_delete` 用于将消息转换为删除消息
+  - `client::delete_message` 用于删除消息
+  - `client::fetch_history` 用于获取历史消息 TODO
+  - `py::class::DeleteMessagePy` 用于删除消息 的 Python 侧 API
+  - `py::class::IcaClientPy.delete_message` 用于删除消息 的 Python 侧 API
+  - `IcalinguaStatus.current_loaded_messages_count`
+    - 用于以后加载信息计数
+- 修改
+  - `py::class::IcaStatusPy` 
+    - 大部分方法从手动 `unsafe` + `Option`
+    - 改成直接调用 `IcalinguaStatus` 的方法
+  - `IcalinguaStatus`
+    - 所有方法均改成 直接对着 `IcalinguaStatus` 的方法调用
+    - 补全没有的方法
+
 ## 0.4.10
 
 好家伙, 我感觉都快能叫 0.5 了
