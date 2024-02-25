@@ -1,0 +1,49 @@
+name: build and test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: 获取版本号
+      id: get_version
+      uses: sravinet/toml-select@v1.0.1
+      with:
+        file: ./ica-rs/Cargo.toml
+        field: "package.version"
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
+        python-version: 3.8
+    
+    - name: 准备
+      shell: pwsh
+      run: |
+        cd ica-rs
+
+    - name: Run tests
+      run: cargo test --verbose
+    
+    - name: Build
+      run: cargo build --release
+    
+    - name: 上传
+      uses: actions/upload-artifact@v2
+      with:
+        # ica-rs-{version}-{build-count}.exe
+        name: ica-rs-${{ steps.get_version.outputs.value }}-${{ github.run_number }}
+        path: ica-rs/target/release/ica-rs.exe
