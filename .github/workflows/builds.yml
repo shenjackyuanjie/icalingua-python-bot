@@ -39,6 +39,5 @@ jobs:
     - name: 上传
       uses: actions/upload-artifact@v2
       with:
-        # ica-rs-{version}-{build-count}.exe
-        name: ica-rs-${{ steps.get_version.outputs.value }}-${{ github.run_number }}
+        name: ica-rs-b${{ github.run_number }}-${{ steps.get_version.outputs.value }}-py38-win-x64
         path: ./target/release/ica-rs.exe
