@@ -146,6 +146,9 @@ on_delete_message = Callable[[MessageId, IcaClient], None]
 # def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
 #     ...
 
+# TODO: Matrix adapter
+# on_matrix_room_message = Callable[[RoomId, NewMessage, IcaClient], None]
+
 on_config = Callable[[None], Tuple[str, str]]
 
 CONFIG_DATA: ConfigData = ConfigData()

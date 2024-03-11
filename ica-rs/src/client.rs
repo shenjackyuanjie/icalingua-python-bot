@@ -1,8 +1,8 @@
-use crate::config::IcaConfig;
+use crate::config::{BotConfig, IcaConfig};
 use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::{DeleteMessage, SendMessage};
 use crate::data_struct::online_data::OnlineData;
-use crate::ClientStatus;
+use crate::ClientStatus_Global;
 
 use colored::Colorize;
 use ed25519_dalek::{Signature, Signer, SigningKey};
@@ -47,73 +47,85 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
 // pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
 
 #[derive(Debug, Clone)]
-pub struct IcalinguaStatus {
+pub struct BotStatus {
     pub login: bool,
     /// currentLoadedMessagesCount
     pub current_loaded_messages_count: u64,
     pub online_data: Option<OnlineData>,
     pub rooms: Option<Vec<Room>>,
-    pub config: Option<IcaConfig>,
+    pub config: Option<BotConfig>,
 }
 
-impl IcalinguaStatus {
+impl BotStatus {
     pub fn new() -> Self {
         Self {
             login: false,
             current_loaded_messages_count: 0,
             online_data: None,
             rooms: None,
-            config: Some(IcaConfig::new_from_cli()),
+            config: Some(BotConfig::new_from_cli()),
         }
     }
 
     #[inline]
     pub fn update_online_data(online_data: OnlineData) {
         unsafe {
-            ClientStatus.online_data = Some(online_data);
+            ClientStatus_Global.online_data = Some(online_data);
         }
     }
     #[inline]
     pub fn update_rooms(rooms: Vec<Room>) {
         unsafe {
-            ClientStatus.rooms = Some(rooms);
+            ClientStatus_Global.rooms = Some(rooms);
         }
     }
     #[inline]
     pub fn update_login_status(login: bool) {
         unsafe {
-            ClientStatus.login = login;
+            ClientStatus_Global.login = login;
         }
     }
     #[inline]
-    pub fn update_config(config: IcaConfig) {
+    pub fn update_config(config: BotConfig) {
         unsafe {
-            ClientStatus.config = Some(config);
+            ClientStatus_Global.config = Some(config);
         }
     }
     #[inline]
     pub fn update_loaded_messages_count(count: u64) {
         unsafe {
-            ClientStatus.current_loaded_messages_count = count;
+            ClientStatus_Global.current_loaded_messages_count = count;
         }
     }
     #[inline]
-    pub fn get_login_status() -> bool { unsafe { ClientStatus.login } }
+    pub fn get_login_status() -> bool { unsafe { ClientStatus_Global.login } }
     #[inline]
     pub fn get_rooms() -> &'static Vec<Room> {
-        unsafe { ClientStatus.rooms.as_ref().expect("rooms should be set") }
+        unsafe { ClientStatus_Global.rooms.as_ref().expect("rooms should be set") }
     }
     #[inline]
     pub fn get_loaded_messages_count() -> u64 {
-        unsafe { ClientStatus.current_loaded_messages_count }
+        unsafe { ClientStatus_Global.current_loaded_messages_count }
     }
     #[inline]
     pub fn get_online_data() -> &'static OnlineData {
-        unsafe { ClientStatus.online_data.as_ref().expect("online_data should be set") }
+        unsafe { ClientStatus_Global.online_data.as_ref().expect("online_data should be set") }
     }
     #[inline]
-    pub fn get_config() -> &'static IcaConfig {
-        unsafe { ClientStatus.config.as_ref().expect("config should be set") }
+    pub fn get_config() -> &'static BotConfig {
+        unsafe { ClientStatus_Global.config.as_ref().expect("config should be set") }
+    }
+    #[inline]
+    pub fn get_ica_config() -> &'static IcaConfig {
+        unsafe {
+            ClientStatus_Global
+                .config
+                .as_ref()
+                .expect("config should be set")
+                .ica
+                .as_ref()
+                .expect("ica should be set")
+        }
     }
 }
 
@@ -134,7 +146,7 @@ pub async fn sign_callback(payload: Payload, client: Client) {
     .expect("auth_key should be string");
     let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
     // 签名
-    let private_key = IcalinguaStatus::get_config().private_key.clone();
+    let private_key = BotStatus::get_config().ica().private_key.clone();
     let array_key: [u8; 32] = hex::decode(private_key)
         .expect("Not a vaild pub key")
         .try_into()

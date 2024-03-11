@@ -4,12 +4,12 @@ use tokio::runtime::Runtime;
 use toml::Value as TomlValue;
 use tracing::{debug, info, warn};
 
-use crate::client::{delete_message, send_message, IcalinguaStatus};
+use crate::client::{delete_message, send_message, BotStatus};
 use crate::data_struct::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
 use crate::data_struct::MessageId;
-use crate::ClientStatus;
+use crate::ClientStatus_Global;
 
 #[pyclass]
 #[pyo3(name = "IcaStatus")]
@@ -20,39 +20,37 @@ impl IcaStatusPy {
     #[new]
     pub fn py_new() -> Self { Self {} }
     #[getter]
-    pub fn get_login(&self) -> bool { unsafe { ClientStatus.login } }
+    pub fn get_login(&self) -> bool { unsafe { ClientStatus_Global.login } }
     #[getter]
-    pub fn get_online(&self) -> bool { IcalinguaStatus::get_online_data().online }
+    pub fn get_online(&self) -> bool { BotStatus::get_online_data().online }
     #[getter]
-    pub fn get_self_id(&self) -> i64 { IcalinguaStatus::get_online_data().qqid }
+    pub fn get_self_id(&self) -> i64 { BotStatus::get_online_data().qqid }
     #[getter]
-    pub fn get_nick_name(&self) -> String { IcalinguaStatus::get_online_data().nick.clone() }
+    pub fn get_nick_name(&self) -> String { BotStatus::get_online_data().nick.clone() }
     #[getter]
-    pub fn get_loaded_messages_count(&self) -> u64 { IcalinguaStatus::get_loaded_messages_count() }
+    pub fn get_loaded_messages_count(&self) -> u64 { BotStatus::get_loaded_messages_count() }
     #[getter]
     pub fn get_ica_version(&self) -> String {
-        IcalinguaStatus::get_online_data().icalingua_info.ica_version.clone()
+        BotStatus::get_online_data().icalingua_info.ica_version.clone()
     }
 
     #[getter]
     pub fn get_os_info(&self) -> String {
-        IcalinguaStatus::get_online_data().icalingua_info.os_info.clone()
+        BotStatus::get_online_data().icalingua_info.os_info.clone()
     }
 
     #[getter]
     pub fn get_resident_set_size(&self) -> String {
-        IcalinguaStatus::get_online_data().icalingua_info.resident_set_size.clone()
+        BotStatus::get_online_data().icalingua_info.resident_set_size.clone()
     }
 
     #[getter]
     pub fn get_heap_used(&self) -> String {
-        IcalinguaStatus::get_online_data().icalingua_info.heap_used.clone()
+        BotStatus::get_online_data().icalingua_info.heap_used.clone()
     }
 
     #[getter]
-    pub fn get_load(&self) -> String {
-        IcalinguaStatus::get_online_data().icalingua_info.load.clone()
-    }
+    pub fn get_load(&self) -> String { BotStatus::get_online_data().icalingua_info.load.clone() }
 }
 
 impl IcaStatusPy {

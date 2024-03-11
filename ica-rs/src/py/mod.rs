@@ -8,8 +8,8 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{debug, info, warn};
 
-use crate::client::IcalinguaStatus;
-use crate::config::IcaConfig;
+use crate::client::BotStatus;
+use crate::config::{BotConfig, IcaConfig};
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
@@ -75,7 +75,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                         if config.is_instance_of::<PyTuple>() {
                             let (config, default) = config.extract::<(String, String)>().unwrap();
                             let base_path =
-                                IcalinguaStatus::get_config().py_config_path.as_ref().unwrap();
+                                BotStatus::get_config().py_config_path.as_ref().unwrap();
 
                             let mut base_path: PathBuf = PathBuf::from(base_path);
 
@@ -244,7 +244,7 @@ pub fn load_py_file(path: &PathBuf) -> std::io::Result<RawPyPlugin> {
     Ok((path.clone(), changed_time, content))
 }
 
-pub fn init_py(config: &IcaConfig) {
+pub fn init_py(config: &BotConfig) {
     debug!("initing python threads");
     pyo3::prepare_freethreaded_python();
     if let Some(plugin_path) = &config.py_plugin_path {

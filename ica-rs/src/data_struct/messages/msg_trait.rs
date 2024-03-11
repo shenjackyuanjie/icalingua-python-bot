@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
-use crate::client::IcalinguaStatus;
+use crate::client::BotStatus;
 use crate::data_struct::messages::{At, Message, NewMessage};
 use crate::data_struct::{MessageId, UserId};
 
@@ -34,7 +34,7 @@ impl<'de> Deserialize<'de> for At {
 pub trait MessageTrait {
     fn is_reply(&self) -> bool;
     fn is_from_self(&self) -> bool {
-        let qq_id = IcalinguaStatus::get_online_data().qqid;
+        let qq_id = BotStatus::get_online_data().qqid;
         self.sender_id() == qq_id
     }
     fn msg_id(&self) -> &MessageId;

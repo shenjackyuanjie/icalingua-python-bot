@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use config::{BotConfig, IcaConfig};
 use futures_util::FutureExt;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{Event, Payload, TransportType};
@@ -9,10 +10,11 @@ mod client;
 mod config;
 mod data_struct;
 mod events;
+mod matrix;
 mod py;
 
 #[allow(non_upper_case_globals)]
-pub static mut ClientStatus: client::IcalinguaStatus = client::IcalinguaStatus {
+pub static mut ClientStatus_Global: client::BotStatus = client::BotStatus {
     login: false,
     current_loaded_messages_count: 0,
     online_data: None,
@@ -34,18 +36,8 @@ macro_rules! wrap_any_callback {
     };
 }
 
-#[tokio::main]
-async fn main() {
-    tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
-    info!("ica-async-rs v{}", VERSION);
-
-    // 从命令行获取 host 和 key
-    // 从命令行获取配置文件路径
-    let ica_config = config::IcaConfig::new_from_cli();
-    client::IcalinguaStatus::update_config(ica_config.clone());
-    py::init_py(&ica_config);
-
-    let socket = ClientBuilder::new(ica_config.host.clone())
+async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::Receiver<()>) {
+    let socket = ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
         .on_any(wrap_any_callback!(events::any_event))
         .on("requireAuth", wrap_callback!(client::sign_callback))
@@ -65,8 +57,8 @@ async fn main() {
 
     info!("Connected");
 
-    if ica_config.notice_start {
-        for room in ica_config.notice_room.iter() {
+    if config.notice_start {
+        for room in config.notice_room.iter() {
             let startup_msg = crate::data_struct::messages::SendMessage::new(
                 format!("ica-async-rs bot v{}", VERSION),
                 room.clone(),
@@ -81,6 +73,33 @@ async fn main() {
             }
         }
     }
+    // 等待停止信号
+    stop_reciver.await.ok();
+    socket.disconnect().await.expect("Disconnect failed");
+}
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
+    info!("ica-async-rs v{}", VERSION);
+
+    // 从命令行获取 host 和 key
+    // 从命令行获取配置文件路径
+    let bot_config = config::BotConfig::new_from_cli();
+    client::BotStatus::update_config(bot_config.clone());
+    py::init_py(&bot_config);
+
+    // 准备一个用于停止 socket 的变量
+    let (send, recv) = tokio::sync::oneshot::channel::<()>();
+    if bot_config.ica.is_some() && bot_config.ica().enable {
+        info!("启动 ica");
+        let config = bot_config.ica();
+        tokio::spawn(async move {
+            start_ica(&config, recv).await;
+        });
+    } else {
+        info!("未启用 ica");
+    }
 
     tokio::time::sleep(Duration::from_secs(2)).await;
     // 等待一个输入
@@ -88,6 +107,7 @@ async fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
 
-    socket.disconnect().await.expect("Disconnect failed");
+    // socket.disconnect().await.expect("Disconnect failed");
+    send.send(()).ok();
     info!("Disconnected");
 }

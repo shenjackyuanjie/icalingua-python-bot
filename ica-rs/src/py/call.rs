@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
-use crate::client::IcalinguaStatus;
+use crate::client::BotStatus;
 use crate::data_struct::messages::NewMessage;
 use crate::data_struct::MessageId;
 use crate::py::{class, PyPlugin, PyStatus};
@@ -45,7 +45,7 @@ pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> O
 
 pub fn verify_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
-    let plugin_path = IcalinguaStatus::get_config().py_plugin_path.as_ref();
+    let plugin_path = BotStatus::get_config().py_plugin_path.as_ref();
     if let None = plugin_path {
         warn!("未配置 Python 插件路径");
         return;

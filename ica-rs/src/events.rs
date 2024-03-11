@@ -3,7 +3,7 @@ use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
 use tracing::{info, warn};
 
-use crate::client::{send_message, IcalinguaStatus};
+use crate::client::{send_message, BotStatus};
 use crate::data_struct::all_rooms::Room;
 use crate::data_struct::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::online_data::OnlineData;
@@ -15,7 +15,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
             info!("update_online_data {}", format!("{:?}", online_data).cyan());
-            IcalinguaStatus::update_online_data(online_data);
+            BotStatus::update_online_data(online_data);
         }
     }
 }
@@ -26,7 +26,7 @@ pub async fn add_message(payload: Payload, client: Client) {
         if let Some(value) = values.first() {
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
-            if IcalinguaStatus::get_config().filter_list.contains(&message.msg.sender_id) {
+            if BotStatus::get_ica_config().filter_list.contains(&message.msg.sender_id) {
                 return;
             }
             info!("add_message {}", message.to_string().cyan());
@@ -76,7 +76,7 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
             if let Some(raw_rooms) = value.as_array() {
                 let rooms: Vec<Room> =
                     raw_rooms.iter().map(|room| Room::new_from_json(room)).collect();
-                IcalinguaStatus::update_rooms(rooms.clone());
+                BotStatus::update_rooms(rooms.clone());
                 info!("update_all_room {}", rooms.len());
             }
         }
