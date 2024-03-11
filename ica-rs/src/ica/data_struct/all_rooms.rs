@@ -1,5 +1,5 @@
-use crate::data_struct::messages::{At, LastMessage};
-use crate::data_struct::RoomId;
+use crate::ica::data_struct::messages::{At, LastMessage};
+use crate::ica::data_struct::RoomId;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;

@@ -5,8 +5,8 @@ use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
 use crate::client::BotStatus;
-use crate::data_struct::messages::NewMessage;
-use crate::data_struct::MessageId;
+use crate::ica::data_struct::messages::NewMessage;
+use crate::ica::data_struct::MessageId;
 use crate::py::{class, PyPlugin, PyStatus};
 
 pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> Option<&'py PyAny> {

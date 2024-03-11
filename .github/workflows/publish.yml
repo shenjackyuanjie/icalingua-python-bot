@@ -1,0 +1,45 @@
+name: publish
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish:    # 全都要！
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # python-version: ["3.8", "3.9", "3.10", "3.11",]
+    
+    runs-on:  ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: 获取版本号
+      id: get_version
+      uses: sravinet/toml-select@v1.0.1
+      with:
+        file: ./ica-rs/Cargo.toml
+        field: "package.version"
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
+        python-version: 3.8
+
+    - name: Run tests
+      run: cargo test --verbose
+    
+    - name: Build
+      run: cargo build --release
+    
+    - name: 上传
+      uses: actions/upload-artifact@v2
+      with:
+        name: ica-rs-b${{ github.run_number }}-${{ steps.get_version.outputs.value }}-py38-win-x64
+        path: ./target/release/ica-rs.exe

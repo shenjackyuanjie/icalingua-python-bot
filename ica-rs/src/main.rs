@@ -1,15 +1,11 @@
 use std::time::Duration;
 
 use config::{BotConfig, IcaConfig};
-use futures_util::FutureExt;
-use rust_socketio::asynchronous::{Client, ClientBuilder};
-use rust_socketio::{Event, Payload, TransportType};
 use tracing::info;
 
 mod client;
 mod config;
-mod data_struct;
-mod events;
+mod ica;
 mod matrix;
 mod py;
 
@@ -24,60 +20,19 @@ pub static mut ClientStatus_Global: client::BotStatus = client::BotStatus {
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+#[macro_export]
 macro_rules! wrap_callback {
     ($f:expr) => {
         |payload: Payload, client: Client| $f(payload, client).boxed()
     };
 }
 
+#[macro_export]
 macro_rules! wrap_any_callback {
     ($f:expr) => {
         |event: Event, payload: Payload, client: Client| $f(event, payload, client).boxed()
     };
 }
-
-async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::Receiver<()>) {
-    let socket = ClientBuilder::new(config.host.clone())
-        .transport_type(TransportType::Websocket)
-        .on_any(wrap_any_callback!(events::any_event))
-        .on("requireAuth", wrap_callback!(client::sign_callback))
-        .on("message", wrap_callback!(events::connect_callback))
-        .on("authSucceed", wrap_callback!(events::connect_callback))
-        .on("authFailed", wrap_callback!(events::connect_callback))
-        .on("messageSuccess", wrap_callback!(events::succes_message))
-        .on("messageFailed", wrap_callback!(events::failed_message))
-        .on("onlineData", wrap_callback!(events::get_online_data))
-        .on("setAllRooms", wrap_callback!(events::update_all_room))
-        .on("setMessages", wrap_callback!(events::set_messages))
-        .on("addMessage", wrap_callback!(events::add_message))
-        .on("deleteMessage", wrap_callback!(events::delete_message))
-        .connect()
-        .await
-        .expect("Connection failed");
-
-    info!("Connected");
-
-    if config.notice_start {
-        for room in config.notice_room.iter() {
-            let startup_msg = crate::data_struct::messages::SendMessage::new(
-                format!("ica-async-rs bot v{}", VERSION),
-                room.clone(),
-                None,
-            );
-            tokio::time::sleep(Duration::from_secs(1)).await;
-            info!("发送启动消息到房间: {}", room);
-            if let Err(e) =
-                socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()).await
-            {
-                info!("启动信息发送失败 房间:{}|e:{}", room, e);
-            }
-        }
-    }
-    // 等待停止信号
-    stop_reciver.await.ok();
-    socket.disconnect().await.expect("Disconnect failed");
-}
-
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
@@ -91,11 +46,11 @@ async fn main() {
 
     // 准备一个用于停止 socket 的变量
     let (send, recv) = tokio::sync::oneshot::channel::<()>();
-    if bot_config.ica.is_some() && bot_config.ica().enable {
+    if bot_config.enable_ica && bot_config.ica.is_some() {
         info!("启动 ica");
         let config = bot_config.ica();
         tokio::spawn(async move {
-            start_ica(&config, recv).await;
+            ica::start_ica(&config, recv).await;
         });
     } else {
         info!("未启用 ica");

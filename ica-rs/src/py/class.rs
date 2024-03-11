@@ -5,10 +5,10 @@ use toml::Value as TomlValue;
 use tracing::{debug, info, warn};
 
 use crate::client::{delete_message, send_message, BotStatus};
-use crate::data_struct::messages::{
+use crate::ica::data_struct::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
-use crate::data_struct::MessageId;
+use crate::ica::data_struct::MessageId;
 use crate::ClientStatus_Global;
 
 #[pyclass]
@@ -178,16 +178,16 @@ impl IcaClientPy {
     /// 仅作占位
     /// (因为目前来说, rust调用 Python端没法启动一个异步运行时
     /// 所以只能 tokio::task::block_in_place 转换成同步调用)
-    #[staticmethod]
-    pub fn send_message_a(
-        py: Python,
-        client: IcaClientPy,
-        message: SendMessagePy,
-    ) -> PyResult<&PyAny> {
-        pyo3_asyncio::tokio::future_into_py(py, async move {
-            Ok(send_message(&client.client, &message.msg).await)
-        })
-    }
+    // #[staticmethod]
+    // pub fn send_message_a(
+    //     py: Python,
+    //     client: IcaClientPy,
+    //     message: SendMessagePy,
+    // ) -> PyResult<&PyAny> {
+    //     pyo3_asyncio::tokio::future_into_py(py, async move {
+    //         Ok(send_message(&client.client, &message.msg).await)
+    //     })
+    // }
 
     #[getter]
     pub fn get_status(&self) -> IcaStatusPy { IcaStatusPy::new() }

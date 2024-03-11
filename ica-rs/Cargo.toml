@@ -1,6 +1,6 @@
 [package]
 name = "ica-rs"
-version = "0.4.12"
+version = "0.5.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -21,7 +21,7 @@ tokio = { version = "1.0", features = ["full"] }
 futures-util = "0.3.30"
 pyo3 = "0.20.3"
 # pyo3-async = "0.3.2"
-pyo3-asyncio = { version = "0.20.0", features = ["attributes", "tokio-runtime"] }
+# pyo3-asyncio = { version = "0.20.0", features = ["attributes", "tokio-runtime"] }
 
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }

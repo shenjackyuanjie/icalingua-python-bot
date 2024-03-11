@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
 use crate::client::BotStatus;
-use crate::data_struct::messages::{At, Message, NewMessage};
-use crate::data_struct::{MessageId, UserId};
+use crate::ica::data_struct::messages::{At, Message, NewMessage};
+use crate::ica::data_struct::{MessageId, UserId};
 
 impl Serialize for At {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

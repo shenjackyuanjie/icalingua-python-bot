@@ -7,8 +7,6 @@ use toml::from_str;
 /// Icalingua bot 的配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct IcaConfig {
-    /// 是否启用 icalingua
-    pub enable: bool,
     /// icalingua 私钥
     pub private_key: String,
     /// icalingua 服务器地址
@@ -28,6 +26,8 @@ pub struct IcaConfig {
 /// 主配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct BotConfig {
+    /// 是否启用 icalingua
+    pub enable_ica: bool,
     /// Ica 配置
     pub ica: Option<IcaConfig>,
     /// Matrix 配置
