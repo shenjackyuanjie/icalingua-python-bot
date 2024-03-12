@@ -96,13 +96,13 @@ class NewMessage:
 
 
 class IcaClient:
-    @staticmethod
-    async def send_message_a(client: "IcaClient", message: SendMessage) -> bool:
-        """
-        仅作占位, 不能使用
-        (因为目前来说, rust调用 Python端没法启动一个异步运行时
-        所以只能 tokio::task::block_in_place 转换成同步调用)
-        """
+    # @staticmethod
+    # async def send_message_a(client: "IcaClient", message: SendMessage) -> bool:
+    #     """
+    #     仅作占位, 不能使用
+    #     (因为目前来说, rust调用 Python端没法启动一个异步运行时
+    #     所以只能 tokio::task::block_in_place 转换成同步调用)
+    #     """
     def send_message(self, message: SendMessage) -> bool:
         ...
     def send_and_warn(self, message: SendMessage) -> bool:
