@@ -8,7 +8,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{debug, info, warn};
 
-use crate::config::{BotConfig, IcaConfig};
+use crate::config::BotConfig;
 use crate::ica::client::BotStatus;
 
 #[derive(Debug, Clone)]
@@ -28,7 +28,7 @@ pub struct PyPlugin {
 
 impl PyPlugin {
     pub fn new_from_path(path: &PathBuf) -> Option<Self> {
-        let raw_file = load_py_file(&path);
+        let raw_file = load_py_file(path);
         match raw_file {
             Ok(raw_file) => match Self::try_from(raw_file) {
                 Ok(plugin) => Some(plugin),
@@ -122,9 +122,9 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                                 "加载 Python 插件 {:?} 的配置文件信息时失败:返回的不是 [str, str]",
                                 path
                             );
-                            Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(format!(
-                                "返回的不是 [str, str]"
-                            )))
+                            Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+                                "返回的不是 [str, str]".to_string(),
+                            ))
                         }
                     }
                     Err(e) => {
@@ -186,7 +186,7 @@ impl PyStatus {
 
 pub static mut PYSTATUS: PyStatus = PyStatus { files: None };
 
-pub fn load_py_plugins(path: &PathBuf) -> () {
+pub fn load_py_plugins(path: &PathBuf) {
     if path.exists() {
         info!("finding plugins in: {:?}", path);
         // 搜索所有的 py 文件 和 文件夹单层下面的 py 文件
@@ -226,7 +226,7 @@ pub fn py_module_from_code(content: &str, path: &PathBuf) -> PyResult<Py<PyAny>>
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
         let module: PyResult<Py<PyAny>> = PyModule::from_code(
             py,
-            &content,
+            content,
             &path.to_string_lossy(),
             &path.file_name().unwrap().to_string_lossy(),
             // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
@@ -239,7 +239,7 @@ pub fn py_module_from_code(content: &str, path: &PathBuf) -> PyResult<Py<PyAny>>
 /// 传入文件路径
 /// 返回 hash 和 文件内容
 pub fn load_py_file(path: &PathBuf) -> std::io::Result<RawPyPlugin> {
-    let changed_time = get_change_time(&path);
+    let changed_time = get_change_time(path);
     let content = std::fs::read_to_string(path)?;
     Ok((path.clone(), changed_time, content))
 }

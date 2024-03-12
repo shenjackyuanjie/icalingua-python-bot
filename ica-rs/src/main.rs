@@ -8,7 +8,7 @@ mod ica;
 mod matrix;
 mod py;
 
-use config::{BotConfig, IcaConfig};
+use config::BotConfig;
 use tracing::info;
 
 #[allow(non_upper_case_globals)]

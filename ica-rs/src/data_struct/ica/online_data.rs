@@ -24,7 +24,7 @@ impl IcalinguaInfo {
         let mut load = None;
         let mut server_node = None;
         let mut client_count = None;
-        let info_list = s.split("\n").collect::<Vec<&str>>();
+        let info_list = s.split('\n').collect::<Vec<&str>>();
         for info in info_list {
             if info.starts_with("icalingua-bridge-oicq") {
                 ica_version = Some(info.split_at(22).1.to_string());
@@ -40,9 +40,9 @@ impl IcalinguaInfo {
                 server_node = Some(info.split_at(12).1.to_string());
             } else if info.ends_with("clients connected") {
                 client_count = Some(
-                    info.split(" ")
+                    info.split(' ')
                         .collect::<Vec<&str>>()
-                        .get(0)
+                        .first()
                         .unwrap_or(&"1")
                         .parse::<u16>()
                         .unwrap_or_else(|e| {
@@ -194,7 +194,7 @@ mod tests {
         }));
         assert_eq!(online_data.bkn, 123);
         assert_eq!(online_data.nick, "test");
-        assert_eq!(online_data.online, true);
+        assert!(online_data.online);
         assert_eq!(online_data.qqid, 123456);
         assert_eq!(online_data.icalingua_info.ica_version, "2.11.1");
         assert_eq!(online_data.icalingua_info.os_info, "Linux c038fad79f13 4.4.302+");
@@ -210,7 +210,7 @@ mod tests {
         let online_data = OnlineData::new_from_json(&serde_json::json!({}));
         assert_eq!(online_data.bkn, -1);
         assert_eq!(online_data.nick, "UNKNOWN");
-        assert_eq!(online_data.online, false);
+        assert!(!online_data.online);
         assert_eq!(online_data.qqid, -1);
         assert_eq!(online_data.icalingua_info.ica_version, "UNKNOWN");
         assert_eq!(online_data.icalingua_info.os_info, "UNKNOWN");

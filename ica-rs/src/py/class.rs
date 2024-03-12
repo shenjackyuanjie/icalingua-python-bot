@@ -53,6 +53,10 @@ impl IcaStatusPy {
     pub fn get_load(&self) -> String { BotStatus::get_online_data().icalingua_info.load.clone() }
 }
 
+impl Default for IcaStatusPy {
+    fn default() -> Self { Self::new() }
+}
+
 impl IcaStatusPy {
     pub fn new() -> Self { Self {} }
 }

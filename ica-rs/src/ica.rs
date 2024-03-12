@@ -34,7 +34,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::R
         for room in config.notice_room.iter() {
             let startup_msg = crate::data_struct::ica::messages::SendMessage::new(
                 format!("ica-async-rs bot v{}", crate::VERSION),
-                room.clone(),
+                *room,
                 None,
             );
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;

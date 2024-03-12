@@ -62,7 +62,7 @@ pub async fn delete_message(payload: Payload, client: Client) {
         // 消息 id
         if let Some(value) = values.first() {
             if let Some(msg_id) = value.as_str() {
-                info!("delete_message {}", format!("{}", msg_id).yellow());
+                info!("delete_message {}", msg_id.to_string().yellow());
 
                 py::call::delete_message_py(msg_id.to_string(), &client).await;
             }
@@ -74,8 +74,7 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             if let Some(raw_rooms) = value.as_array() {
-                let rooms: Vec<Room> =
-                    raw_rooms.iter().map(|room| Room::new_from_json(room)).collect();
+                let rooms: Vec<Room> = raw_rooms.iter().map(Room::new_from_json).collect();
                 BotStatus::update_rooms(rooms.clone());
                 info!("update_all_room {}", rooms.len());
             }
@@ -151,7 +150,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         Payload::Text(ref data) => {
             print!("event: {}", event.as_str().purple());
             for value in data {
-                println!("|{}", value.to_string());
+                println!("|{}", value);
             }
         }
         _ => (),

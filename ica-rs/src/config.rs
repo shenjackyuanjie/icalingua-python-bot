@@ -61,7 +61,7 @@ impl BotConfig {
         // try read config from file
         let config = fs::read_to_string(&config_file_path).expect("Failed to read config file");
         let ret: Self = from_str(&config)
-            .expect(format!("Failed to parse config file {}", &config_file_path).as_str());
+            .unwrap_or_else(|_| panic!("Failed to parse config file {}", &config_file_path));
         ret
     }
     pub fn new_from_cli() -> Self {
@@ -74,7 +74,7 @@ impl BotConfig {
         match self.enable_ica {
             Some(enable) => {
                 if enable {
-                    if let None = self.ica {
+                    if self.ica.is_none() {
                         warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
                         false
                     } else {
@@ -85,7 +85,7 @@ impl BotConfig {
                 }
             }
             None => {
-                if let Some(_) = self.ica {
+                if self.ica.is_some() {
                     warn!("未填写 enable_ica 但填写了 [ica] 配置\n将不启用 ica");
                 }
                 false
@@ -98,7 +98,7 @@ impl BotConfig {
         match self.enable_matrix {
             Some(enable) => {
                 if enable {
-                    if let None = self.matrix {
+                    if self.matrix.is_none() {
                         warn!("enable_matrix 为 true 但未填写 [matrix] 配置\n将不启用 Matrix");
                         false
                     } else {
@@ -109,7 +109,7 @@ impl BotConfig {
                 }
             }
             None => {
-                if let Some(_) = self.matrix {
+                if self.matrix.is_some() {
                     warn!("未填写 enable_matrix 但填写了 [matrix] 配置\n将不启用 Matrix");
                 }
                 false

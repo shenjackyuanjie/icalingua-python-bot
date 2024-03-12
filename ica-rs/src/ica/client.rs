@@ -56,6 +56,10 @@ pub struct BotStatus {
     pub config: Option<BotConfig>,
 }
 
+impl Default for BotStatus {
+    fn default() -> Self { Self::new() }
+}
+
 impl BotStatus {
     pub fn new() -> Self {
         Self {
@@ -139,7 +143,7 @@ pub async fn sign_callback(payload: Payload, client: Client) {
 
     let (auth_key, version) = (&require_data[0], &require_data[1]);
     debug!("auth_key: {:?}, version: {:?}", auth_key, version);
-    let auth_key = match &require_data.get(0) {
+    let auth_key = match &require_data.first() {
         Some(Value::String(auth_key)) => Some(auth_key),
         _ => None,
     }

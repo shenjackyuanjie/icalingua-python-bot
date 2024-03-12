@@ -46,19 +46,17 @@ pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> O
 pub fn verify_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
     let plugin_path = BotStatus::get_config().py_plugin_path.as_ref();
-    if let None = plugin_path {
+    if plugin_path.is_none() {
         warn!("未配置 Python 插件路径");
         return;
     }
     let plugin_path = plugin_path.unwrap();
-    for entry in std::fs::read_dir(&plugin_path).unwrap() {
+    for entry in std::fs::read_dir(plugin_path).unwrap() {
         if let Ok(entry) = entry {
             let path = entry.path();
             if let Some(ext) = path.extension() {
-                if ext == "py" {
-                    if !PyStatus::verify_file(&path) {
-                        need_reload_files.push(path);
-                    }
+                if ext == "py" && !PyStatus::verify_file(&path) {
+                    need_reload_files.push(path);
                 }
             }
         }
@@ -94,7 +92,7 @@ pub async fn new_message_py(message: &NewMessage, client: &Client) {
         // 甚至实际上压根不需要await这个spawn, 直接让他自己跑就好了(离谱)
         tokio::spawn(async move {
             Python::with_gil(|py| {
-                if let Some(py_func) = get_func(plugin.py_module.as_ref(py), &path, "on_message") {
+                if let Some(py_func) = get_func(plugin.py_module.as_ref(py), path, "on_message") {
                     if let Err(e) = py_func.call1(args) {
                         warn!("failed to call function<on_message>: {:?}", e);
                     }
@@ -115,7 +113,7 @@ pub async fn delete_message_py(msg_id: MessageId, client: &Client) {
         tokio::spawn(async move {
             Python::with_gil(|py| {
                 if let Some(py_func) =
-                    get_func(plugin.py_module.as_ref(py), &path, "on_delete_message")
+                    get_func(plugin.py_module.as_ref(py), path, "on_delete_message")
                 {
                     if let Err(e) = py_func.call1(args) {
                         warn!("failed to call function<on_delete_message>: {:?}", e);
