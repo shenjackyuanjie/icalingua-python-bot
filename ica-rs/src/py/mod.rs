@@ -1,6 +1,7 @@
 pub mod call;
 pub mod class;
 
+use std::path::Path;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
 
@@ -222,7 +223,7 @@ pub fn get_change_time(path: &PathBuf) -> Option<SystemTime> {
     path.metadata().ok()?.modified().ok()
 }
 
-pub fn py_module_from_code(content: &str, path: &PathBuf) -> PyResult<Py<PyAny>> {
+pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
         let module: PyResult<Py<PyAny>> = PyModule::from_code(
             py,

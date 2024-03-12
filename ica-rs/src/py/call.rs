@@ -51,13 +51,11 @@ pub fn verify_plugins() {
         return;
     }
     let plugin_path = plugin_path.unwrap();
-    for entry in std::fs::read_dir(plugin_path).unwrap() {
-        if let Ok(entry) = entry {
-            let path = entry.path();
-            if let Some(ext) = path.extension() {
-                if ext == "py" && !PyStatus::verify_file(&path) {
-                    need_reload_files.push(path);
-                }
+    for entry in std::fs::read_dir(plugin_path).unwrap().flatten() {
+        let path = entry.path();
+        if let Some(ext) = path.extension() {
+            if ext == "py" && !PyStatus::verify_file(&path) {
+                need_reload_files.push(path);
             }
         }
     }
