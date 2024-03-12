@@ -78,7 +78,7 @@ pub fn verify_plugins() {
 }
 
 /// 执行 new message 的 python 插件
-pub async fn new_message_py(message: &NewMessage, client: &Client) {
+pub async fn ica_new_message_py(message: &NewMessage, client: &Client) {
     // 验证插件是否改变
     verify_plugins();
 
@@ -100,7 +100,7 @@ pub async fn new_message_py(message: &NewMessage, client: &Client) {
     }
 }
 
-pub async fn delete_message_py(msg_id: MessageId, client: &Client) {
+pub async fn ica_delete_message_py(msg_id: MessageId, client: &Client) {
     verify_plugins();
 
     let plugins = PyStatus::get_files();

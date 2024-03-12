@@ -38,7 +38,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                 send_message(&client, &reply).await;
             }
             // python 插件
-            py::call::new_message_py(&message, &client).await;
+            py::call::ica_new_message_py(&message, &client).await;
         }
     }
 }
@@ -64,7 +64,7 @@ pub async fn delete_message(payload: Payload, client: Client) {
             if let Some(msg_id) = value.as_str() {
                 info!("delete_message {}", msg_id.to_string().yellow());
 
-                py::call::delete_message_py(msg_id.to_string(), &client).await;
+                py::call::ica_delete_message_py(msg_id.to_string(), &client).await;
             }
         }
     }

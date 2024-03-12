@@ -219,9 +219,7 @@ pub fn load_py_plugins(path: &PathBuf) {
     );
 }
 
-pub fn get_change_time(path: &PathBuf) -> Option<SystemTime> {
-    path.metadata().ok()?.modified().ok()
-}
+pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()?.modified().ok() }
 
 pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
