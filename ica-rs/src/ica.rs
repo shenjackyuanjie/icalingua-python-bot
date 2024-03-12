@@ -1,4 +1,4 @@
-pub mod data_struct;
+pub mod client;
 pub mod events;
 
 use futures_util::FutureExt;
@@ -13,7 +13,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::R
     let socket = ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
         .on_any(wrap_any_callback!(events::any_event))
-        .on("requireAuth", wrap_callback!(crate::client::sign_callback))
+        .on("requireAuth", wrap_callback!(client::sign_callback))
         .on("message", wrap_callback!(events::connect_callback))
         .on("authSucceed", wrap_callback!(events::connect_callback))
         .on("authFailed", wrap_callback!(events::connect_callback))
@@ -32,7 +32,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::R
 
     if config.notice_start {
         for room in config.notice_room.iter() {
-            let startup_msg = data_struct::messages::SendMessage::new(
+            let startup_msg = crate::data_struct::ica::messages::SendMessage::new(
                 format!("ica-async-rs bot v{}", crate::VERSION),
                 room.clone(),
                 None,

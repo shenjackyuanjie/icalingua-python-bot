@@ -3,6 +3,7 @@ use std::fs;
 
 use serde::Deserialize;
 use toml::from_str;
+use tracing::warn;
 
 /// Icalingua bot 的配置
 #[derive(Debug, Clone, Deserialize)]
@@ -23,15 +24,32 @@ pub struct IcaConfig {
     pub filter_list: Vec<i64>,
 }
 
+/// Matrix 配置
+#[derive(Debug, Clone, Deserialize)]
+pub struct MatrixConfig {
+    /// home server
+    pub home_server: String,
+    /// bot_id
+    pub bot_id: String,
+    /// bot password
+    pub bot_password: String,
+    /// 提醒的房间
+    pub notice_room: Vec<String>,
+    /// 是否提醒
+    pub notice_start: bool,
+}
+
 /// 主配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct BotConfig {
     /// 是否启用 icalingua
-    pub enable_ica: bool,
+    pub enable_ica: Option<bool>,
     /// Ica 配置
     pub ica: Option<IcaConfig>,
+    /// 是否启用 Matrix
+    pub enable_matrix: Option<bool>,
     /// Matrix 配置
-    // TODO: MatrixConfig
+    pub matrix: Option<MatrixConfig>,
     /// Python 插件路径
     pub py_plugin_path: Option<String>,
     /// Python 配置文件路径
@@ -49,6 +67,54 @@ impl BotConfig {
     pub fn new_from_cli() -> Self {
         let config_file_path = env::args().nth(1).expect("No config path given");
         Self::new_from_path(config_file_path)
+    }
+
+    /// 检查是否启用 ica
+    pub fn check_ica(&self) -> bool {
+        match self.enable_ica {
+            Some(enable) => {
+                if enable {
+                    if let None = self.ica {
+                        warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
+                        false
+                    } else {
+                        true
+                    }
+                } else {
+                    false
+                }
+            }
+            None => {
+                if let Some(_) = self.ica {
+                    warn!("未填写 enable_ica 但填写了 [ica] 配置\n将不启用 ica");
+                }
+                false
+            }
+        }
+    }
+
+    /// 检查是否启用 Matrix
+    pub fn check_matrix(&self) -> bool {
+        match self.enable_matrix {
+            Some(enable) => {
+                if enable {
+                    if let None = self.matrix {
+                        warn!("enable_matrix 为 true 但未填写 [matrix] 配置\n将不启用 Matrix");
+                        false
+                    } else {
+                        true
+                    }
+                } else {
+                    false
+                }
+            }
+            None => {
+                if let Some(_) = self.matrix {
+                    warn!("未填写 enable_matrix 但填写了 [matrix] 配置\n将不启用 Matrix");
+                }
+                false
+            }
+        }
     }
 
     pub fn ica(&self) -> IcaConfig { self.ica.clone().expect("No ica config found") }

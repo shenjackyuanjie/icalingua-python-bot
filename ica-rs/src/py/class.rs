@@ -4,11 +4,11 @@ use tokio::runtime::Runtime;
 use toml::Value as TomlValue;
 use tracing::{debug, info, warn};
 
-use crate::client::{delete_message, send_message, BotStatus};
-use crate::ica::data_struct::messages::{
+use crate::data_struct::ica::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
-use crate::ica::data_struct::MessageId;
+use crate::data_struct::ica::MessageId;
+use crate::ica::client::{delete_message, send_message, BotStatus};
 use crate::ClientStatus_Global;
 
 #[pyclass]

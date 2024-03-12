@@ -8,8 +8,8 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{debug, info, warn};
 
-use crate::client::BotStatus;
 use crate::config::{BotConfig, IcaConfig};
+use crate::ica::client::BotStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {

@@ -3,7 +3,10 @@
 py_plugin_path = "/path/to/your/plugin"
 py_config_path = "/path/to/your/config"
 
+# 填写 [ica] 但不填写此项则不启用 ica
 enable_ica = true # 是否启用 ica
+# 填写 [matrix] 但不填写此项则不启用 matrix
+enable_matrix = true # 是否启用 matrix
 
 [ica]
 
@@ -20,3 +23,13 @@ notice_start = true # 是否在启动 bot 后通知
 admin_list = [0] # 机器人的管理员
 # 过滤的人
 filter_list = [0]
+
+[matrix]
+
+home_server = "" # matrix 服务器地址
+bot_id = "" # 机器人的 id
+bot_password = "" # 机器人的密码
+
+# 启动时通知的房间
+notice_room = [""] # 启动 bot 后通知的房间
+notice_start = true # 是否在启动 bot 后通知

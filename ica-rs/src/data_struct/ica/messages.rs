@@ -1,5 +1,5 @@
-use crate::ica::data_struct::files::MessageFile;
-use crate::ica::data_struct::{MessageId, RoomId, UserId};
+use crate::data_struct::ica::files::MessageFile;
+use crate::data_struct::ica::{MessageId, RoomId, UserId};
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};

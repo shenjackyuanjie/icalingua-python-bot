@@ -1,16 +1,18 @@
 use std::time::Duration;
 
-use config::{BotConfig, IcaConfig};
-use tracing::info;
-
-mod client;
 mod config;
+mod data_struct;
+#[cfg(feature = "ica")]
 mod ica;
+#[cfg(feature = "matrix")]
 mod matrix;
 mod py;
 
+use config::{BotConfig, IcaConfig};
+use tracing::info;
+
 #[allow(non_upper_case_globals)]
-pub static mut ClientStatus_Global: client::BotStatus = client::BotStatus {
+pub static mut ClientStatus_Global: ica::client::BotStatus = ica::client::BotStatus {
     login: false,
     current_loaded_messages_count: 0,
     online_data: None,
@@ -33,6 +35,7 @@ macro_rules! wrap_any_callback {
         |event: Event, payload: Payload, client: Client| $f(event, payload, client).boxed()
     };
 }
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
@@ -40,13 +43,14 @@ async fn main() {
 
     // 从命令行获取 host 和 key
     // 从命令行获取配置文件路径
-    let bot_config = config::BotConfig::new_from_cli();
-    client::BotStatus::update_config(bot_config.clone());
+    let bot_config = BotConfig::new_from_cli();
+    ica::client::BotStatus::update_config(bot_config.clone());
     py::init_py(&bot_config);
 
     // 准备一个用于停止 socket 的变量
     let (send, recv) = tokio::sync::oneshot::channel::<()>();
-    if bot_config.enable_ica && bot_config.ica.is_some() {
+
+    if bot_config.check_ica() {
         info!("启动 ica");
         let config = bot_config.ica();
         tokio::spawn(async move {
@@ -62,7 +66,7 @@ async fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
 
-    // socket.disconnect().await.expect("Disconnect failed");
     send.send(()).ok();
+
     info!("Disconnected");
 }

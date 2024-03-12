@@ -5,23 +5,42 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-ed25519 = "2.2.3"
-ed25519-dalek = "2.1.1"
-hex = "0.4.3"
-rust_socketio = { version = "0.4.4", features = ["async"]}
+[features]
+default = ["ica", "matrix"]
+ica = ["dep:ed25519", "dep:ed25519-dalek", "dep:hex", "dep:rust_socketio"]
+matrix = ["dep:ruma"]
 
+[dependencies]
+
+# matrix
+ruma = { version = "0.9.4", features = [
+    "client-api-c",
+    "client-ext-client-api",
+    "client-reqwest",
+    "rand",
+], optional = true }
+
+# ica
+ed25519 = { version = "2.2.3", optional = true }
+ed25519-dalek = { version = "2.1.1", optional = true }
+hex = { version = "0.4.3", optional = true }
+rust_socketio = { version = "0.4.4", features = ["async"], optional = true }
+
+# data
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4.34"
 toml = "0.8.10"
 colored = "2.1.0"
 
+# runtime
 tokio = { version = "1.0", features = ["full"] }
 futures-util = "0.3.30"
 pyo3 = "0.20.3"
+# async 这玩意以后在搞
 # pyo3-async = "0.3.2"
 # pyo3-asyncio = { version = "0.20.0", features = ["attributes", "tokio-runtime"] }
 
+# log
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }
