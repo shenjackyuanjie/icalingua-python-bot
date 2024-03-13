@@ -73,15 +73,11 @@ impl BotConfig {
     pub fn check_ica(&self) -> bool {
         match self.enable_ica {
             Some(enable) => {
-                if enable {
-                    if self.ica.is_none() {
-                        warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
-                        false
-                    } else {
-                        true
-                    }
-                } else {
+                if enable && self.ica.is_none() {
+                    warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
                     false
+                } else {
+                    true
                 }
             }
             None => {
@@ -97,15 +93,11 @@ impl BotConfig {
     pub fn check_matrix(&self) -> bool {
         match self.enable_matrix {
             Some(enable) => {
-                if enable {
-                    if self.matrix.is_none() {
-                        warn!("enable_matrix 为 true 但未填写 [matrix] 配置\n将不启用 Matrix");
-                        false
-                    } else {
-                        true
-                    }
-                } else {
+                if enable && self.matrix.is_none() {
+                    warn!("enable_matrix 为 true 但未填写 [matrix] 配置\n将不启用 Matrix");
                     false
+                } else {
+                    true
                 }
             }
             None => {

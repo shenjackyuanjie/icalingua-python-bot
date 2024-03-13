@@ -7,18 +7,19 @@ mod ica;
 #[cfg(feature = "matrix")]
 mod matrix;
 mod py;
+mod status;
 
 use config::BotConfig;
 use tracing::info;
 
-#[allow(non_upper_case_globals)]
-pub static mut ClientStatus_Global: ica::client::BotStatus = ica::client::BotStatus {
-    login: false,
-    current_loaded_messages_count: 0,
-    online_data: None,
-    rooms: None,
+
+pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
+    ica_status: None,
+    matrix_status: None,
 };
+
+pub type MainStatus = status::BotStatus;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
