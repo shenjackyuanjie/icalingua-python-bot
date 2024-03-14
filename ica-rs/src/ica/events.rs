@@ -6,8 +6,8 @@ use tracing::{info, warn};
 use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
-use crate::ica::client::{send_message, BotStatus};
-use crate::{py, VERSION};
+use crate::ica::client::send_message;
+use crate::{py, MainStatus, ICA_VERSION, MATRIX_VERSION, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -15,7 +15,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
             info!("update_online_data {}", format!("{:?}", online_data).cyan());
-            BotStatus::update_online_data(online_data);
+            MainStatus::global_ica_status_mut().update_online_status(online_data);
         }
     }
 }
@@ -26,15 +26,18 @@ pub async fn add_message(payload: Payload, client: Client) {
         if let Some(value) = values.first() {
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
-            if BotStatus::get_ica_config().filter_list.contains(&message.msg.sender_id) {
+            if MainStatus::global_config().ica().filter_list.contains(&message.msg.sender_id) {
                 return;
             }
+
             info!("add_message {}", message.to_string().cyan());
-            // info!("add_message {}", format!("{:#?}", message).cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if message.content().eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
-                let reply = message.reply_with(&format!("ica-async-rs pong v{}", VERSION));
+                let reply = message.reply_with(&format!(
+                    "shenbot v{}\nica-async-rs pong v{}\nmatrix v{}",
+                    VERSION, ICA_VERSION, MATRIX_VERSION
+                ));
                 send_message(&client, &reply).await;
             }
             // python 插件
@@ -75,8 +78,8 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
         if let Some(value) = values.first() {
             if let Some(raw_rooms) = value.as_array() {
                 let rooms: Vec<Room> = raw_rooms.iter().map(Room::new_from_json).collect();
-                BotStatus::update_rooms(rooms.clone());
                 info!("update_all_room {}", rooms.len());
+                MainStatus::global_ica_status_mut().update_rooms(rooms);
             }
         }
     }

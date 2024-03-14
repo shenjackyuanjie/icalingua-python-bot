@@ -21,7 +21,7 @@ pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
 pub type MainStatus = status::BotStatus;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "0.5.0";
+pub const ICA_VERSION: &str = "0.5.2";
 pub const MATRIX_VERSION: &str = "0.1.0";
 
 #[macro_export]

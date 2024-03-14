@@ -45,12 +45,8 @@ pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> O
 
 pub fn verify_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
-    let plugin_path = BotStatus::get_config().py_plugin_path.as_ref();
-    if plugin_path.is_none() {
-        warn!("未配置 Python 插件路径");
-        return;
-    }
-    let plugin_path = plugin_path.unwrap();
+    let plugin_path = MainStatus::global_config().py().plugin_path.clone();
+
     for entry in std::fs::read_dir(plugin_path).unwrap().flatten() {
         let path = entry.path();
         if let Some(ext) = path.extension() {

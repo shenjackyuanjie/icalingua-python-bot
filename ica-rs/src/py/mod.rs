@@ -74,8 +74,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                     Ok(config) => {
                         if config.is_instance_of::<PyTuple>() {
                             let (config, default) = config.extract::<(String, String)>().unwrap();
-                            let base_path =
-                                BotStatus::get_config().py_config_path.as_ref().unwrap();
+                            let base_path = MainStatus::global_config().py().config_path;
 
                             let mut base_path: PathBuf = PathBuf::from(base_path);
 
@@ -117,6 +116,13 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                                     )))
                                 }
                             }
+                        } else if config.is_none() {
+                            // 没有配置文件
+                            Ok(PyPlugin {
+                                file_path: path,
+                                changed_time,
+                                py_module: module.into_py(py),
+                            })
                         } else {
                             warn!(
                                 "加载 Python 插件 {:?} 的配置文件信息时失败:返回的不是 [str, str]",
@@ -246,7 +252,7 @@ pub fn load_py_file(path: &PathBuf) -> std::io::Result<RawPyPlugin> {
 pub fn init_py() {
     // 从 全局配置中获取 python 插件路径
     let span = span!(Level::INFO, "Init Python Plugin");
-    let enter = span.enter();
+    let _enter = span.enter();
 
     let global_config = MainStatus::global_config().py();
 

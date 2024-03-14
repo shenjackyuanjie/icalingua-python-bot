@@ -141,6 +141,26 @@ impl OnlineData {
     }
 }
 
+impl Default for OnlineData {
+    fn default() -> Self {
+        OnlineData {
+            bkn: -1,
+            nick: "UNKNOWN".to_string(),
+            online: false,
+            qqid: -1,
+            icalingua_info: IcalinguaInfo {
+                ica_version: "UNKNOWN".to_string(),
+                os_info: "UNKNOWN".to_string(),
+                resident_set_size: "UNKNOWN".to_string(),
+                heap_used: "UNKNOWN".to_string(),
+                load: "UNKNOWN".to_string(),
+                server_node: "UNKNOWN".to_string(),
+                client_count: 1,
+            },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

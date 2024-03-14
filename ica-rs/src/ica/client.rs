@@ -1,6 +1,4 @@
-use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{DeleteMessage, SendMessage};
-use crate::data_struct::ica::online_data::OnlineData;
 use crate::MainStatus;
 
 use colored::Colorize;
@@ -8,7 +6,7 @@ use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
 use serde_json::Value;
-use tracing::{debug, warn};
+use tracing::{debug, span, warn, Level};
 
 /// "安全" 的 发送一条消息
 pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
@@ -46,6 +44,9 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
 // pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
 
 pub async fn sign_callback(payload: Payload, client: Client) {
+    let span = span!(Level::INFO, "signing icalingua");
+    let _guard = span.enter();
+
     // 获取数据
     let require_data = match payload {
         Payload::Text(json_value) => Some(json_value),
