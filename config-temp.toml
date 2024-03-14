@@ -1,12 +1,17 @@
 
-# python 插件路径
-py_plugin_path = "/path/to/your/plugin"
-py_config_path = "/path/to/your/config"
 
 # 填写 [ica] 但不填写此项则不启用 ica
 enable_ica = true # 是否启用 ica
 # 填写 [matrix] 但不填写此项则不启用 matrix
 enable_matrix = true # 是否启用 matrix
+
+enable_py = true # 是否启用 python 插件
+
+[py]
+
+# python 插件路径
+plugin_path = "/path/to/your/plugin"
+config_path = "/path/to/your/config"
 
 [ica]
 

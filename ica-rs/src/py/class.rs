@@ -8,8 +8,8 @@ use crate::data_struct::ica::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
 use crate::data_struct::ica::MessageId;
-use crate::ica::client::{delete_message, send_message, BotStatus};
-use crate::ClientStatus_Global;
+use crate::ica::client::{delete_message, send_message};
+use crate::MainStatus;
 
 #[pyclass]
 #[pyo3(name = "IcaStatus")]
@@ -20,37 +20,47 @@ impl IcaStatusPy {
     #[new]
     pub fn py_new() -> Self { Self {} }
     #[getter]
-    pub fn get_login(&self) -> bool { unsafe { ClientStatus_Global.login } }
+    pub fn get_qq_login(&self) -> bool { MainStatus::global_ica_status().qq_login }
     #[getter]
-    pub fn get_online(&self) -> bool { BotStatus::get_online_data().online }
+    pub fn get_online(&self) -> bool { MainStatus::global_ica_status().online_status.online }
     #[getter]
-    pub fn get_self_id(&self) -> i64 { BotStatus::get_online_data().qqid }
+    pub fn get_self_id(&self) -> i64 { MainStatus::global_ica_status().online_status.qqid }
     #[getter]
-    pub fn get_nick_name(&self) -> String { BotStatus::get_online_data().nick.clone() }
+    pub fn get_nick_name(&self) -> String {
+        MainStatus::global_ica_status().online_status.nick.clone()
+    }
     #[getter]
-    pub fn get_loaded_messages_count(&self) -> u64 { BotStatus::get_loaded_messages_count() }
+    pub fn get_loaded_messages_count(&self) -> u64 {
+        MainStatus::global_ica_status().current_loaded_messages_count
+    }
     #[getter]
     pub fn get_ica_version(&self) -> String {
-        BotStatus::get_online_data().icalingua_info.ica_version.clone()
+        MainStatus::global_ica_status().online_status.icalingua_info.ica_version.clone()
     }
 
     #[getter]
     pub fn get_os_info(&self) -> String {
-        BotStatus::get_online_data().icalingua_info.os_info.clone()
+        MainStatus::global_ica_status().online_status.icalingua_info.os_info.clone()
     }
 
     #[getter]
     pub fn get_resident_set_size(&self) -> String {
-        BotStatus::get_online_data().icalingua_info.resident_set_size.clone()
+        MainStatus::global_ica_status()
+            .online_status
+            .icalingua_info
+            .resident_set_size
+            .clone()
     }
 
     #[getter]
     pub fn get_heap_used(&self) -> String {
-        BotStatus::get_online_data().icalingua_info.heap_used.clone()
+        MainStatus::global_ica_status().online_status.icalingua_info.heap_used.clone()
     }
 
     #[getter]
-    pub fn get_load(&self) -> String { BotStatus::get_online_data().icalingua_info.load.clone() }
+    pub fn get_load(&self) -> String {
+        MainStatus::global_ica_status().online_status.icalingua_info.load.clone()
+    }
 }
 
 impl Default for IcaStatusPy {
@@ -197,6 +207,10 @@ impl IcaClientPy {
     pub fn get_status(&self) -> IcaStatusPy { IcaStatusPy::new() }
     #[getter]
     pub fn get_version(&self) -> String { crate::VERSION.to_string() }
+    #[getter]
+    pub fn get_ica_version(&self) -> String { crate::ICA_VERSION.to_string() }
+    #[getter]
+    pub fn get_matrix_version(&self) -> String { crate::MATRIX_VERSION.to_string() }
 
     pub fn debug(&self, content: String) {
         debug!("{}", content);

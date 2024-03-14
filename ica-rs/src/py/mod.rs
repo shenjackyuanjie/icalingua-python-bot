@@ -7,10 +7,9 @@ use std::{collections::HashMap, path::PathBuf};
 
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
-use tracing::{debug, info, warn};
+use tracing::{debug, info, span, warn, Level};
 
-use crate::config::BotConfig;
-use crate::ica::client::BotStatus;
+use crate::MainStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
@@ -243,14 +242,20 @@ pub fn load_py_file(path: &PathBuf) -> std::io::Result<RawPyPlugin> {
     Ok((path.clone(), changed_time, content))
 }
 
-pub fn init_py(config: &BotConfig) {
+/// Python 侧初始化
+pub fn init_py() {
+    // 从 全局配置中获取 python 插件路径
+    let span = span!(Level::INFO, "Init Python Plugin");
+    let enter = span.enter();
+
+    let global_config = MainStatus::global_config().py();
+
     debug!("initing python threads");
     pyo3::prepare_freethreaded_python();
-    if let Some(plugin_path) = &config.py_plugin_path {
-        let path = PathBuf::from(plugin_path);
-        load_py_plugins(&path);
-        debug!("python 插件列表: {:#?}", PyStatus::get_files());
-    }
+
+    let path = PathBuf::from(global_config.plugin_path);
+    load_py_plugins(&path);
+    debug!("python 插件列表: {:#?}", PyStatus::get_files());
 
     info!("python inited")
 }

@@ -10,8 +10,7 @@ mod py;
 mod status;
 
 use config::BotConfig;
-use tracing::info;
-
+use tracing::{event, info, Level};
 
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
@@ -22,6 +21,8 @@ pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
 pub type MainStatus = status::BotStatus;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const ICA_VERSION: &str = "0.5.0";
+pub const MATRIX_VERSION: &str = "0.1.0";
 
 #[macro_export]
 macro_rules! wrap_callback {
@@ -40,13 +41,13 @@ macro_rules! wrap_any_callback {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
-    info!("ica-async-rs v{}", VERSION);
+    event!(Level::INFO, "shenbot-async-rs v{} main", VERSION);
 
-    // 从命令行获取 host 和 key
-    // 从命令行获取配置文件路径
     let bot_config = BotConfig::new_from_cli();
-    ica::client::BotStatus::update_config(bot_config.clone());
-    py::init_py(&bot_config);
+    MainStatus::static_init(bot_config);
+    let bot_config = MainStatus::global_config();
+
+    py::init_py();
 
     // 准备一个用于停止 socket 的变量
     let (send, recv) = tokio::sync::oneshot::channel::<()>();

@@ -39,6 +39,14 @@ pub struct MatrixConfig {
     pub notice_start: bool,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct PyConfig {
+    /// 插件路径
+    pub plugin_path: String,
+    /// 配置文件路径
+    pub config_path: String,
+}
+
 /// 主配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct BotConfig {
@@ -50,10 +58,10 @@ pub struct BotConfig {
     pub enable_matrix: Option<bool>,
     /// Matrix 配置
     pub matrix: Option<MatrixConfig>,
-    /// Python 插件路径
-    pub py_plugin_path: Option<String>,
-    /// Python 配置文件路径
-    pub py_config_path: Option<String>,
+    /// 是否启用 Python 插件
+    pub enable_py: Option<bool>,
+    /// Python 插件配置
+    pub py: Option<PyConfig>,
 }
 
 impl BotConfig {
@@ -109,5 +117,27 @@ impl BotConfig {
         }
     }
 
+    /// 检查是否启用 Python 插件
+    pub fn check_py(&self) -> bool {
+        match self.enable_py {
+            Some(enable) => {
+                if enable && self.py.is_none() {
+                    warn!("enable_py 为 true 但未填写 [py] 配置\n将不启用 Python 插件");
+                    false
+                } else {
+                    true
+                }
+            }
+            None => {
+                if self.py.is_some() {
+                    warn!("未填写 enable_py 但填写了 [py] 配置\n将不启用 Python 插件");
+                }
+                false
+            }
+        }
+    }
+
     pub fn ica(&self) -> IcaConfig { self.ica.clone().expect("No ica config found") }
+    pub fn matrix(&self) -> MatrixConfig { self.matrix.clone().expect("No matrix config found") }
+    pub fn py(&self) -> PyConfig { self.py.clone().expect("No py config found") }
 }

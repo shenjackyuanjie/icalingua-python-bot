@@ -6,8 +6,8 @@ use tracing::{debug, info, warn};
 
 use crate::data_struct::ica::messages::NewMessage;
 use crate::data_struct::ica::MessageId;
-use crate::ica::client::BotStatus;
 use crate::py::{class, PyPlugin, PyStatus};
+use crate::MainStatus;
 
 pub fn get_func<'py>(py_module: &'py PyAny, path: &PathBuf, name: &'py str) -> Option<&'py PyAny> {
     // 要处理的情况:

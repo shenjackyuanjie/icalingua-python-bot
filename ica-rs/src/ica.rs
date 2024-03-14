@@ -4,12 +4,13 @@ pub mod events;
 use futures_util::FutureExt;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{Event, Payload, TransportType};
-use tracing::info;
+use tracing::{event, info, Level};
 
 use crate::config::IcaConfig;
 use crate::{wrap_any_callback, wrap_callback};
 
 pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::Receiver<()>) {
+    event!(Level::INFO, "ica-async-rs v{} start ica", crate::ICA_VERSION);
     let socket = ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
         .on_any(wrap_any_callback!(events::any_event))
@@ -33,7 +34,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::R
     if config.notice_start {
         for room in config.notice_room.iter() {
             let startup_msg = crate::data_struct::ica::messages::SendMessage::new(
-                format!("ica-async-rs bot v{}", crate::VERSION),
+                format!("shenbot v {}\nica-async-rs bot v{}", crate::VERSION, crate::ICA_VERSION),
                 *room,
                 None,
             );
