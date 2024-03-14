@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["ica", "matrix"]
+default = ["ica"]
 ica = ["dep:ed25519", "dep:ed25519-dalek", "dep:hex", "dep:rust_socketio"]
 matrix = ["dep:ruma"]
 
