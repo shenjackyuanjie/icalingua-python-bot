@@ -19,7 +19,7 @@ class IcaStatus:
     此类并不存储信息, 所有方法都是实时获取
     """
     @property
-    def login(self) -> bool:
+    def qq_login(self) -> bool:
         ...
     @property
     def online(self) -> bool:
@@ -43,7 +43,7 @@ class IcaStatus:
     def head_used(self) -> str:
         ...
     @property
-    def load_average(self) -> str:
+    def load(self) -> str:
         ...
 
 
@@ -118,6 +118,12 @@ class IcaClient:
     @property
     def version() -> str:
         ...
+    @property
+    def ica_version() -> str:
+        """shenbot ica 的版本号"""
+    @property
+    def matrix_version() -> str:
+        """shenbot matrix 的版本号"""
     
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
