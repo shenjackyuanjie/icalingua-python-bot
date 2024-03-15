@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
@@ -41,7 +41,7 @@ pub trait MessageTrait {
     fn sender_id(&self) -> UserId;
     fn sender_name(&self) -> &String;
     fn content(&self) -> &String;
-    fn time(&self) -> &NaiveDateTime;
+    fn time(&self) -> &DateTime<chrono::Utc>;
     fn role(&self) -> &String;
     fn has_files(&self) -> bool;
     fn deleted(&self) -> bool;
@@ -61,7 +61,7 @@ impl MessageTrait for Message {
     fn sender_id(&self) -> UserId { self.sender_id }
     fn sender_name(&self) -> &String { &self.sender_name }
     fn content(&self) -> &String { &self.content }
-    fn time(&self) -> &NaiveDateTime { &self.time }
+    fn time(&self) -> &DateTime<chrono::Utc> { &self.time }
     fn role(&self) -> &String { &self.role }
     fn has_files(&self) -> bool { !self.files.is_empty() }
     fn deleted(&self) -> bool { self.deleted }
@@ -97,7 +97,7 @@ impl MessageTrait for NewMessage {
     fn sender_id(&self) -> UserId { self.msg.sender_id }
     fn sender_name(&self) -> &String { &self.msg.sender_name }
     fn content(&self) -> &String { &self.msg.content }
-    fn time(&self) -> &NaiveDateTime { &self.msg.time }
+    fn time(&self) -> &DateTime<chrono::Utc> { &self.msg.time }
     fn role(&self) -> &String { &self.msg.role }
     fn has_files(&self) -> bool { !self.msg.files.is_empty() }
     fn deleted(&self) -> bool { self.msg.deleted }

@@ -1,7 +1,7 @@
 use crate::data_struct::ica::files::MessageFile;
 use crate::data_struct::ica::{MessageId, RoomId, UserId};
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
 use tracing::warn;
@@ -100,7 +100,7 @@ pub struct Message {
     /// xml / json 内容
     pub code: JsonValue,
     /// 消息时间
-    pub time: NaiveDateTime,
+    pub time: DateTime<chrono::Utc>,
     /// 身份
     pub role: String,
     /// 文件
@@ -149,10 +149,10 @@ impl Message {
         let code = json["code"].clone();
         // 消息时间 (怎么这个也是可选啊(恼))
         // 没有就取当前时间
-        let current = chrono::Utc::now().naive_utc();
+        let current = chrono::Utc::now();
         let time = json["time"]
             .as_i64()
-            .map(|t| NaiveDateTime::from_timestamp_micros(t).unwrap_or(current))
+            .map(|t| DateTime::from_timestamp_micros(t).unwrap_or(current))
             .unwrap_or(current);
         // 身份
         let role = json["role"].as_str().unwrap_or("unknown");
