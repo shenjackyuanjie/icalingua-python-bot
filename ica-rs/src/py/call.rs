@@ -73,6 +73,11 @@ pub fn verify_plugins() {
     }
 }
 
+pub const ICA_NEW_MESSAGE_FUNC: &str = "on_ica_message";
+pub const ICA_DELETE_MESSAGE_FUNC: &str = "on_ica_delete_message";
+
+pub const MATRIX_NEW_MESSAGE_FUNC: &str = "on_matrix_message";
+
 /// 执行 new message 的 python 插件
 pub async fn ica_new_message_py(message: &NewMessage, client: &Client) {
     // 验证插件是否改变
@@ -80,15 +85,17 @@ pub async fn ica_new_message_py(message: &NewMessage, client: &Client) {
 
     let plugins = PyStatus::get_files();
     for (path, plugin) in plugins.iter() {
-        let msg = class::NewMessagePy::new(message);
-        let client = class::IcaClientPy::new(client);
+        let msg = class::ica::NewMessagePy::new(message);
+        let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
         // 甚至实际上压根不需要await这个spawn, 直接让他自己跑就好了(离谱)
         tokio::spawn(async move {
             Python::with_gil(|py| {
-                if let Some(py_func) = get_func(plugin.py_module.as_ref(py), path, "on_message") {
+                if let Some(py_func) =
+                    get_func(plugin.py_module.as_ref(py), path, ICA_NEW_MESSAGE_FUNC)
+                {
                     if let Err(e) = py_func.call1(args) {
-                        warn!("failed to call function<on_message>: {:?}", e);
+                        warn!("failed to call function<{}>: {:?}", ICA_NEW_MESSAGE_FUNC, e);
                     }
                 }
             })
@@ -102,15 +109,34 @@ pub async fn ica_delete_message_py(msg_id: MessageId, client: &Client) {
     let plugins = PyStatus::get_files();
     for (path, plugin) in plugins.iter() {
         let msg_id = msg_id.clone();
-        let client = class::IcaClientPy::new(client);
+        let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
         tokio::spawn(async move {
             Python::with_gil(|py| {
                 if let Some(py_func) =
-                    get_func(plugin.py_module.as_ref(py), path, "on_delete_message")
+                    get_func(plugin.py_module.as_ref(py), path, ICA_DELETE_MESSAGE_FUNC)
                 {
                     if let Err(e) = py_func.call1(args) {
-                        warn!("failed to call function<on_delete_message>: {:?}", e);
+                        warn!("failed to call function<{}>: {:?}", ICA_DELETE_MESSAGE_FUNC, e);
+                    }
+                }
+            })
+        });
+    }
+}
+
+pub async fn matrix_new_message_py() {
+    verify_plugins();
+
+    let plugins = PyStatus::get_files();
+    for (path, plugin) in plugins.iter() {
+        tokio::spawn(async move {
+            Python::with_gil(|py| {
+                if let Some(py_func) =
+                    get_func(plugin.py_module.as_ref(py), path, MATRIX_NEW_MESSAGE_FUNC)
+                {
+                    if let Err(e) = py_func.call0() {
+                        warn!("failed to call function<{}>: {:?}", MATRIX_NEW_MESSAGE_FUNC, e);
                     }
                 }
             })

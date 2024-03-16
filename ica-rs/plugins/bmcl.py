@@ -7,11 +7,11 @@ import traceback
 from typing import TYPE_CHECKING, TypeVar, Optional, Tuple
 
 if TYPE_CHECKING:
-    from ica_typing import NewMessage, IcaClient, ConfigData
+    from ica_typing import IcaNewMessage, IcaClient, ConfigData
     CONFIG_DATA: ConfigData
 else:
     CONFIG_DATA = None
-    NewMessage = TypeVar("NewMessage")
+    IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
 _version_ = "2.2.0-rs"
@@ -57,7 +57,7 @@ def format_hit_count(count: int) -> str:
         return count_str
 
 
-def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]:
+def wrap_request(url: str, msg: IcaNewMessage, client: IcaClient) -> Optional[dict]:
     # if CONFIG_DATA
     try:
         cookie = CONFIG_DATA["cookie"]
@@ -83,7 +83,7 @@ def wrap_request(url: str, msg: NewMessage, client: IcaClient) -> Optional[dict]
     return response.json()
 
 
-def bmcl_dashboard(msg: NewMessage, client: IcaClient) -> None:
+def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
     req_time = time.time()
     # 记录请求时间
     data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/dashboard", msg, client)
@@ -196,7 +196,7 @@ def bmcl_rank_general(msg, client):
     client.send_message(reply)
 
 
-def bmcl_rank(msg: NewMessage, client: IcaClient, name: str) -> None:
+def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
     req_time = time.time()
     # 记录请求时间
     rank_data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/rank", msg, client)
@@ -247,7 +247,7 @@ help = """/bmcl -> dashboard
 """
 
 
-def on_message(msg: NewMessage, client: IcaClient) -> None:
+def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
     if not (msg.is_from_self or msg.is_reply):
         if '\n' in msg.content:
             return

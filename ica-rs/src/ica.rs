@@ -64,18 +64,30 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
     // 等待停止信号
     stop_reciver.await.ok();
     event!(Level::INFO, "socketio client stopping");
-    let disconnect = socket.disconnect().await;
-    match disconnect {
+    match socket.disconnect().await {
         Ok(_) => {
             event!(Level::INFO, "socketio client stopped");
             Ok(())
         }
         Err(e) => {
-            event!(Level::ERROR, "socketio client stopped with error: {}", e);
-            Err(IcaError::SocketIoError(e))
+            // 单独处理 SocketIoError(IncompleteResponseFromEngineIo(WebsocketError(AlreadyClosed)))
+            match e {
+                rust_socketio::Error::IncompleteResponseFromEngineIo(inner_e) => {
+                    if inner_e.to_string().contains("AlreadyClosed") {
+                        event!(Level::INFO, "socketio client stopped");
+                        return Ok(());
+                    } else {
+                        event!(Level::ERROR, "socketio client stopped with error: {:?}", inner_e);
+                        Err(IcaError::SocketIoError(
+                            rust_socketio::Error::IncompleteResponseFromEngineIo(inner_e),
+                        ))
+                    }
+                }
+                e => {
+                    event!(Level::ERROR, "socketio client stopped with error: {}", e);
+                    Err(IcaError::SocketIoError(e))
+                }
+            }
         }
     }
-
-    // event!(Level::INFO, "socketio client stopped");
-    // disconnect.into()
 }

@@ -5,12 +5,12 @@ import traceback
 from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
-    from ica_typing import NewMessage, IcaClient
+    from ica_typing import IcaNewMessage, IcaClient
 else:
-    NewMessage = TypeVar("NewMessage")
+    IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-def safe_eval(code: str, msg: NewMessage) -> str:
+def safe_eval(code: str, msg: IcaNewMessage) -> str:
     try:
         # code = code.replace('help', '坏东西！\n')
         # code = code.replace('bytes', '坏东西！\n')
@@ -71,7 +71,7 @@ def safe_eval(code: str, msg: NewMessage) -> str:
         return result
 
 
-def on_message(message: NewMessage, client: IcaClient) -> None:
+def on_message(message: IcaNewMessage, client: IcaClient) -> None:
     if not (message.is_from_self or message.is_reply):
         if message.content.startswith("/="):
             code = message.content[2:]

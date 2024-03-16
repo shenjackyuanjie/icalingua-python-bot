@@ -3,7 +3,7 @@ pub type ClientResult<T, E> = Result<T, E>;
 #[derive(Debug)]
 pub enum IcaError {
     /// Socket IO 链接错误
-    SocketIoError(rust_socketio::Error),
+    SocketIoError(rust_socketio::error::Error),
 }
 
 #[derive(Debug)]

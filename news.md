@@ -1,5 +1,15 @@
 # 更新日志
 
+## 0.5.3
+
+修复了 Icalingua 断开时 如果 socketio 已经断开会导致程序 返回 Error 的问题
+以及还有一些别的修复就是了
+
+- Python 端修改
+  - `on_message` -> `on_ica_message`
+  - `on_delete_message` -> `on_ica_delete_message`
+  - 添加 `on_matrix_message`
+
 ## 0.5.1/2
 
 重构了一整波, 还没改 `ica-typing.py` 的代码
@@ -32,7 +42,7 @@
   - `IcalinguaStatus.current_loaded_messages_count`
     - 用于以后加载信息计数
 - 修改
-  - `py::class::IcaStatusPy` 
+  - `py::class::IcaStatusPy`
     - 大部分方法从手动 `unsafe` + `Option`
     - 改成直接调用 `IcalinguaStatus` 的方法
   - `IcalinguaStatus`
