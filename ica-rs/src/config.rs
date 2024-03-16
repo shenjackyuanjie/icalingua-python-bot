@@ -73,7 +73,16 @@ impl BotConfig {
         ret
     }
     pub fn new_from_cli() -> Self {
-        let config_file_path = env::args().nth(1).expect("No config path given");
+        // let config_file_path = env::args().nth(1).expect("No config path given");
+        // -c <config_file_path>
+        let mut config_file_path = String::new();
+        let mut args = env::args();
+        while let Some(arg) = args.next() {
+            if arg == "-c" {
+                config_file_path = args.next().expect("No config path given");
+                break;
+            }
+        }
         Self::new_from_path(config_file_path)
     }
 

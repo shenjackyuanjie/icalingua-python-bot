@@ -2,6 +2,7 @@ use std::time::Duration;
 
 mod config;
 mod data_struct;
+mod error;
 #[cfg(feature = "ica")]
 mod ica;
 #[cfg(feature = "matrix")]
@@ -10,7 +11,7 @@ mod py;
 mod status;
 
 use config::BotConfig;
-use tracing::{event, info, Level};
+use tracing::{event, info, span, Level};
 
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
@@ -19,6 +20,8 @@ pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
 };
 
 pub type MainStatus = status::BotStatus;
+
+pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.4.0";
@@ -40,8 +43,22 @@ macro_rules! wrap_any_callback {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG).init();
-    event!(Level::INFO, "shenbot-async-rs v{} main", VERSION);
+    // -d -> debug
+    // none -> info
+    let level = {
+        let args = std::env::args();
+        if args.collect::<Vec<String>>().contains(&"-d".to_string()) {
+            Level::DEBUG
+        } else {
+            Level::INFO
+        }
+    };
+
+    tracing_subscriber::fmt().with_max_level(level).init();
+    let span = span!(Level::INFO, "Shenbot Main");
+    let _enter = span.enter();
+
+    event!(Level::INFO, "shenbot-async-rs v{} starting", VERSION);
 
     let bot_config = BotConfig::new_from_cli();
     MainStatus::static_init(bot_config);
@@ -50,16 +67,30 @@ async fn main() {
     py::init_py();
 
     // 准备一个用于停止 socket 的变量
-    let (send, recv) = tokio::sync::oneshot::channel::<()>();
+    event!(Level::INFO, "启动 ICA");
+    let (ica_send, ica_recv) = tokio::sync::oneshot::channel::<()>();
 
     if bot_config.check_ica() {
-        info!("启动 ica");
+        event!(Level::INFO, "启动 ica");
         let config = bot_config.ica();
         tokio::spawn(async move {
-            ica::start_ica(&config, recv).await;
+            ica::start_ica(&config, ica_recv).await.unwrap();
         });
     } else {
-        info!("未启用 ica");
+        event!(Level::INFO, "未启用 ica");
+    }
+
+    event!(Level::INFO, "启动 Matrix");
+    let (matrix_send, matrix_recv) = tokio::sync::oneshot::channel::<()>();
+
+    if bot_config.check_matrix() {
+        event!(Level::INFO, "启动 Matrix");
+        let config = bot_config.matrix();
+        tokio::spawn(async move {
+            matrix::start_matrix(&config, matrix_recv).await.unwrap();
+        });
+    } else {
+        event!(Level::INFO, "未启用 Matrix");
     }
 
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -68,7 +99,8 @@ async fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
 
-    send.send(()).ok();
+    ica_send.send(()).ok();
+    matrix_send.send(()).ok();
 
     info!("Disconnected");
 }

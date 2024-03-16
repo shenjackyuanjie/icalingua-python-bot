@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["ica"]
+default = ["ica", "matrix"]
 ica = ["dep:ed25519", "dep:ed25519-dalek", "dep:hex", "dep:rust_socketio"]
 matrix = ["dep:matrix-sdk", "dep:url"]
 
@@ -14,7 +14,7 @@ matrix = ["dep:matrix-sdk", "dep:url"]
 
 # matrix
 url = { version = "2.5.0", optional = true }
-matrix-sdk = { version = "0.7.1", optional = true }
+matrix-sdk = { version = "0.7.1", optional = true, default-features = false, features = ["rustls-tls"] }
 
 # ica
 ed25519 = { version = "2.2.3", optional = true }

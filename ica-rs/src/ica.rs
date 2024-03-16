@@ -4,14 +4,19 @@ pub mod events;
 use futures_util::FutureExt;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{Event, Payload, TransportType};
-use tracing::{event, info, Level};
+use tracing::{event, span, Level};
 
 use crate::config::IcaConfig;
-use crate::{wrap_any_callback, wrap_callback};
+use crate::error::{ClientResult, IcaError};
+use crate::{wrap_any_callback, wrap_callback, StopGetter};
 
-pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::Receiver<()>) {
-    event!(Level::INFO, "ica-async-rs v{} start ica", crate::ICA_VERSION);
-    let socket = ClientBuilder::new(config.host.clone())
+pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientResult<(), IcaError> {
+    let span = span!(Level::INFO, "Icalingua Client");
+    let _enter = span.enter();
+
+    event!(Level::INFO, "ica-async-rs v{} initing", crate::ICA_VERSION);
+
+    let socket = match ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
         .on_any(wrap_any_callback!(events::any_event))
         .on("requireAuth", wrap_callback!(client::sign_callback))
@@ -27,27 +32,50 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: tokio::sync::oneshot::R
         .on("deleteMessage", wrap_callback!(events::delete_message))
         .connect()
         .await
-        .expect("Connection failed");
-
-    info!("Connected");
+    {
+        Ok(client) => {
+            event!(Level::INFO, "socketio connected");
+            client
+        }
+        Err(e) => {
+            event!(Level::ERROR, "socketio connect failed: {}", e);
+            return Err(IcaError::SocketIoError(e));
+        }
+    };
 
     if config.notice_start {
         for room in config.notice_room.iter() {
             let startup_msg = crate::data_struct::ica::messages::SendMessage::new(
-                format!("shenbot v {}\nica-async-rs bot v{}", crate::VERSION, crate::ICA_VERSION),
+                format!("shenbot v {}\nica-async-rs v{}", crate::VERSION, crate::ICA_VERSION),
                 *room,
                 None,
             );
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-            info!("发送启动消息到房间: {}", room);
+
+            event!(Level::INFO, "发送启动消息到房间: {}", room);
+
             if let Err(e) =
                 socket.emit("sendMessage", serde_json::to_value(startup_msg).unwrap()).await
             {
-                info!("启动信息发送失败 房间:{}|e:{}", room, e);
+                event!(Level::INFO, "启动信息发送失败 房间:{}|e:{}", room, e);
             }
         }
     }
     // 等待停止信号
     stop_reciver.await.ok();
-    socket.disconnect().await.expect("Disconnect failed");
+    event!(Level::INFO, "socketio client stopping");
+    let disconnect = socket.disconnect().await;
+    match disconnect {
+        Ok(_) => {
+            event!(Level::INFO, "socketio client stopped");
+            Ok(())
+        }
+        Err(e) => {
+            event!(Level::ERROR, "socketio client stopped with error: {}", e);
+            Err(IcaError::SocketIoError(e))
+        }
+    }
+
+    // event!(Level::INFO, "socketio client stopped");
+    // disconnect.into()
 }
