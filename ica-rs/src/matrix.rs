@@ -92,7 +92,7 @@ pub async fn start_matrix(
 
     client.add_event_handler(events::on_room_message);
 
-    let init_sync_setting = SyncSettings::new().timeout(Duration::from_secs(60));
+    let init_sync_setting = SyncSettings::new().timeout(Duration::from_mins(10));
 
     match client.sync_once(init_sync_setting).await {
         Ok(_) => {
@@ -105,7 +105,7 @@ pub async fn start_matrix(
     }
 
     let mut stream_sync =
-        Box::pin(client.sync_stream(SyncSettings::new().timeout(Duration::from_secs(60))).await);
+        Box::pin(client.sync_stream(SyncSettings::new().timeout(Duration::from_mins(10))).await);
 
     while let Some(Ok(response)) = stream_sync.next().await {
         for room in response.rooms.join.values() {
