@@ -72,8 +72,11 @@ class IcaDeleteMessage:
 
 
 class IcaNewMessage:
+    """
+    Icalingua 接收到新消息
+    """
     def reply_with(self, message: str) -> IcaSendMessage:
-        ...
+        """回复这条消息"""
     def as_deleted(self) -> IcaDeleteMessage:
         ...
     def __str__(self) -> str:
@@ -95,16 +98,22 @@ class IcaNewMessage:
         ...
     @property
     def is_room_msg(self) -> bool:
-        ...
+        """是否是群聊消息"""
     @property
     def is_chat_msg(self) -> bool:
-        ...
+        """是否是私聊消息"""
     @property
     def room_id(self) -> RoomId:
-        ...
+        """
+        如果是群聊消息, 返回 (-群号)
+        如果是私聊消息, 返回 对面qq
+        """
 
 
 class IcaClient:
+    """
+    Icalingua 的客户端
+    """
     # @staticmethod
     # async def send_message_a(client: "IcaClient", message: SendMessage) -> bool:
     #     """
@@ -142,6 +151,12 @@ class IcaClient:
         """向日志中输出警告信息"""
 
 
+class MatrixClient:
+    """
+    Matrix 的客户端
+    """
+
+
 class ConfigData:
     def __getitem__(self, key: str):
         ...
@@ -162,7 +177,7 @@ on_ica_delete_message = Callable[[MessageId, IcaClient], None]
 #     ...
 
 # TODO: Matrix adapter
-# on_matrix_room_message = Callable[[RoomId, NewMessage, IcaClient], None]
+on_matrix_message = Callable[[], None]
 
 on_config = Callable[[None], Tuple[str, str]]
 

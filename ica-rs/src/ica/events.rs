@@ -1,7 +1,7 @@
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
-use tracing::{info, warn};
+use tracing::{event, info, span, warn, Level};
 
 use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
@@ -122,7 +122,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "updateRoom",
-        // "syncRead",
+        "syncRead", // 同步已读
     ];
     match &event {
         Event::Custom(event_name) => {
@@ -161,22 +161,24 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
 }
 
 pub async fn connect_callback(payload: Payload, _client: Client) {
+    let span = span!(Level::INFO, "ica connect_callback");
+    let _enter = span.enter();
     match payload {
         Payload::Text(values) => {
             if let Some(value) = values.first() {
                 match value.as_str() {
                     Some("authSucceed") => {
-                        info!("{}", "已经登录到 icalingua!".green())
+                        event!(Level::INFO, "{}", "已经登录到 icalingua!".green())
                     }
                     Some("authFailed") => {
-                        info!("{}", "登录到 icalingua 失败!".red());
+                        event!(Level::ERROR, "{}", "登录到 icalingua 失败!".red());
                         panic!("登录失败")
                     }
                     Some("authRequired") => {
-                        warn!("{}", "需要登录到 icalingua!".yellow())
+                        event!(Level::INFO, "{}", "需要登录到 icalingua!".yellow())
                     }
                     Some(msg) => {
-                        warn!("未知消息 {}", msg.yellow())
+                        event!(Level::INFO, "{}", "未知消息".yellow());
                     }
                     None => (),
                 }

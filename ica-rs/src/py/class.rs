@@ -1,4 +1,5 @@
 pub mod ica;
+pub mod matrix;
 
 use pyo3::prelude::*;
 use toml::Value as TomlValue;

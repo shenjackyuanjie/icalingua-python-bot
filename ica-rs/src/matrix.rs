@@ -1,18 +1,15 @@
 pub mod events;
 
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 
+use futures_util::StreamExt;
 use matrix_sdk::{
     config::SyncSettings,
     ruma::{
-        api::client::message::send_message_event,
-        events::room::message::{
-            AddMentions, ForwardThread, MessageType, OriginalSyncRoomMessageEvent,
-            RoomMessageEventContent,
-        },
+        api::client::message::send_message_event, events::room::message::RoomMessageEventContent,
         OwnedRoomId, TransactionId,
     },
-    Client, Room, RoomState,
+    Client,
 };
 use tracing::{event, span, Level};
 use url::Url;
@@ -23,7 +20,7 @@ use crate::StopGetter;
 
 pub async fn start_matrix(
     config: &MatrixConfig,
-    stop_reciver: StopGetter,
+    mut stop_reciver: StopGetter,
 ) -> ClientResult<(), MatrixError> {
     let span = span!(Level::INFO, "Matrix Client");
     let _enter = span.enter();
@@ -93,9 +90,11 @@ pub async fn start_matrix(
         event!(Level::INFO, "未启用启动消息");
     }
 
-    client.add_event_handler(on_room_message);
+    client.add_event_handler(events::on_room_message);
 
-    match client.sync_once(SyncSettings::new()).await {
+    let init_sync_setting = SyncSettings::new().timeout(Duration::from_secs(60));
+
+    match client.sync_once(init_sync_setting).await {
         Ok(_) => {
             event!(Level::INFO, "Synced");
         }
@@ -105,48 +104,37 @@ pub async fn start_matrix(
         }
     }
 
-    client.sync(SyncSettings::default()).await?;
+    let mut stream_sync =
+        Box::pin(client.sync_stream(SyncSettings::new().timeout(Duration::from_secs(60))).await);
 
-    // while stop_reciver.await.is_err() {
-    //     event!(Level::INFO, "Matrix client is running");
-    //     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    while let Some(Ok(response)) = stream_sync.next().await {
+        for room in response.rooms.join.values() {
+            for e in &room.timeline.events {
+                if let Ok(event) = e.event.deserialize() {
+                    println!("Received event {:?}", event);
+                }
+            }
+        }
+        if stop_reciver.try_recv().is_ok() {
+            event!(Level::INFO, "Matrix client stopping");
+            break;
+        }
+    }
+    // loop {
+    //     match stop_reciver.try_recv() {
+    //         Ok(_) => {
+    //             event!(Level::INFO, "Matrix client stopping");
+    //             break;
+    //         }
+    //         Err(tokio::sync::oneshot::error::TryRecvError::Empty) => {
+
+    //         }
+    //         Err(tokio::sync::oneshot::error::TryRecvError::Closed) => {
+    //             event!(Level::INFO, "Matrix client stopping");
+    //             break;
+    //         }
+    //     }
     // }
 
-    event!(Level::INFO, "Matrix is not implemented yet");
-    stop_reciver.await.ok();
-    event!(Level::INFO, "Matrix client stopping");
-    // some stop
-    event!(Level::INFO, "Matrix client stopped");
     Ok(())
-}
-
-pub async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
-    // We only want to listen to joined rooms.
-    if room.state() != RoomState::Joined {
-        return;
-    }
-
-    // We only want to log text messages.
-    let MessageType::Text(msgtype) = &event.content.msgtype else {
-        return;
-    };
-
-    // 匹配消息
-
-    // /bot
-    if msgtype.body == "/bot" {
-        let pong = format!("shenbot v {}\nmatrix-rs v{}", crate::VERSION, crate::MATRIX_VERSION);
-
-        let reply = RoomMessageEventContent::text_plain(pong);
-        let reply = reply.make_reply_to(
-            &event.into_full_event(room.room_id().to_owned()),
-            ForwardThread::No,
-            AddMentions::No,
-        );
-
-        room.send(reply).await.expect("Failed to send message");
-        return;
-    }
-
-    // 发给 Python 处理剩下的
 }
