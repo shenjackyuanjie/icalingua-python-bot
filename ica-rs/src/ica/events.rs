@@ -7,7 +7,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{py, MainStatus, ICA_VERSION, MATRIX_VERSION, VERSION};
+use crate::{py, MainStatus, ICA_VERSION, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -35,8 +35,8 @@ pub async fn add_message(payload: Payload, client: Client) {
             // 之后的处理交给插件
             if message.content().eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
                 let reply = message.reply_with(&format!(
-                    "shenbot v{}\nica-async-rs pong v{}\nmatrix v{}",
-                    VERSION, ICA_VERSION, MATRIX_VERSION
+                    "shenbot v{}\nica-async-rs pong v{}",
+                    VERSION, ICA_VERSION
                 ));
                 send_message(&client, &reply).await;
             }
@@ -178,7 +178,7 @@ pub async fn connect_callback(payload: Payload, _client: Client) {
                         event!(Level::INFO, "{}", "需要登录到 icalingua!".yellow())
                     }
                     Some(msg) => {
-                        event!(Level::INFO, "{}", "未知消息".yellow());
+                        event!(Level::INFO, "{}{}", "未知消息".yellow(), msg);
                     }
                     None => (),
                 }

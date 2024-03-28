@@ -5,8 +5,8 @@ mod data_struct;
 mod error;
 #[cfg(feature = "ica")]
 mod ica;
-#[cfg(feature = "matrix")]
-mod matrix;
+// #[cfg(feature = "tailchat")]
+// mod tailchat;
 mod py;
 mod status;
 
@@ -16,7 +16,6 @@ use tracing::{event, info, span, Level};
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
-    matrix_status: None,
 };
 
 pub type MainStatus = status::BotStatus;
@@ -25,7 +24,7 @@ pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.4.0";
-pub const MATRIX_VERSION: &str = "0.1.0";
+pub const TAILCHAT_VERSION: &str = "0.1.0";
 
 #[macro_export]
 macro_rules! wrap_callback {
@@ -80,19 +79,6 @@ async fn main() {
         event!(Level::INFO, "未启用 ica");
     }
 
-    event!(Level::INFO, "启动 Matrix");
-    let (matrix_send, matrix_recv) = tokio::sync::oneshot::channel::<()>();
-
-    if bot_config.check_matrix() {
-        event!(Level::INFO, "启动 Matrix");
-        let config = bot_config.matrix();
-        tokio::spawn(async move {
-            matrix::start_matrix(&config, matrix_recv).await.unwrap();
-        });
-    } else {
-        event!(Level::INFO, "未启用 Matrix");
-    }
-
     tokio::time::sleep(Duration::from_secs(2)).await;
     // 等待一个输入
     info!("Press any key to exit");
@@ -100,7 +86,6 @@ async fn main() {
     std::io::stdin().read_line(&mut input).unwrap();
 
     ica_send.send(()).ok();
-    matrix_send.send(()).ok();
 
     info!("Disconnected");
 }

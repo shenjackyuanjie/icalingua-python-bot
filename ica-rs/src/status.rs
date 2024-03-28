@@ -5,7 +5,6 @@ use crate::MAIN_STATUS;
 pub struct BotStatus {
     pub config: Option<BotConfig>,
     pub ica_status: Option<ica::MainStatus>,
-    pub matrix_status: Option<matrix::MainStatus>,
 }
 
 impl BotStatus {
@@ -19,11 +18,6 @@ impl BotStatus {
             MAIN_STATUS.ica_status = Some(status);
         }
     }
-    pub fn update_matrix_status(status: matrix::MainStatus) {
-        unsafe {
-            MAIN_STATUS.matrix_status = Some(status);
-        }
-    }
 
     pub fn static_init(config: BotConfig) {
         unsafe {
@@ -34,9 +28,6 @@ impl BotStatus {
                 rooms: Vec::new(),
                 online_status: ica::OnlineData::default(),
             });
-            MAIN_STATUS.matrix_status = Some(matrix::MainStatus {
-                enable: config.check_matrix(),
-            });
             MAIN_STATUS.config = Some(config);
         }
     }
@@ -45,15 +36,9 @@ impl BotStatus {
     pub fn global_ica_status() -> &'static ica::MainStatus {
         unsafe { MAIN_STATUS.ica_status.as_ref().unwrap() }
     }
-    pub fn global_matrix_status() -> &'static matrix::MainStatus {
-        unsafe { MAIN_STATUS.matrix_status.as_ref().unwrap() }
-    }
 
     pub fn global_ica_status_mut() -> &'static mut ica::MainStatus {
         unsafe { MAIN_STATUS.ica_status.as_mut().unwrap() }
-    }
-    pub fn global_matrix_status_mut() -> &'static mut matrix::MainStatus {
-        unsafe { MAIN_STATUS.matrix_status.as_mut().unwrap() }
     }
 }
 
@@ -78,14 +63,5 @@ pub mod ica {
     impl MainStatus {
         pub fn update_rooms(&mut self, room: Vec<Room>) { self.rooms = room; }
         pub fn update_online_status(&mut self, status: OnlineData) { self.online_status = status; }
-    }
-}
-
-pub mod matrix {
-
-    #[derive(Debug, Clone)]
-    pub struct MainStatus {
-        /// 是否启用 matrix
-        pub enable: bool,
     }
 }

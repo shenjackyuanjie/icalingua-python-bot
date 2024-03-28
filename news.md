@@ -1,5 +1,15 @@
 # 更新日志
 
+## 0.6.0-dev
+
+- 去除了 matrix 的支持
+  - 淦哦
+  - 去除了相应代码和依赖
+  - 去除了 Python 侧代码
+  - 向 tailchat (typescript 低头)
+
+- 修复了没法编译的问题（
+
 ## 0.5.3
 
 修复了 Icalingua 断开时 如果 socketio 已经断开会导致程序 返回 Error 的问题

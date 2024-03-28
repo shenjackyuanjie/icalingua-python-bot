@@ -1,25 +1,26 @@
 [package]
 name = "ica-rs"
-version = "0.5.3"
+version = "0.6.0-dev"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["ica", "matrix"]
+default = ["ica", "tailchat"]
 ica = ["dep:ed25519", "dep:ed25519-dalek", "dep:hex", "dep:rust_socketio"]
-matrix = ["dep:matrix-sdk", "dep:url"]
+tailchat = ["dep:rust_socketio", "dep:md-5"]
 
 [dependencies]
-
-# matrix
-url = { version = "2.5.0", optional = true }
-matrix-sdk = { version = "0.7.1", optional = true, default-features = false, features = ["rustls-tls"] }
 
 # ica
 ed25519 = { version = "2.2.3", optional = true }
 ed25519-dalek = { version = "2.1.1", optional = true }
 hex = { version = "0.4.3", optional = true }
+
+# tailchat
+md-5 = { version = "0.10.6", optional = true }
+
+# ica & tailchat (socketio)
 rust_socketio = { version = "0.4.4", features = ["async"], optional = true }
 
 # data
@@ -30,7 +31,7 @@ toml = "0.8.11"
 colored = "2.1.0"
 
 # runtime
-tokio = { version = "1.36", features = ["full"] }
+tokio = { version = "1.37", features = ["full"] }
 futures-util = "0.3.30"
 pyo3 = "0.20.3"
 anyhow = { version = "1.0.81", features = ["backtrace"] }

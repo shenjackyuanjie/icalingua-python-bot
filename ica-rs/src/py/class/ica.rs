@@ -214,8 +214,6 @@ impl IcaClientPy {
     pub fn get_version(&self) -> String { crate::VERSION.to_string() }
     #[getter]
     pub fn get_ica_version(&self) -> String { crate::ICA_VERSION.to_string() }
-    #[getter]
-    pub fn get_matrix_version(&self) -> String { crate::MATRIX_VERSION.to_string() }
 
     pub fn debug(&self, content: String) {
         debug!("{}", content);

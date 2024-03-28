@@ -76,7 +76,9 @@ pub fn verify_plugins() {
 pub const ICA_NEW_MESSAGE_FUNC: &str = "on_ica_message";
 pub const ICA_DELETE_MESSAGE_FUNC: &str = "on_ica_delete_message";
 
-pub const MATRIX_NEW_MESSAGE_FUNC: &str = "on_matrix_message";
+pub const TAILCHAT_NEW_MESSAGE_FUNC: &str = "on_tailchat_message";
+
+/// 执行 newpub const MATRIX_NEW_MESSAGE_FUNC: &str = "on_matrix_message";
 
 /// 执行 new message 的 python 插件
 pub async fn ica_new_message_py(message: &NewMessage, client: &Client) {
@@ -118,25 +120,6 @@ pub async fn ica_delete_message_py(msg_id: MessageId, client: &Client) {
                 {
                     if let Err(e) = py_func.call1(args) {
                         warn!("failed to call function<{}>: {:?}", ICA_DELETE_MESSAGE_FUNC, e);
-                    }
-                }
-            })
-        });
-    }
-}
-
-pub async fn matrix_new_message_py() {
-    verify_plugins();
-
-    let plugins = PyStatus::get_files();
-    for (path, plugin) in plugins.iter() {
-        tokio::spawn(async move {
-            Python::with_gil(|py| {
-                if let Some(py_func) =
-                    get_func(plugin.py_module.as_ref(py), path, MATRIX_NEW_MESSAGE_FUNC)
-                {
-                    if let Err(e) = py_func.call0() {
-                        warn!("failed to call function<{}>: {:?}", MATRIX_NEW_MESSAGE_FUNC, e);
                     }
                 }
             })

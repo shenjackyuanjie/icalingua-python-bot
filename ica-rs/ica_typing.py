@@ -139,9 +139,6 @@ class IcaClient:
     @property
     def ica_version() -> str:
         """shenbot ica 的版本号"""
-    @property
-    def matrix_version() -> str:
-        """shenbot matrix 的版本号"""
     
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
