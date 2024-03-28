@@ -31,6 +31,7 @@ impl<'de> Deserialize<'de> for At {
     }
 }
 
+#[allow(unused)]
 pub trait MessageTrait {
     fn is_reply(&self) -> bool;
     fn is_from_self(&self) -> bool {

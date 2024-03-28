@@ -78,8 +78,6 @@ pub const ICA_DELETE_MESSAGE_FUNC: &str = "on_ica_delete_message";
 
 pub const TAILCHAT_NEW_MESSAGE_FUNC: &str = "on_tailchat_message";
 
-/// 执行 newpub const MATRIX_NEW_MESSAGE_FUNC: &str = "on_matrix_message";
-
 /// 执行 new message 的 python 插件
 pub async fn ica_new_message_py(message: &NewMessage, client: &Client) {
     // 验证插件是否改变

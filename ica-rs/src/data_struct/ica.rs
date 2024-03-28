@@ -11,6 +11,7 @@ pub type RoomId = i64;
 pub type UserId = i64;
 pub type MessageId = String;
 
+#[allow(unused)]
 pub trait RoomIdTrait {
     fn is_room(&self) -> bool;
     fn is_chat(&self) -> bool { !self.is_room() }
