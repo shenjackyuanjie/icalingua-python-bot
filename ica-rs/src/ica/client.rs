@@ -1,4 +1,5 @@
 use crate::data_struct::ica::messages::{DeleteMessage, SendMessage};
+use crate::error::{ClientResult, IcaError};
 use crate::MainStatus;
 
 use colored::Colorize;
@@ -43,24 +44,24 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
 // #[allow(dead_code)]
 // pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
 
-pub async fn sign_callback(payload: Payload, client: Client) {
+async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "signing icalingua");
     let _guard = span.enter();
 
     // 获取数据
     let require_data = match payload {
-        Payload::Text(json_value) => Some(json_value),
-        _ => None,
-    }
-    .expect("Payload should be Json data");
+        Payload::Text(json_value) => Ok(json_value),
+        _ => Err(IcaError::LoginFailed("Got a invalid payload".to_string())),
+    }?;
 
     let (auth_key, version) = (&require_data[0], &require_data[1]);
+
     debug!("auth_key: {:?}, server_version: {:?}", auth_key, version);
+    
     let auth_key = match &require_data.first() {
-        Some(Value::String(auth_key)) => Some(auth_key),
-        _ => None,
-    }
-    .expect("auth_key should be string");
+        Some(Value::String(auth_key)) => Ok(auth_key),
+        _ => Err(IcaError::LoginFailed("Got a invalid auth_key".to_string())),
+    }?;
 
     let salt = hex::decode(auth_key).expect("Got an invalid salt from the server");
     // 签名
@@ -76,4 +77,11 @@ pub async fn sign_callback(payload: Payload, client: Client) {
     // 发送签名
     let sign = signature.to_bytes().to_vec();
     client.emit("auth", sign).await.expect("Faild to send signin data");
+    Ok(())
+}
+
+/// 签名回调
+/// 失败的时候得 panic
+pub async fn sign_callback(payload: Payload, client: Client) {
+    inner_sign(payload, client).await.expect("Faild to sign");
 }
