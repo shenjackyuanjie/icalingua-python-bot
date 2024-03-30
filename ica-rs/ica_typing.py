@@ -162,11 +162,39 @@ class IcaClient:
         """向日志中输出警告信息"""
 
 
+class TailchatReciveMessage:
+    """
+    Tailchat 接收到的新消息
+    """
+    @property
+    def id(self) -> TailchatType.MessageId:
+        ...
+    @property
+    def content(self) -> str:
+        ...
+    @property
+    def sender_id(self) -> TailchatType.UserId:
+        ...
+    @property
+    def is_from_self(self) -> bool:
+        ...
+    @property
+    def is_reply(self) -> bool:
+        ...
+    @property
+    def group_id(self) -> TailchatType.GroupId:
+        ...
+    @property
+    def converse_id(self) -> TailchatType.ConverseId:
+        ...
+    
+
+
 class TailchatClient:
     """
     Tailchat 的客户端
     """
-    
+
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
     def info(self, message: str) -> None:
