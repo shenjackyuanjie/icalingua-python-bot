@@ -169,7 +169,7 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
     }
 }
 
-pub async fn tailchat_new_message_py(message: tailchat::messages::ReciveMessage, client: &Client) {
+pub async fn tailchat_new_message_py(message: &tailchat::messages::ReciveMessage, client: &Client) {
     verify_plugins();
 
     let plugins = PyStatus::get_files();

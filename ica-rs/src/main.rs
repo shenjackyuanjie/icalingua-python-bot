@@ -17,6 +17,7 @@ use tracing::{event, info, span, Level};
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
+    tailchat_status: None,
 };
 
 pub type MainStatus = status::BotStatus;
@@ -80,6 +81,18 @@ async fn main() {
         event!(Level::INFO, "未启用 ica");
     }
 
+    let (tailchat_send, tailchat_recv) = tokio::sync::oneshot::channel::<()>();
+
+    if bot_config.check_tailchat() {
+        event!(Level::INFO, "启动 Tailchat");
+        let config = bot_config.tailchat();
+        tokio::spawn(async move {
+            tailchat::start_tailchat(config, tailchat_recv).await.unwrap();
+        });
+    } else {
+        event!(Level::INFO, "未启用 Tailchat");
+    }
+
     tokio::time::sleep(Duration::from_secs(2)).await;
     // 等待一个输入
     info!("Press any key to exit");
@@ -87,6 +100,7 @@ async fn main() {
     std::io::stdin().read_line(&mut input).unwrap();
 
     ica_send.send(()).ok();
+    tailchat_send.send(()).ok();
 
     info!("Disconnected");
 }

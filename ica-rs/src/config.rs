@@ -113,6 +113,26 @@ impl BotConfig {
         }
     }
 
+    /// 检查是否启用 Tailchat
+    pub fn check_tailchat(&self) -> bool {
+        match self.enable_tailchat {
+            Some(enable) => {
+                if enable && self.tailchat.is_none() {
+                    warn!("enable_tailchat 为 true 但未填写 [tailchat] 配置\n将不启用 Tailchat");
+                    false
+                } else {
+                    true
+                }
+            }
+            None => {
+                if self.tailchat.is_some() {
+                    warn!("未填写 enable_tailchat 但填写了 [tailchat] 配置\n将不启用 Tailchat");
+                }
+                false
+            }
+        }
+    }
+
     /// 检查是否启用 Python 插件
     pub fn check_py(&self) -> bool {
         match self.enable_py {
@@ -134,5 +154,6 @@ impl BotConfig {
     }
 
     pub fn ica(&self) -> IcaConfig { self.ica.clone().expect("No ica config found") }
+    pub fn tailchat(&self) -> TailchatConfig { self.tailchat.clone().expect("No tailchat config found") }
     pub fn py(&self) -> PyConfig { self.py.clone().expect("No py config found") }
 }
