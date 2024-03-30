@@ -24,7 +24,6 @@ pub struct IcaConfig {
     pub filter_list: Vec<i64>,
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct PyConfig {
     /// 插件路径

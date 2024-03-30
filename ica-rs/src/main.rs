@@ -3,12 +3,13 @@ use std::time::Duration;
 mod config;
 mod data_struct;
 mod error;
-#[cfg(feature = "ica")]
-mod ica;
-// #[cfg(feature = "tailchat")]
-// mod tailchat;
 mod py;
 mod status;
+
+#[cfg(feature = "ica")]
+mod ica;
+#[cfg(feature = "tailchat")]
+mod tailchat;
 
 use config::BotConfig;
 use tracing::{event, info, span, Level};

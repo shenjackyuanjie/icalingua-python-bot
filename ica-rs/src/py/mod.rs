@@ -68,8 +68,8 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
         };
         let py_module = py_module.unwrap();
         Python::with_gil(|py| {
-            let module = py_module.as_ref(py);
-            if let Some(config_func) = call::get_func(module, &path, "on_config") {
+            let module = py_module.bind(py);
+            if let Ok(config_func) = call::get_func(module, "on_config") {
                 match config_func.call0() {
                     Ok(config) => {
                         if config.is_instance_of::<PyTuple>() {
@@ -96,8 +96,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                             };
                             match config_value {
                                 Ok(config) => {
-                                    let py_config = class::ConfigDataPy::new(config);
-                                    let py_config = PyCell::new(py, py_config).unwrap();
+                                    let py_config = Bound::new(py, class::ConfigDataPy::new(config)).unwrap();
                                     module.setattr("CONFIG_DATA", py_config).unwrap();
                                     Ok(PyPlugin {
                                         file_path: path,
@@ -228,7 +227,7 @@ pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()
 
 pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
-        let module: PyResult<Py<PyAny>> = PyModule::from_code(
+        let module: PyResult<Py<PyAny>> = PyModule::from_code_bound(
             py,
             content,
             &path.to_string_lossy(),
