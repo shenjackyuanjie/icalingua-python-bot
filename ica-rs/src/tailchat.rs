@@ -1,6 +1,7 @@
 pub mod events;
 
 use futures_util::FutureExt;
+use reqwest::ClientBuilder as reqwest_ClientBuilder;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{Event, Payload, TransportType};
 use tracing::{event, span, Level};
@@ -14,10 +15,13 @@ pub async fn start_tailchat() -> ClientResult<(), TailchatError> {
 
     event!(Level::INFO, "tailchat-async-rs v{} initing", crate::TAILCHAT_VERSION);
 
+    let tailchat_req = reqwest_ClientBuilder::new().build()?;
+
+    // tailchat_req.get("http://localhost:8080").send().await?;
+
     // let socket = match ClientBuilder::new() {
-        
+
     // };
-    
+
     Ok(())
 }
-

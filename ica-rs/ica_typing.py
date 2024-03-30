@@ -2,16 +2,30 @@
 
 from typing import Callable, Tuple
 
+
 """
+ica.rs
 pub type RoomId = i64;
 pub type UserId = i64;
 pub type MessageId = String;
 """
+class IcaType:
+    RoomId = int
+    UserId = int
+    MessageId = str
 
-RoomId = int
-UserId = int
-MessageId = str
-
+"""
+tailchat.rs
+pub type GroupId = String;
+pub type ConverseId = String;
+pub type UserId = String;
+pub type MessageId = String;
+"""
+class TailchatType:
+    GroupId = str
+    ConverseId = str
+    UserId = str
+    MessageId = str
 
 class IcaStatus:
     """
@@ -25,7 +39,7 @@ class IcaStatus:
     def online(self) -> bool:
         ...
     @property
-    def self_id(self) -> UserId:
+    def self_id(self) -> IcaType.UserId:
         ...
     @property
     def nick_name(self) -> str:
@@ -82,13 +96,13 @@ class IcaNewMessage:
     def __str__(self) -> str:
         ...
     @property
-    def id(self) -> MessageId:
+    def id(self) -> IcaType.MessageId:
         ...
     @property
     def content(self) -> str:
         ...
     @property
-    def sender_id(self) -> UserId:
+    def sender_id(self) -> IcaType.UserId:
         ...
     @property
     def is_from_self(self) -> bool:
@@ -103,7 +117,7 @@ class IcaNewMessage:
     def is_chat_msg(self) -> bool:
         """是否是私聊消息"""
     @property
-    def room_id(self) -> RoomId:
+    def room_id(self) -> IcaType.RoomId:
         """
         如果是群聊消息, 返回 (-群号)
         如果是私聊消息, 返回 对面qq
@@ -148,10 +162,17 @@ class IcaClient:
         """向日志中输出警告信息"""
 
 
-class MatrixClient:
+class TailchatClient:
     """
-    Matrix 的客户端
+    Tailchat 的客户端
     """
+    
+    def debug(self, message: str) -> None:
+        """向日志中输出调试信息"""
+    def info(self, message: str) -> None:
+        """向日志中输出信息"""
+    def warn(self, message: str) -> None:
+        """向日志中输出警告信息"""
 
 
 class ConfigData:
@@ -169,12 +190,12 @@ on_ica_message = Callable[[IcaNewMessage, IcaClient], None]
 # def on_message(msg: NewMessage, client: IcaClient) -> None:
 #     ...
 
-on_ica_delete_message = Callable[[MessageId, IcaClient], None]
+on_ica_delete_message = Callable[[IcaType.MessageId, IcaClient], None]
 # def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
 #     ...
 
-# TODO: Matrix adapter
-on_matrix_message = Callable[[], None]
+# TODO: Tailchat adapter
+on_tailchat_message = Callable[[], None]
 
 on_config = Callable[[None], Tuple[str, str]]
 

@@ -5,6 +5,8 @@ use serde::Deserialize;
 use toml::from_str;
 use tracing::warn;
 
+use crate::data_struct::{ica, tailchat};
+
 /// Icalingua bot 的配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct IcaConfig {
@@ -13,15 +15,33 @@ pub struct IcaConfig {
     /// icalingua 服务器地址
     pub host: String,
     /// bot 的 qq
-    pub self_id: u64,
+    pub self_id: ica::UserId,
     /// 提醒的房间
-    pub notice_room: Vec<i64>,
+    pub notice_room: Vec<ica::RoomId>,
     /// 是否提醒
     pub notice_start: bool,
     /// 管理员列表
-    pub admin_list: Vec<i64>,
+    pub admin_list: Vec<ica::UserId>,
     /// 过滤列表
-    pub filter_list: Vec<i64>,
+    pub filter_list: Vec<ica::UserId>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct TailchatConfig {
+    /// 服务器地址
+    pub host: String,
+    /// 机器人 App ID
+    pub app_id: String,
+    /// 机器人 App Secret
+    pub app_secret: String,
+    /// 提醒的房间
+    pub notice_room: Vec<(tailchat::GroupId, tailchat::ConverseId)>,
+    /// 是否提醒
+    pub notice_start: bool,
+    /// 管理员列表
+    pub admin_list: Vec<tailchat::UserId>,
+    /// 过滤列表
+    pub filter_list: Vec<tailchat::UserId>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -39,6 +59,11 @@ pub struct BotConfig {
     pub enable_ica: Option<bool>,
     /// Ica 配置
     pub ica: Option<IcaConfig>,
+
+    /// 是否启用 Tailchat
+    pub enable_tailchat: Option<bool>,
+    /// Tailchat 配置
+    pub tailchat: Option<TailchatConfig>,
 
     /// 是否启用 Python 插件
     pub enable_py: Option<bool>,

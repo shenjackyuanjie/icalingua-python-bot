@@ -96,7 +96,8 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                             };
                             match config_value {
                                 Ok(config) => {
-                                    let py_config = Bound::new(py, class::ConfigDataPy::new(config)).unwrap();
+                                    let py_config =
+                                        Bound::new(py, class::ConfigDataPy::new(config)).unwrap();
                                     module.setattr("CONFIG_DATA", py_config).unwrap();
                                     Ok(PyPlugin {
                                         file_path: path,

@@ -12,6 +12,8 @@ pub enum IcaError {
 pub enum TailchatError {
     /// Socket IO 链接错误
     SocketIoError(rust_socketio::error::Error),
+    /// reqwest 相关错误
+    ReqwestError(reqwest::Error),
     /// 登录失败
     LoginFailed(String),
 }
@@ -35,6 +37,14 @@ impl From<rust_socketio::Error> for IcaError {
     fn from(e: rust_socketio::Error) -> Self { IcaError::SocketIoError(e) }
 }
 
+impl From<rust_socketio::Error> for TailchatError {
+    fn from(e: rust_socketio::Error) -> Self { TailchatError::SocketIoError(e) }
+}
+
+impl From<reqwest::Error> for TailchatError {
+    fn from(e: reqwest::Error) -> Self { TailchatError::ReqwestError(e) }
+}
+
 impl std::fmt::Display for IcaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -48,6 +58,7 @@ impl std::fmt::Display for TailchatError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             TailchatError::SocketIoError(e) => write!(f, "Socket IO 链接错误: {}", e),
+            TailchatError::ReqwestError(e) => write!(f, "Reqwest 错误: {}", e),
             TailchatError::LoginFailed(e) => write!(f, "登录失败: {}", e),
         }
     }
@@ -85,6 +96,7 @@ impl std::error::Error for TailchatError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             TailchatError::SocketIoError(e) => Some(e),
+            TailchatError::ReqwestError(e) => Some(e),
             TailchatError::LoginFailed(_) => None,
         }
     }

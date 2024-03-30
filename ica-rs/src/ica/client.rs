@@ -57,7 +57,7 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
     let (auth_key, version) = (&require_data[0], &require_data[1]);
 
     debug!("auth_key: {:?}, server_version: {:?}", auth_key, version);
-    
+
     let auth_key = match &require_data.first() {
         Some(Value::String(auth_key)) => Ok(auth_key),
         _ => Err(IcaError::LoginFailed("Got a invalid auth_key".to_string())),

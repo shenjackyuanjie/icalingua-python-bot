@@ -96,8 +96,21 @@ pub const ICA_DELETE_MESSAGE_FUNC: &str = "on_ica_delete_message";
 pub const TAILCHAT_NEW_MESSAGE_FUNC: &str = "on_tailchat_message";
 
 macro_rules! call_py_func {
-    ($args:expr, $func_name:expr, $client:expr) => {
-        
+    ($args:expr, $plugin:expr, $plugin_path:expr, $func_name:expr, $client:expr) => {
+        tokio::spawn(async move {
+            Python::with_gil(|py| {
+                if let Ok(py_func) = get_func($plugin.py_module.bind(py), $func_name) {
+                    if let Err(e) = py_func.call1($args) {
+                        let e = PyPluginError::FuncCallError(
+                            e,
+                            $func_name.to_string(),
+                            $plugin_path.to_string_lossy().to_string(),
+                        );
+                        warn!("failed to call function<{}>: {:?}", $func_name, e);
+                    }
+                }
+            })
+        })
     };
 }
 
@@ -112,20 +125,21 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
         // 甚至实际上压根不需要await这个spawn, 直接让他自己跑就好了(离谱)
-        tokio::spawn(async move {
-            Python::with_gil(|py| {
-                if let Ok(py_func) = get_func(plugin.py_module.bind(py), ICA_NEW_MESSAGE_FUNC) {
-                    if let Err(e) = py_func.call1(args) {
-                        let e = PyPluginError::FuncCallError(
-                            e,
-                            ICA_NEW_MESSAGE_FUNC.to_string(),
-                            path.to_string_lossy().to_string(),
-                        );
-                        warn!("failed to call function<{}>: {:?}", ICA_NEW_MESSAGE_FUNC, e);
-                    }
-                }
-            })
-        });
+        call_py_func!(args, plugin, path, ICA_NEW_MESSAGE_FUNC, client);
+        // tokio::spawn(async move {
+        //     Python::with_gil(|py| {
+        //         if let Ok(py_func) = get_func(plugin.py_module.bind(py), ICA_NEW_MESSAGE_FUNC) {
+        //             if let Err(e) = py_func.call1(args) {
+        //                 let e = PyPluginError::FuncCallError(
+        //                     e,
+        //                     ICA_NEW_MESSAGE_FUNC.to_string(),
+        //                     path.to_string_lossy().to_string(),
+        //                 );
+        //                 warn!("failed to call function<{}>: {:?}", ICA_NEW_MESSAGE_FUNC, e);
+        //             }
+        //         }
+        //     })
+        // });
     }
 }
 
@@ -137,23 +151,31 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
         let msg_id = msg_id.clone();
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
-        tokio::spawn(async move {
-            Python::with_gil(|py| {
-                if let Ok(py_func) = get_func(plugin.py_module.bind(py), ICA_DELETE_MESSAGE_FUNC) {
-                    if let Err(e) = py_func.call1(args) {
-                        let e = PyPluginError::FuncCallError(
-                            e,
-                            ICA_DELETE_MESSAGE_FUNC.to_string(),
-                            path.to_string_lossy().to_string(),
-                        );
-                        warn!("failed to call function<{}>: {:?}", ICA_DELETE_MESSAGE_FUNC, e);
-                    }
-                }
-            })
-        });
+        call_py_func!(args, plugin, path, ICA_DELETE_MESSAGE_FUNC, client);
+        // tokio::spawn(async move {
+        //     Python::with_gil(|py| {
+        //         if let Ok(py_func) = get_func(plugin.py_module.bind(py), ICA_DELETE_MESSAGE_FUNC) {
+        //             if let Err(e) = py_func.call1(args) {
+        //                 let e = PyPluginError::FuncCallError(
+        //                     e,
+        //                     ICA_DELETE_MESSAGE_FUNC.to_string(),
+        //                     path.to_string_lossy().to_string(),
+        //                 );
+        //                 warn!("failed to call function<{}>: {:?}", ICA_DELETE_MESSAGE_FUNC, e);
+        //             }
+        //         }
+        //     })
+        // });
     }
 }
 
 pub async fn tailchat_new_message_py(message: tailchat::messages::ReciveMessage, client: &Client) {
+    verify_plugins();
 
+    let plugins = PyStatus::get_files();
+    for (path, plugin) in plugins.iter() {
+        // let msg = class::tailchat::
+        let args = ();
+        call_py_func!(args, plugin, path, TAILCHAT_NEW_MESSAGE_FUNC, client);
+    }
 }
