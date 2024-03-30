@@ -154,6 +154,8 @@ impl BotConfig {
     }
 
     pub fn ica(&self) -> IcaConfig { self.ica.clone().expect("No ica config found") }
-    pub fn tailchat(&self) -> TailchatConfig { self.tailchat.clone().expect("No tailchat config found") }
+    pub fn tailchat(&self) -> TailchatConfig {
+        self.tailchat.clone().expect("No tailchat config found")
+    }
     pub fn py(&self) -> PyConfig { self.py.clone().expect("No py config found") }
 }

@@ -1,4 +1,5 @@
 pub mod messages;
+pub mod status;
 
 pub type GroupId = String;
 pub type ConverseId = String;

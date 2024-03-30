@@ -79,7 +79,6 @@ pub mod ica {
     }
 }
 
-
 pub mod tailchat {
     use crate::data_struct::tailchat::UserId;
 
