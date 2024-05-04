@@ -149,15 +149,15 @@ class IcaClient:
         ...
     
     @property
-    def status() -> IcaStatus:
+    def status(self) -> IcaStatus:
         ...
     @property
-    def version() -> str:
+    def version(self) -> str:
         ...
     @property
-    def ica_version() -> str:
+    def ica_version(self) -> str:
         """shenbot ica 的版本号"""
-    
+        ...
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
         ...
