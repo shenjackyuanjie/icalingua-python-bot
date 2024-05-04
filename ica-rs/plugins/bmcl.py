@@ -90,6 +90,7 @@ def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
     dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
     if data is None or dashboard_status is None:
         return
+    global backend_version
     backend_version = dashboard_status["version"]
     backend_commit = dashboard_status["_resolved"].split("#")[1][:7]
     data_bytes: float = data["bytes"]
