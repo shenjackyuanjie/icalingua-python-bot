@@ -15,6 +15,7 @@ else:
     IcaClient = TypeVar("IcaClient")
 
 _version_ = "2.3.0-rs"
+backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
     data_lens = ["B", "KB", "MB", "GB", "TB"]
@@ -102,7 +103,7 @@ def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
     
     report_msg = (
         f"OpenBMCLAPI 面板v{_version_}-状态\n"
-        f"api版本 {backend_version} git commit:{backend_commit}\n"
+        f"api版本 {backend_version} commit:{backend_commit}\n"
         f"实时信息: {online_node}  带宽: {online_bandwidth}Mbps\n"
         f"负载: {load_str:.2f}%  带宽: {data_bandwidth:.2f}Mbps\n"
         f"当日请求: {hits_count} 数据量: {data_len}\n"
@@ -153,6 +154,10 @@ def display_rank_full(ranks: list, req_time) -> str:
             cache.write(f"{rank['name']}")
             if 'version' in rank:
                 cache.write(f"|{rank['version']}")
+                if rank['version'] != backend_version:
+                    cache.write("🟠")
+                else:
+                    cache.write("🟢")
             cache.write('\n')
             # 用户/赞助信息
             if ('user' in rank) and (rank['user'] is not None):
@@ -255,6 +260,12 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         if '\n' in msg.content:
             return
         try:
+            global backend_version
+            if backend_version == "unknown":
+                dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
+                if dashboard_status is None:
+                    return
+                backend_version = dashboard_status["version"]
             if msg.content.startswith("/bmcl"):
                 if msg.content == "/bmcl":
                     bmcl_dashboard(msg, client)
