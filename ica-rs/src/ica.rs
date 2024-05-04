@@ -10,6 +10,8 @@ use crate::config::IcaConfig;
 use crate::error::{ClientResult, IcaError};
 use crate::{wrap_any_callback, wrap_callback, StopGetter};
 
+const ICA_PROTOCOL_VERSION: &str = "2.11.8";
+
 pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "Icalingua Client");
     let _enter = span.enter();

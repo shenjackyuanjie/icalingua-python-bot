@@ -7,7 +7,7 @@ use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
 use serde_json::Value;
-use tracing::{debug, span, warn, Level};
+use tracing::{debug, info, span, warn, Level};
 
 /// "安全" 的 发送一条消息
 pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
@@ -56,7 +56,20 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
 
     let (auth_key, version) = (&require_data[0], &require_data[1]);
 
-    debug!("auth_key: {:?}, server_version: {:?}", auth_key, version);
+    info!("auth_key: {:?}, server_version: {:?}", auth_key, version);
+    // 判定和自己的兼容版本号是否 一致
+    let server_protocol_version = version
+        .get("protocolVersion")
+        .unwrap_or(&Value::Null)
+        .as_str()
+        .unwrap_or("unknow");
+    if server_protocol_version != crate::ica::ICA_PROTOCOL_VERSION {
+        warn!(
+            "服务器版本与兼容版本不一致\n服务器协议版本:{:?}\n兼容版本:{}",
+            version.get("protocolVersion"),
+            crate::ica::ICA_PROTOCOL_VERSION
+        );
+    }
 
     let auth_key = match &require_data.first() {
         Some(Value::String(auth_key)) => Ok(auth_key),

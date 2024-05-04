@@ -5,5 +5,5 @@ members = [
 resolver = "2"
 
 [patch.crates-io]
-rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "mult_payload" }
+# rust_socketio = { git = "https://github.com/shenjackyuanjie/rust-socketio.git", branch = "main" }
 # pyo3 = { git = "https://github.com/PyO3/pyo3.git", branch = "main" }
