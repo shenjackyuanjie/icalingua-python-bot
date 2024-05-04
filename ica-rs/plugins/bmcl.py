@@ -10,11 +10,11 @@ if TYPE_CHECKING:
     from ica_typing import IcaNewMessage, IcaClient, ConfigData
     CONFIG_DATA: ConfigData
 else:
-    CONFIG_DATA = None
+    CONFIG_DATA: ConfigData = None # type: ignore
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.2.0-rs"
+_version_ = "2.3.0-rs"
 
 def format_data_size(data_bytes: float) -> str:
     data_lens = ["B", "KB", "MB", "GB", "TB"]
@@ -58,9 +58,8 @@ def format_hit_count(count: int) -> str:
 
 
 def wrap_request(url: str, msg: IcaNewMessage, client: IcaClient) -> Optional[dict]:
-    # if CONFIG_DATA
     try:
-        cookie = CONFIG_DATA["cookie"]
+        cookie = CONFIG_DATA["cookie"] # type: ignore
         if cookie == "填写你的 cookie" or cookie is None:
             response = requests.get(url)
         else:
@@ -87,8 +86,11 @@ def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
     req_time = time.time()
     # 记录请求时间
     data = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/dashboard", msg, client)
-    if data is None:
+    dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
+    if data is None or dashboard_status is None:
         return
+    backend_version = dashboard_status["version"]
+    backend_commit = dashboard_status["_resolved"].split("#")[1][:7]
     data_bytes: float = data["bytes"]
     data_hits: int = data["hits"]
     data_bandwidth: float = data["currentBandwidth"]
@@ -100,6 +102,7 @@ def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
     
     report_msg = (
         f"OpenBMCLAPI 面板v{_version_}-状态\n"
+        f"api版本 {backend_version} git commit:{backend_commit}\n"
         f"实时信息: {online_node}  带宽: {online_bandwidth}Mbps\n"
         f"负载: {load_str:.2f}%  带宽: {data_bandwidth:.2f}Mbps\n"
         f"当日请求: {hits_count} 数据量: {data_len}\n"
