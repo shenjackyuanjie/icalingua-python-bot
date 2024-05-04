@@ -91,6 +91,7 @@ class IcaNewMessage:
     """
     def reply_with(self, message: str) -> IcaSendMessage:
         """回复这条消息"""
+        ...
     def as_deleted(self) -> IcaDeleteMessage:
         ...
     def __str__(self) -> str:
@@ -113,15 +114,18 @@ class IcaNewMessage:
     @property
     def is_room_msg(self) -> bool:
         """是否是群聊消息"""
+        ...
     @property
     def is_chat_msg(self) -> bool:
         """是否是私聊消息"""
+        ...
     @property
     def room_id(self) -> IcaType.RoomId:
         """
         如果是群聊消息, 返回 (-群号)
         如果是私聊消息, 返回 对面qq
         """
+        ...
 
 
 class IcaClient:
@@ -156,10 +160,13 @@ class IcaClient:
     
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
+        ...
     def info(self, message: str) -> None:
         """向日志中输出信息"""
+        ...
     def warn(self, message: str) -> None:
         """向日志中输出警告信息"""
+        ...
 
 
 class TailchatReciveMessage:
