@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ica_typing import IcaNewMessage, IcaClient, ConfigData
     CONFIG_DATA: ConfigData
 else:
-    CONFIG_DATA: ConfigData = None # type: ignore
+    CONFIG_DATA = None # type: ignore
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
