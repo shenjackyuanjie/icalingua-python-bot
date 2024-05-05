@@ -30,6 +30,8 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         return
     # 去掉 /name
     names = msg.content.split("/name")[1]
+    # 去掉第一个 \n
+    names = names[names.find("\n") + 1 :]
 
     start_time = time.time()
     # 开始 try
