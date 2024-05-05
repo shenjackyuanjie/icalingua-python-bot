@@ -55,7 +55,7 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         # 发送结果
         end_time = time.time()
         reply = msg.reply_with(
-            f"{out_result}\n{err_result}\n耗时:{end_time - start_time:.2f}s\n版本:{_version_}"
+            f"{out_result}{err_result}\n耗时:{end_time - start_time:.2f}s\n版本:{_version_}"
         )
         client.send_message(reply)
     except Exception as e:
