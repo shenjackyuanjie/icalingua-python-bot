@@ -252,7 +252,7 @@ if (run_env.from_code) {
     assets_data.gAd = gAd_data;
 }
 
-console.log("run env", run_env);
+// console.log("run env", run_env);
 
 let why_ns = 0;
 
