@@ -135,9 +135,10 @@ if (run_env.from_code) {
     global.finish_trigger = finish_trigger;
     
     // 读取 input.txt
-    // const input_path = path.join(__dirname, "input.txt");
+    // 从当前脚本的相对路径读取
+    const input_path = path.join(__dirname, "input.txt");
     // 从 cli 参数里读取
-    const input_path = run_env.cli_args[2];
+    // const input_path = run_env.cli_args[2];
     logger.info("input_path", input_path);
     const input_data = fs.readFileSync(input_path, "utf-8");
     global.name_input = input_data;
