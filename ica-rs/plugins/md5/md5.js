@@ -26599,89 +26599,89 @@ function main(input_name) {
                     h = T.parse_names(raw_names);
 
                     // if (J.Y(J.J(J.J(h, 0)[0], 0), $.qc())) {
-                    if ($.qc() === h[0][0][0]) {
-                        $.vr = 6;
-                        // if (J.aw(h) === 2)
-                        if (h.length === 2) {
-                            // if (J.J(h, 1).length > 10 || J.lW(J.J(J.J(h, 1)[0], 0), O.j("S,AF", 5))) {
-                            // LangData.j("S,AF", 5) -> ???
-                            if (h[1].length > 10 || J.lW(h[1][0][0], LangData.j("S,AF", 5))) {
-                                logger.info("官方搜号");
-                                team_1 = h[1];
-                                team_2 = H.b([], t.t);
+                    // if ($.qc() === h[0][0][0]) {
+                    //     $.vr = 6;
+                    //     // if (J.aw(h) === 2)
+                    //     if (h.length === 2) {
+                    //         // if (J.J(h, 1).length > 10 || J.lW(J.J(J.J(h, 1)[0], 0), O.j("S,AF", 5))) {
+                    //         // LangData.j("S,AF", 5) -> ???
+                    //         if (h[1].length > 10 || J.lW(h[1][0][0], LangData.j("S,AF", 5))) {
+                    //             logger.info("官方搜号");
+                    //             team_1 = h[1];
+                    //             team_2 = H.b([], t.t);
 
-                                profiler = new X.ProfileFind(team_2, new Float64Array(1));
-                                d.e_(team_1);
+                    //             profiler = new X.ProfileFind(team_2, new Float64Array(1));
+                    //             d.e_(team_1);
 
-                                f = HtmlRenderer.outer_main(profiler);
+                    //             f = HtmlRenderer.outer_main(profiler);
 
-                                f.r = 2000;
-                                async_goto = 1;
-                                break;
-                            } else {
-                                logger.info("官方测号-评分");
+                    //             f.r = 2000;
+                    //             async_goto = 1;
+                    //             break;
+                    //         } else {
+                    //             logger.info("官方测号-评分");
 
-                                e = $.nk();
-                                // if (J.J(h, 0).length === 2 && J.Y(J.J(J.J(h, 0)[1], 0), $.cl())) {
-                                if (h[0].length === 2 && h[0][1][0] === $.cl()) {
-                                    team_1 = h[1];
-                                    e = $.cl();
-                                }
-                                team_1 = h[1];
-                                team_2 = e;
-                                a3 = H.b([], t.L);
-                                a4 = H.b([], t.V);
-                                a5 = H.b([], t.M);
+                    //             e = $.nk();
+                    //             // if (J.J(h, 0).length === 2 && J.Y(J.J(J.J(h, 0)[1], 0), $.cl())) {
+                    //             if (h[0].length === 2 && h[0][1][0] === $.cl()) {
+                    //                 team_1 = h[1];
+                    //                 e = $.cl();
+                    //             }
+                    //             team_1 = h[1];
+                    //             team_2 = e;
+                    //             a3 = H.b([], t.L);
+                    //             a4 = H.b([], t.V);
+                    //             a5 = H.b([], t.M);
 
-                                profiler = new V.ProfileMain(
-                                    team_2,
-                                    team_1,
-                                    a3,
-                                    a4,
-                                    a5,
-                                    P.cu(t.X, t.B),
-                                    new Float64Array(1),
-                                );
-                                profiler.dZ(team_1, team_2);
-                                profiler.d = 1000;
+                    //             profiler = new V.ProfileMain(
+                    //                 team_2,
+                    //                 team_1,
+                    //                 a3,
+                    //                 a4,
+                    //                 a5,
+                    //                 P.cu(t.X, t.B),
+                    //                 new Float64Array(1),
+                    //             );
+                    //             profiler.dZ(team_1, team_2);
+                    //             profiler.d = 1000;
 
-                                c = HtmlRenderer.outer_main(profiler);
+                    //             c = HtmlRenderer.outer_main(profiler);
 
-                                c.r = 2000;
-                                async_goto = 1;
-                                break;
-                            }
-                        } else if (h.length === 3) {
-                            logger.info("官方测号-胜率");
+                    //             c.r = 2000;
+                    //             async_goto = 1;
+                    //             break;
+                    //         }
+                    //     } else if (h.length === 3) {
+                    //         logger.info("官方测号-胜率");
 
-                            team_1 = h[1];
-                            team_2 = h[2];
-                            a3 = t.L;
-                            a4 = H.b([], a3);
-                            a3 = H.b([], a3);
-                            a5 = H.b([], t.V);
-                            a6 = H.b([], t.M);
+                    //         team_1 = h[1];
+                    //         team_2 = h[2];
+                    //         a3 = t.L;
+                    //         a4 = H.b([], a3);
+                    //         a3 = H.b([], a3);
+                    //         a5 = H.b([], t.V);
+                    //         a6 = H.b([], t.M);
 
-                            profiler = new L.ProfileWinChance(
-                                team_1,
-                                team_2,
-                                a4,
-                                a3,
-                                a5,
-                                a6,
-                                new Float64Array(1),
-                            );
-                            profiler.dY(team_1, team_2);
-                            profiler.c = 1000;
+                    //         profiler = new L.ProfileWinChance(
+                    //             team_1,
+                    //             team_2,
+                    //             a4,
+                    //             a3,
+                    //             a5,
+                    //             a6,
+                    //             new Float64Array(1),
+                    //         );
+                    //         profiler.dY(team_1, team_2);
+                    //         profiler.c = 1000;
 
-                            a = HtmlRenderer.outer_main(profiler);
+                    //         a = HtmlRenderer.outer_main(profiler);
 
-                            a.r = 2000;
-                            async_goto = 1;
-                            break;
-                        }
-                    }
-                    logger.info("对战");
+                    //         a.r = 2000;
+                    //         async_goto = 1;
+                    //         break;
+                    //     }
+                    // }
+                    // logger.info("对战");
                     async_goto = 8;
                     return P._asyncAwait(T.start_main(h), $async$iE);
                 case 8:
