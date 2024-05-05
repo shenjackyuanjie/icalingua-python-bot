@@ -34,7 +34,9 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         with open(root_path / "md5" / "input.txt", "w") as f:
             f.write(names)
         # 执行 node md5.js
-        result = subprocess.run(["node", (root_path / "md5" / "md5.js").absolute()], stdout=subprocess.PIPE)
+        runner_path = root_path / "md5" / "md5.js"
+        input_path = root_path / "md5" / "input.txt"
+        result = subprocess.run(["node", runner_path.absolute(), input_path.absolute()], stdout=subprocess.PIPE)
         # 获取结果
         result = result.stdout.decode("utf-8")
         # 发送结果
