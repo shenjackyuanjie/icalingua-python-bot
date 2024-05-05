@@ -138,7 +138,7 @@ if (run_env.from_code) {
     // const input_path = path.join(__dirname, "input.txt");
     // 从 cli 参数里读取
     const input_path = run_env.cli_args[2];
-    logger.debug("input_path", input_path);
+    logger.info("input_path", input_path);
     const input_data = fs.readFileSync(input_path, "utf-8");
     global.name_input = input_data;
 
@@ -250,6 +250,8 @@ if (run_env.from_code) {
     const gAd_data = fs.readFileSync(gAd_path, "utf-8");
     assets_data.gAd = gAd_data;
 }
+
+console.log("run env", run_env);
 
 let why_ns = 0;
 
