@@ -15,7 +15,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "0.0.1"
+_version_ = "0.1.0"
 
 
 def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
