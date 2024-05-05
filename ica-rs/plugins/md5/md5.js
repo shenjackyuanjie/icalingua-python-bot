@@ -26713,9 +26713,9 @@ if (run_env.from_code) {
     const win_data = [];
     finish_trigger.once("done_fight", (data) => {
         // logger.info(fmt_RunUpdate(data));
-        let data = fmt_RunUpdate(data);
+        let fmt_data = fmt_RunUpdate(data);
         // 只输出赢家
-        logger.info("赢家(也有可能是之一): " + data.source_plr);
+        logger.info("赢家(也有可能是之一): " + fmt_data.source_plr);
     });
     finish_trigger.on("win_rate", (...data) => {
         logger.info(...data);
