@@ -3,7 +3,7 @@ const _version_ = "0.1.0";
 // let name_input = "!test!\n\natest\n\ntest2";
 // let name_input = "!test!\n\nthis_is_a";
 // let name_input = "!test!\n!\n\nthis_is_a";
-const name_input = "this_is_a\nthis_is_b";
+let name_input = "";
 // let name_input = `
 // '9tEUG@LuoTianyi
 // t2W%(s@LuoTianyi
@@ -247,8 +247,6 @@ if (run_env.from_code) {
     const gAd_data = fs.readFileSync(gAd_path, "utf-8");
     assets_data.gAd = gAd_data;
 }
-
-console.log("run_env", run_env);
 
 let why_ns = 0;
 
@@ -26575,7 +26573,7 @@ function main(input_name) {
 
                     if (run_env.from_code) {
                         raw_names = input_name;
-                        console.log("----------\n" + raw_names, "\n----------");
+                        // console.log("----------\n" + raw_names, "\n----------");
                     } else {
                         m = window.sessionStorage.getItem(LangData.eQ("k"));
                         l = X.f4(m, 0);
