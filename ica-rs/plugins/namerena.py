@@ -38,10 +38,11 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         input_path = root_path / "md5" / "input.txt"
         result = subprocess.run(["node", runner_path.absolute(), input_path.absolute()], stdout=subprocess.PIPE)
         # 获取结果
-        result = result.stdout.decode("utf-8")
+        out_result = result.stdout.decode("utf-8")
+        err_result = result.stderr.decode("utf-8")
         # 发送结果
         end_time = time.time()
-        reply = msg.reply_with(f"{result}\n耗时:{end_time - start_time:.2f}s\n版本:{_version_}")
+        reply = msg.reply_with(f"{out_result}\n{err_result}\n耗时:{end_time - start_time:.2f}s\n版本:{_version_}")
         client.send_message(reply)
     except Exception as e:
         # 发送错误
