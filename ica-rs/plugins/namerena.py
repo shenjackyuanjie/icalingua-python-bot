@@ -2,6 +2,8 @@ import time
 import traceback
 import subprocess
 
+from pathlib import Path
+
 from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
@@ -27,10 +29,12 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
     # 开始 try
     try:
         # 内容写入到 ./md5/input.txt
-        with open("./md5/input.txt", "w") as f:
+        # 路径是插件文件的相对路径
+        root_path = Path(__file__).parent
+        with open(root_path / "md5" / "input.txt", "w") as f:
             f.write(names)
         # 执行 node md5.js
-        result = subprocess.run(["node", "md5/md5.js"], stdout=subprocess.PIPE)
+        result = subprocess.run(["node", (root_path / "md5" / "md5.js").absolute()], stdout=subprocess.PIPE)
         # 获取结果
         result = result.stdout.decode("utf-8")
         # 发送结果
