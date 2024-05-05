@@ -141,7 +141,7 @@ if (run_env.from_code) {
     // const input_path = run_env.cli_args[2];
     logger.info("input_path", input_path);
     const input_data = fs.readFileSync(input_path, "utf-8");
-    global.name_input = input_data;
+    name_input = input_data;
 
     // 把 cli 参数传进来
     run_env.cli_args = process.argv;
