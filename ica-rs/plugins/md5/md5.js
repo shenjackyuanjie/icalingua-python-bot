@@ -139,7 +139,7 @@ if (run_env.from_code) {
     const input_path = path.join(__dirname, "input.txt");
     // 从 cli 参数里读取
     // const input_path = run_env.cli_args[2];
-    logger.info("input_path", input_path);
+    logger.debug("input_path", input_path);
     const input_data = fs.readFileSync(input_path, "utf-8");
     name_input = input_data;
 
@@ -26579,7 +26579,7 @@ function main(input_name) {
 
                     if (run_env.from_code) {
                         raw_names = input_name;
-                        console.log("----------\n" + raw_names, "\n----------");
+                        // console.log("----------\n" + raw_names, "\n----------");
                     } else {
                         m = window.sessionStorage.getItem(LangData.eQ("k"));
                         l = X.f4(m, 0);
