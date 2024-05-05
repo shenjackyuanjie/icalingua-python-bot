@@ -26579,7 +26579,7 @@ function main(input_name) {
 
                     if (run_env.from_code) {
                         raw_names = input_name;
-                        // console.log("----------\n" + raw_names, "\n----------");
+                        console.log("----------\n" + raw_names, "\n----------");
                     } else {
                         m = window.sessionStorage.getItem(LangData.eQ("k"));
                         l = X.f4(m, 0);
