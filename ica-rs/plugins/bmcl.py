@@ -14,7 +14,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.3.0-rs"
+_version_ = "2.3.1-rs"
 backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
@@ -129,6 +129,8 @@ def display_rank_min(ranks: list, req_time) -> str:
             cache.write('✅' if rank['isEnabled'] else '❌')
             if 'fullSize' in rank:
                 cache.write('🌕' if rank['fullSize'] else '🌘')
+            if 'version' in rank:
+                cache.write('🟢' if rank['version'] == backend_version else '🟠')
             cache.write(f"-{rank['index']+1:3}")
             cache.write(f"|{rank['name']}\n")
     else:
@@ -155,10 +157,7 @@ def display_rank_full(ranks: list, req_time) -> str:
             cache.write(f"{rank['name']}")
             if 'version' in rank:
                 cache.write(f"|{rank['version']}")
-                if rank['version'] != backend_version:
-                    cache.write("🟠")
-                else:
-                    cache.write("🟢")
+                cache.write('🟢' if rank['version'] == backend_version else '🟠')
             cache.write('\n')
             # 用户/赞助信息
             if ('user' in rank) and (rank['user'] is not None):
