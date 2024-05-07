@@ -15,8 +15,9 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "0.2.0"
+_version_ = "0.3.0"
 
+COMMAND = "/namerena"
 
 def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
     if not msg.content.startswith("/namerena"):
@@ -24,12 +25,12 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
     if msg.content.find("\n") == -1:
         client.send_message(
             msg.reply_with(
-                "请使用 /namerena 命令，然后换行输入名字，例如：\n/namerena\n张三\n李四\n王五\n"
+                f"请使用 {COMMAND} 命令，然后换行输入名字，例如：\n{COMMAND}\n张三\n李四\n王五\n"
             )
         )
         return
     # 去掉 /name
-    names = msg.content.split("/namerena")[1]
+    names = msg.content[len(COMMAND) :]
     # 去掉第一个 \n
     names = names[names.find("\n") + 1 :]
 
