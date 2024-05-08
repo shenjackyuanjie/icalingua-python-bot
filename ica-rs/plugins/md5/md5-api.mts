@@ -133,3 +133,18 @@ async function score_callback(
 	}
 	return await md5_module.score_callback(names, callback);
 }
+
+export {
+	FightResult,
+	WinRate,
+	WinRateResult,
+	WinRateCallback,
+	Score,
+	ScoreResult,
+	ScoreCallback,
+	fight,
+	win_rate,
+	win_rate_callback,
+	score,
+	score_callback,
+};
