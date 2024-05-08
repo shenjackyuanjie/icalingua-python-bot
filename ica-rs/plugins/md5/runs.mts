@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-import { fight } from "./md5-api.cts";
+import { fight } from "./md5-api.mts";
 
 // 从文件的 ./input.txt 中读取输入
 // 然后丢给 md5.js
