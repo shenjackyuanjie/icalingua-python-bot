@@ -1,4 +1,5 @@
 const md5_module = require("./md5.js");
+// import * as md5_module from "./md5.js";
 
 /**
  * 对战结果的数据结构
@@ -134,17 +135,29 @@ async function score_callback(
 	return await md5_module.score_callback(names, callback);
 }
 
-export {
-	FightResult,
-	WinRate,
-	WinRateResult,
-	WinRateCallback,
-	Score,
-	ScoreResult,
-	ScoreCallback,
-	fight,
-	win_rate,
-	win_rate_callback,
-	score,
-	score_callback,
-};
+// export {
+// 	type FightResult,
+// 	type WinRate,
+// 	type WinRateResult,
+// 	type WinRateCallback,
+// 	type Score,
+// 	type ScoreResult,
+// 	type ScoreCallback,
+// 	fight,
+// 	win_rate,
+// 	win_rate_callback,
+// 	score,
+// 	score_callback,
+// };
+
+async function main() {
+	// 从相对位置导入内容
+	const fs = require("fs");
+	const path = require("path");
+
+	const names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
+	const result = await fight(names);
+	console.log(result);
+}
+
+main();
