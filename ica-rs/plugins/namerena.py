@@ -46,7 +46,7 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         runner_path = root_path / "md5" / "runs.ts"
         input_path = root_path / "md5" / "input.txt"
         result = subprocess.run(
-            ["node", runner_path.absolute(), input_path.absolute()],
+            ["npm", "x", "tsx", runner_path.absolute(), input_path.absolute()],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
