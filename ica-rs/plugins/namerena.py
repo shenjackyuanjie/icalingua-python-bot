@@ -43,7 +43,7 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         with open(root_path / "md5" / "input.txt", "w") as f:
             f.write(names)
         # 执行 node md5.js
-        runner_path = root_path / "md5" / "runs.ts"
+        runner_path = root_path / "md5" / "runs.mts"
         input_path = root_path / "md5" / "input.txt"
         result = subprocess.run(
             ["npm", "x", "tsx", runner_path.absolute(), input_path.absolute()],
