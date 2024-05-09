@@ -167,7 +167,7 @@ function main() {
                     return [4 /*yield*/, fight(names)];
                 case 1:
                     result = _a.sent();
-                    console.log("赢家:|${result.source_plr}|");
+                    console.log("\u8D62\u5BB6:|".concat(result.source_plr, "|"));
                     return [2 /*return*/];
             }
         });

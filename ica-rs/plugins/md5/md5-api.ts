@@ -157,7 +157,7 @@ async function main() {
 
 	const names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
 	const result = await fight(names);
-	console.log("赢家:|${result.source_plr}|");
+	console.log(`赢家:|${result.source_plr}|`);
 }
 
 main();
