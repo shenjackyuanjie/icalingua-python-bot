@@ -195,7 +195,7 @@ async function main() {
 	// const result = await fight(names);
 	// const result = await md5_module.run_any(names, 50000);
 	// console.log(`赢家:|${result.source_plr}|`);
-	const result = await wrap_any(names, 10000);
+	const result = await wrap_any(names, 1000);
 	console.log(result);
 }
 

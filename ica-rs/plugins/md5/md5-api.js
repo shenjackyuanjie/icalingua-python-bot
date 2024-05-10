@@ -214,7 +214,7 @@ function main() {
                     fs = require("fs");
                     path = require("path");
                     names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-                    return [4 /*yield*/, wrap_any(names, 10000)];
+                    return [4 /*yield*/, wrap_any(names, 1000)];
                 case 1:
                     result = _a.sent();
                     console.log(result);
