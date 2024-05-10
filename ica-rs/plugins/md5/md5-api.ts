@@ -146,7 +146,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 		return `赢家:|${result.source_plr}|`;
 	} else if ('win_count' in result) {
 		// 胜率结果
-		const win_rate = result.win_count / round;
+		const win_rate = result.win_count * 100 / round;
 		let win_rate_str = win_rate.toFixed(4);
 		let output_str = `最终胜率:|${win_rate_str}|(${round}轮)`;
 		// 每 500 轮, 输出一次
@@ -159,7 +159,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 				}
 			});
 			output_datas.forEach((data, index) => {
-				const win_rate = data.win_count / data.round;
+				const win_rate = data.win_count * 100 / data.round;
 				output_str += `\n${win_rate.toFixed(2)}%(${data.round})`;
 			});
 		}

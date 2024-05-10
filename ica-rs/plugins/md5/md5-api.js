@@ -164,7 +164,7 @@ function wrap_any(names, round) {
                         return [2 /*return*/, "\u8D62\u5BB6:|".concat(result.source_plr, "|")];
                     }
                     else if ('win_count' in result) {
-                        win_rate_1 = result.win_count / round;
+                        win_rate_1 = result.win_count * 100 / round;
                         win_rate_str = win_rate_1.toFixed(4);
                         output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "|(").concat(round, "\u8F6E)");
                         // 每 500 轮, 输出一次
@@ -176,7 +176,7 @@ function wrap_any(names, round) {
                                 }
                             });
                             output_datas_1.forEach(function (data, index) {
-                                var win_rate = data.win_count / data.round;
+                                var win_rate = data.win_count * 100 / data.round;
                                 output_str_1 += "\n".concat(win_rate.toFixed(2), "%(").concat(data.round, ")");
                             });
                         }
