@@ -207,17 +207,20 @@ function wrap_any(names, round) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var fs, path, names, result;
+        var fs, path, names, start_time, result, end_time;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     fs = require("fs");
                     path = require("path");
                     names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-                    return [4 /*yield*/, wrap_any(names, 1000)];
+                    start_time = Date.now();
+                    return [4 /*yield*/, wrap_any(names, 10000)];
                 case 1:
                     result = _a.sent();
+                    end_time = Date.now();
                     console.log(result);
+                    console.log("Node.js \u8017\u65F6: ".concat(end_time - start_time, " ms"));
                     return [2 /*return*/];
             }
         });

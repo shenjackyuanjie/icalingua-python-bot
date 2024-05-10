@@ -195,8 +195,11 @@ async function main() {
 	// const result = await fight(names);
 	// const result = await md5_module.run_any(names, 50000);
 	// console.log(`赢家:|${result.source_plr}|`);
-	const result = await wrap_any(names, 1000);
+	const start_time = Date.now();
+	const result = await wrap_any(names, 10000);
+	const end_time = Date.now();
 	console.log(result);
+	console.log(`Node.js 耗时: ${end_time - start_time} ms`);
 }
 
 main();
