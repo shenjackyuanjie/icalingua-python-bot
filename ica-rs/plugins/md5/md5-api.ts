@@ -64,7 +64,7 @@ type ScoreCallback = (run_round: number, score: number) => boolean;
 async function fight(names: string): Promise<FightResult> {
 	// 检查一下输入是否合法
 	// 比如里面有没有 !test!
-	if (names.startsWith("!test!")) {
+	if (names.indexOf("!test!") !== -1) {
 		throw new Error("你怎么在对战输入里加 !test!(恼)\n${names}");
 	}
 	return await md5_module.fight(names);
