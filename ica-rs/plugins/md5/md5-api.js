@@ -62,7 +62,7 @@ function fight(names) {
  * @returns
  */
 function test_check(names) {
-    var have_test = names.startsWith("!test!");
+    var have_test = names.trim().startsWith("!test!");
     return have_test;
 }
 /**
@@ -141,20 +141,70 @@ function score_callback(names, callback) {
         });
     });
 }
-// export {
-// 	type FightResult,
-// 	type WinRate,
-// 	type WinRateResult,
-// 	type WinRateCallback,
-// 	type Score,
-// 	type ScoreResult,
-// 	type ScoreCallback,
-// 	fight,
-// 	win_rate,
-// 	win_rate_callback,
-// 	score,
-// 	score_callback,
-// };
+function run_any(names, round) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, md5_module.run_any(names, round)];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+function wrap_any(names, round) {
+    return __awaiter(this, void 0, void 0, function () {
+        var result, win_rate_1, win_rate_str, output_str_1, output_datas_1, win_rate_2, output_str_2, output_datas_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, run_any(names, round)];
+                case 1:
+                    result = _a.sent();
+                    if ('message' in result) {
+                        // 对战结果
+                        return [2 /*return*/, "\u8D62\u5BB6:|".concat(result.source_plr, "|")];
+                    }
+                    else if ('win_count' in result) {
+                        win_rate_1 = result.win_count / round;
+                        win_rate_str = win_rate_1.toFixed(4);
+                        output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "|(").concat(round, "\u8F6E)");
+                        // 每 500 轮, 输出一次
+                        if (round > 1000) {
+                            output_datas_1 = [];
+                            result.raw_data.forEach(function (data, index) {
+                                if (index % 500 === 0) {
+                                    output_datas_1.push(data);
+                                }
+                            });
+                            output_datas_1.forEach(function (data, index) {
+                                var win_rate = data.win_count / data.round;
+                                output_str_1 += "\n".concat(win_rate.toFixed(2), "%(").concat(data.round, ")");
+                            });
+                        }
+                        return [2 /*return*/, output_str_1];
+                        // } else if ('score' in result) {
+                    }
+                    else {
+                        win_rate_2 = (result.score / round * 100).toFixed(2);
+                        output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "%|(").concat(round, "\u8F6E)");
+                        if (round > 1000) {
+                            output_datas_2 = [];
+                            result.raw_data.forEach(function (data, index) {
+                                if (index % 500 === 0) {
+                                    output_datas_2.push(data);
+                                }
+                            });
+                            output_datas_2.forEach(function (data, index) {
+                                var win_rate = (data.score / data.round * 100).toFixed(2);
+                                output_str_2 += "\n".concat(win_rate, "%(").concat(data.round, ")");
+                            });
+                        }
+                        return [2 /*return*/, output_str_2];
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var fs, path, names, result;
@@ -164,10 +214,9 @@ function main() {
                     fs = require("fs");
                     path = require("path");
                     names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-                    return [4 /*yield*/, md5_module.run_any(names, 50000)];
+                    return [4 /*yield*/, wrap_any(names, 1000)];
                 case 1:
                     result = _a.sent();
-                    // console.log(`赢家:|${result.source_plr}|`);
                     console.log(result);
                     return [2 /*return*/];
             }
