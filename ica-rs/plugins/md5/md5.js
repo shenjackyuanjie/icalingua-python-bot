@@ -21795,7 +21795,7 @@ const runner = {
                 // 如果数据长度等于 round，说明数据已经全部返回
                 if (run_round >= target_round) {
                     stop_bomb = true;
-                    resolve({ score: win_count, raw_data: win_datas });
+                    resolve({ win_count: win_count, raw_data: win_datas });
                 }
             });
             main(names);
@@ -21811,7 +21811,7 @@ const runner = {
                 let result = callback(run_round, win_count);
                 if (!result) {
                     stop_bomb = true;
-                    resolve({ score: win_count, raw_data: win_datas });
+                    resolve({ win_count: win_count, raw_data: win_datas });
                 }
             });
             main(names);
@@ -21856,7 +21856,7 @@ const runner = {
                 data.push({ round: run_round, win_count: win_count });
                 if (run_round >= round) {
                     stop_bomb = true;
-                    resolve({ score: win_count, raw_data: data });
+                    resolve({ win_count: win_count, raw_data: data });
                 }
             });
             finish_trigger.on("score_report", (run_round, score) => {
@@ -21868,7 +21868,7 @@ const runner = {
             });
             main(names);
         })
-    }
+    },
 };
 
 if (run_env.from_code) {

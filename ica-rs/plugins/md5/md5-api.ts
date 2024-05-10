@@ -24,7 +24,7 @@ type WinRate = {
  * 胜率的数据结构
  */
 type WinRateResult = {
-	souce: number;
+	win_count: number;
 	raw_data: WinRate[];
 };
 
@@ -46,7 +46,7 @@ type Score = {
  * 分数的数据结构
  */
 type ScoreResult = {
-	source: number;
+	score: number;
 	raw_data: Score[];
 };
 
@@ -76,7 +76,7 @@ async function fight(names: string): Promise<FightResult> {
  * @returns
  */
 function test_check(names: string): boolean {
-	const have_test = names.startsWith("!test!");
+	const have_test = names.trim().startsWith("!test!");
 
 	return have_test;
 }
@@ -135,20 +135,56 @@ async function score_callback(
 	return await md5_module.score_callback(names, callback);
 }
 
-// export {
-// 	type FightResult,
-// 	type WinRate,
-// 	type WinRateResult,
-// 	type WinRateCallback,
-// 	type Score,
-// 	type ScoreResult,
-// 	type ScoreCallback,
-// 	fight,
-// 	win_rate,
-// 	win_rate_callback,
-// 	score,
-// 	score_callback,
-// };
+async function run_any(names: string, round: number): Promise<FightResult | WinRateResult | ScoreResult> {
+	return await md5_module.run_any(names, round);
+}
+
+async function wrap_any(names: string, round: number): Promise<string> {
+	const result = await run_any(names, round);
+	if ('message' in result) {
+		// 对战结果
+		return `赢家:|${result.source_plr}|`;
+	} else if ('win_count' in result) {
+		// 胜率结果
+		const win_rate = result.win_count / round;
+		let win_rate_str = win_rate.toFixed(4);
+		let output_str = `最终胜率:|${win_rate_str}|(${round}轮)`;
+		// 每 500 轮, 输出一次
+		if (round > 1000) {
+			// 把所有要找的数据拿出来
+			let output_datas: WinRate[] = [];
+			result.raw_data.forEach((data, index) => {
+				if (index % 500 === 0) {
+					output_datas.push(data);
+				}
+			});
+			output_datas.forEach((data, index) => {
+				const win_rate = data.win_count / data.round;
+				output_str += `\n${win_rate.toFixed(2)}%(${data.round})`;
+			});
+		}
+		return output_str;
+	// } else if ('score' in result) {
+	} else {
+		// 分数结果其实还是个胜率, 不过需要 * 100
+		const win_rate = (result.score / round * 100).toFixed(2);
+		let output_str = `分数:|${win_rate}%|(${round}轮)`;
+		if (round > 1000) {
+			// 把所有要找的数据拿出来
+			let output_datas: Score[] = [];
+			result.raw_data.forEach((data, index) => {
+				if (index % 500 === 0) {
+					output_datas.push(data);
+				}
+			});
+			output_datas.forEach((data, index) => {
+				const win_rate = (data.score / data.round * 100).toFixed(2);
+				output_str += `\n${win_rate}%(${data.round})`;
+			});
+		}
+		return output_str;
+	}
+}
 
 async function main() {
 	// 从相对位置导入内容
@@ -157,8 +193,9 @@ async function main() {
 
 	const names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
 	// const result = await fight(names);
-	const result = await md5_module.run_any(names, 50000);
+	// const result = await md5_module.run_any(names, 50000);
 	// console.log(`赢家:|${result.source_plr}|`);
+	const result = await wrap_any(names, 1000);
 	console.log(result);
 }
 
