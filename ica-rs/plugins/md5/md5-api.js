@@ -184,7 +184,7 @@ function wrap_any(names, round) {
                         // } else if ('score' in result) {
                     }
                     else {
-                        win_rate_2 = (result.score * 100 / round).toFixed(2);
+                        win_rate_2 = (result.score * 10000 / round).toFixed(2);
                         output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "%|(").concat(round, "\u8F6E)");
                         if (round > 1000) {
                             output_datas_2 = [];
@@ -214,7 +214,7 @@ function main() {
                     fs = require("fs");
                     path = require("path");
                     names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-                    return [4 /*yield*/, wrap_any(names, 1000)];
+                    return [4 /*yield*/, wrap_any(names, 10000)];
                 case 1:
                     result = _a.sent();
                     console.log(result);

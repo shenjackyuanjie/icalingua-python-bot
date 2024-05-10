@@ -167,7 +167,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 	// } else if ('score' in result) {
 	} else {
 		// 分数结果其实还是个胜率, 不过需要 * 100
-		const win_rate = (result.score * 100 / round).toFixed(2);
+		const win_rate = (result.score * 10000 / round).toFixed(2);
 		let output_str = `分数:|${win_rate}%|(${round}轮)`;
 		if (round > 1000) {
 			// 把所有要找的数据拿出来
@@ -195,7 +195,7 @@ async function main() {
 	// const result = await fight(names);
 	// const result = await md5_module.run_any(names, 50000);
 	// console.log(`赢家:|${result.source_plr}|`);
-	const result = await wrap_any(names, 1000);
+	const result = await wrap_any(names, 10000);
 	console.log(result);
 }
 
