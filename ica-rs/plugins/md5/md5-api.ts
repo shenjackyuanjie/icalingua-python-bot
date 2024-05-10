@@ -150,11 +150,11 @@ async function wrap_any(names: string, round: number): Promise<string> {
 		let win_rate_str = win_rate.toFixed(4);
 		let output_str = `最终胜率:|${win_rate_str}|(${round}轮)`;
 		// 每 500 轮, 输出一次
-		if (round > 1000) {
+		if (round > 500) {
 			// 把所有要找的数据拿出来
 			let output_datas: WinRate[] = [];
 			result.raw_data.forEach((data, index) => {
-				if (index % 500 === 0) {
+				if (data.round === 0) {
 					output_datas.push(data);
 				}
 			});
@@ -168,18 +168,18 @@ async function wrap_any(names: string, round: number): Promise<string> {
 	} else {
 		// 分数结果其实还是个胜率, 不过需要 * 100
 		const win_rate = (result.score * 10000 / round).toFixed(2);
-		let output_str = `分数:|${win_rate}%|(${round}轮)`;
-		if (round > 1000) {
+		let output_str = `分数:|${win_rate}|(${round}轮)`;
+		if (round > 500) {
 			// 把所有要找的数据拿出来
 			let output_datas: Score[] = [];
 			result.raw_data.forEach((data, index) => {
-				if (index % 500 === 0) {
+				if (data.round % 500 === 0) {
 					output_datas.push(data);
 				}
 			});
 			output_datas.forEach((data, index) => {
-				const win_rate = (data.score / data.round * 100).toFixed(2);
-				output_str += `\n${win_rate}%(${data.round})`;
+				const win_rate = (data.score / data.round * 10000).toFixed(2);
+				output_str += `\n${win_rate}(${data.round})`;
 			});
 		}
 		return output_str;

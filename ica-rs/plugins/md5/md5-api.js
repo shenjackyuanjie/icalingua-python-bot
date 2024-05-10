@@ -168,10 +168,10 @@ function wrap_any(names, round) {
                         win_rate_str = win_rate_1.toFixed(4);
                         output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "|(").concat(round, "\u8F6E)");
                         // 每 500 轮, 输出一次
-                        if (round > 1000) {
+                        if (round > 500) {
                             output_datas_1 = [];
                             result.raw_data.forEach(function (data, index) {
-                                if (index % 500 === 0) {
+                                if (data.round === 0) {
                                     output_datas_1.push(data);
                                 }
                             });
@@ -185,17 +185,17 @@ function wrap_any(names, round) {
                     }
                     else {
                         win_rate_2 = (result.score * 10000 / round).toFixed(2);
-                        output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "%|(").concat(round, "\u8F6E)");
-                        if (round > 1000) {
+                        output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "|(").concat(round, "\u8F6E)");
+                        if (round > 500) {
                             output_datas_2 = [];
                             result.raw_data.forEach(function (data, index) {
-                                if (index % 500 === 0) {
+                                if (data.round % 500 === 0) {
                                     output_datas_2.push(data);
                                 }
                             });
                             output_datas_2.forEach(function (data, index) {
-                                var win_rate = (data.score / data.round * 100).toFixed(2);
-                                output_str_2 += "\n".concat(win_rate, "%(").concat(data.round, ")");
+                                var win_rate = (data.score / data.round * 10000).toFixed(2);
+                                output_str_2 += "\n".concat(win_rate, "(").concat(data.round, ")");
                             });
                         }
                         return [2 /*return*/, output_str_2];
