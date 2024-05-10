@@ -47,7 +47,7 @@ function fight(names) {
                 case 0:
                     // 检查一下输入是否合法
                     // 比如里面有没有 !test!
-                    if (names.startsWith("!test!")) {
+                    if (names.indexOf("!test!") !== -1) {
                         throw new Error("你怎么在对战输入里加 !test!(恼)\n${names}");
                     }
                     return [4 /*yield*/, md5_module.fight(names)];
@@ -164,10 +164,11 @@ function main() {
                     fs = require("fs");
                     path = require("path");
                     names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-                    return [4 /*yield*/, fight(names)];
+                    return [4 /*yield*/, md5_module.run_any(names, 50000)];
                 case 1:
                     result = _a.sent();
-                    console.log("\u8D62\u5BB6:|".concat(result.source_plr, "|"));
+                    // console.log(`赢家:|${result.source_plr}|`);
+                    console.log(result);
                     return [2 /*return*/];
             }
         });

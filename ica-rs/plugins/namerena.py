@@ -15,7 +15,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "0.3.0"
+_version_ = "0.4.0"
 
 COMMAND = "/namerena"
 

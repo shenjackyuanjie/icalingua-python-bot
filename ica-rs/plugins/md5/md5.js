@@ -21845,6 +21845,30 @@ const runner = {
             });
         });
     },
+    run_any: (names, round) => {
+        return new Promise((resolve, reject) => {
+            let data = [];
+            // 三种情况都带上
+            finish_trigger.on("done_fight", (data) => {
+                resolve(fmt_RunUpdate(data));
+            });
+            finish_trigger.on("win_rate", (run_round, win_count) => {
+                data.push({ round: run_round, win_count: win_count });
+                if (run_round >= round) {
+                    stop_bomb = true;
+                    resolve({ score: win_count, raw_data: data });
+                }
+            });
+            finish_trigger.on("score_report", (run_round, score) => {
+                data.push({ round: run_round, score: score });
+                if (run_round >= round) {
+                    stop_bomb = true;
+                    resolve({ score: score, raw_data: data });
+                }
+            });
+            main(names);
+        })
+    }
 };
 
 if (run_env.from_code) {

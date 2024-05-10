@@ -156,8 +156,10 @@ async function main() {
 	const path = require("path");
 
 	const names = fs.readFileSync(path.resolve(__dirname, "input.txt"), "utf-8");
-	const result = await fight(names);
-	console.log(`赢家:|${result.source_plr}|`);
+	// const result = await fight(names);
+	const result = await md5_module.run_any(names, 50000);
+	// console.log(`赢家:|${result.source_plr}|`);
+	console.log(result);
 }
 
 main();
