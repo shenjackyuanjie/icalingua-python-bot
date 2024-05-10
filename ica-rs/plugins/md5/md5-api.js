@@ -151,6 +151,7 @@ function run_any(names, round) {
         });
     });
 }
+var out_limit = 1000;
 function wrap_any(names, round) {
     return __awaiter(this, void 0, void 0, function () {
         var result, win_rate_1, win_rate_str, output_str_1, output_datas_1, win_rate_2, output_str_2, output_datas_2;
@@ -168,10 +169,10 @@ function wrap_any(names, round) {
                         win_rate_str = win_rate_1.toFixed(4);
                         output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "%|(").concat(round, "\u8F6E)");
                         // 每 500 轮, 输出一次
-                        if (round > 500) {
+                        if (round > out_limit) {
                             output_datas_1 = [];
                             result.raw_data.forEach(function (data, index) {
-                                if (data.round % 500 === 0) {
+                                if (data.round % out_limit === 0) {
                                     output_datas_1.push(data);
                                 }
                             });
@@ -186,10 +187,10 @@ function wrap_any(names, round) {
                     else {
                         win_rate_2 = (result.score * 10000 / round).toFixed(2);
                         output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "|(").concat(round, "\u8F6E)");
-                        if (round > 500) {
+                        if (round > out_limit) {
                             output_datas_2 = [];
                             result.raw_data.forEach(function (data, index) {
-                                if (data.round % 500 === 0) {
+                                if (data.round % out_limit === 0) {
                                     output_datas_2.push(data);
                                 }
                             });
