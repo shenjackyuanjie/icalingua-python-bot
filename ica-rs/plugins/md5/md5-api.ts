@@ -167,7 +167,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 	// } else if ('score' in result) {
 	} else {
 		// 分数结果其实还是个胜率, 不过需要 * 100
-		const win_rate = (result.score / round * 100).toFixed(2);
+		const win_rate = (result.score * 100 / round).toFixed(2);
 		let output_str = `分数:|${win_rate}%|(${round}轮)`;
 		if (round > 1000) {
 			// 把所有要找的数据拿出来

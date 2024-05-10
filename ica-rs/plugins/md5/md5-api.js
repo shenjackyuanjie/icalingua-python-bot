@@ -184,7 +184,7 @@ function wrap_any(names, round) {
                         // } else if ('score' in result) {
                     }
                     else {
-                        win_rate_2 = (result.score / round * 100).toFixed(2);
+                        win_rate_2 = (result.score * 100 / round).toFixed(2);
                         output_str_2 = "\u5206\u6570:|".concat(win_rate_2, "%|(").concat(round, "\u8F6E)");
                         if (round > 1000) {
                             output_datas_2 = [];
