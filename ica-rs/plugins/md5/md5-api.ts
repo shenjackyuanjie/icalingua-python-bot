@@ -148,7 +148,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 		// 胜率结果
 		const win_rate = result.win_count * 100 / round;
 		let win_rate_str = win_rate.toFixed(4);
-		let output_str = `最终胜率:|${win_rate_str}|(${round}轮)`;
+		let output_str = `最终胜率:|${win_rate_str}%|(${round}轮)`;
 		// 每 500 轮, 输出一次
 		if (round > 500) {
 			// 把所有要找的数据拿出来

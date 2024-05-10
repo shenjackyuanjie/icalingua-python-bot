@@ -166,7 +166,7 @@ function wrap_any(names, round) {
                     else if ('win_count' in result) {
                         win_rate_1 = result.win_count * 100 / round;
                         win_rate_str = win_rate_1.toFixed(4);
-                        output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "|(").concat(round, "\u8F6E)");
+                        output_str_1 = "\u6700\u7EC8\u80DC\u7387:|".concat(win_rate_str, "%|(").concat(round, "\u8F6E)");
                         // 每 500 轮, 输出一次
                         if (round > 500) {
                             output_datas_1 = [];
