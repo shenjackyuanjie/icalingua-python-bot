@@ -1,6 +1,6 @@
 'use strict';
 
-const _version_ = "0.2.0";
+const _version_ = "0.3.0";
 
 // let name_input = "!test!\n\natest\n\ntest2";
 // let name_input = "!test!\n\nthis_is_a";
@@ -26,9 +26,9 @@ let assets_data = {
 };
 
 let run_env = {
-    from_code: (typeof window == "undefined"),
-    is_node: (typeof Bun == "undefined"),
-    is_bun: (typeof Bun != "undefined"),
+    from_code: (typeof window === "undefined"),
+    is_node: (typeof Bun === "undefined"),
+    is_bun: (typeof Bun !== "undefined"),
     version: _version_,
 };
 
@@ -196,16 +196,16 @@ if (run_env.from_code) {
     }
 
     global.document = {
-        createElement: function (tag) {
+        createElement: (tag) => {
             // return fake_element.fake_init(tag);
             return new fake_element(tag);
         },
-        createTextNode: function (data) {
+        createTextNode: (data) => {
             let node = new fake_element("text");
             node.innerHTML = data;
             return node;
         },
-        querySelector: function (tag) {
+        querySelector: (tag) => {
             // 搜索一下有没有这个元素
             logger.debug("querySelector", tag);
             for (let i = 0; i < stored_elements.length; i++) {

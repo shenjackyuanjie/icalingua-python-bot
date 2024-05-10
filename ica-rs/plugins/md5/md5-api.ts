@@ -154,7 +154,7 @@ async function wrap_any(names: string, round: number): Promise<string> {
 			// 把所有要找的数据拿出来
 			let output_datas: WinRate[] = [];
 			result.raw_data.forEach((data, index) => {
-				if (data.round === 0) {
+				if (data.round % 500 === 0) {
 					output_datas.push(data);
 				}
 			});

@@ -171,7 +171,7 @@ function wrap_any(names, round) {
                         if (round > 500) {
                             output_datas_1 = [];
                             result.raw_data.forEach(function (data, index) {
-                                if (data.round === 0) {
+                                if (data.round % 500 === 0) {
                                     output_datas_1.push(data);
                                 }
                             });
