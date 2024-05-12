@@ -275,7 +275,7 @@ impl NewMessage {
 
     /// 创建一条对这条消息的回复
     pub fn reply_with(&self, content: &String) -> SendMessage {
-        SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()), false)
+        SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()))
     }
 
     /// 作为被删除的消息
@@ -314,7 +314,6 @@ impl SendMessage {
         content: String,
         room_id: RoomId,
         reply_to: Option<ReplyMessage>,
-        sticker: bool,
     ) -> Self {
         Self {
             content,
@@ -322,7 +321,7 @@ impl SendMessage {
             reply_to,
             at: json!([]),
             file_data: None,
-            sticker,
+            sticker: false,
         }
     }
 
@@ -341,6 +340,7 @@ impl SendMessage {
     }
 }
 
+/// 被删除的消息
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteMessage {
     #[serde(rename = "roomId")]

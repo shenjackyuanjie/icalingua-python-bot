@@ -51,7 +51,6 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
                 format!("shenbot v {}\nica-async-rs v{}", crate::VERSION, crate::ICA_VERSION),
                 *room,
                 None,
-                false,
             );
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
