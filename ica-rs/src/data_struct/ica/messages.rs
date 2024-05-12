@@ -310,11 +310,7 @@ pub struct SendMessage {
 }
 
 impl SendMessage {
-    pub fn new(
-        content: String,
-        room_id: RoomId,
-        reply_to: Option<ReplyMessage>,
-    ) -> Self {
+    pub fn new(content: String, room_id: RoomId, reply_to: Option<ReplyMessage>) -> Self {
         Self {
             content,
             room_id,

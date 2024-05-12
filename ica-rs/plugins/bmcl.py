@@ -1,8 +1,10 @@
 import io
 import re
 import time
+import base64
 import requests
 import traceback
+import urllib.parse
 
 # import PIL
 
@@ -16,7 +18,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.3.1-rs"
+_version_ = "2.4.0-rs"
 backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
@@ -254,9 +256,26 @@ def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
     client.send_message(reply)
 
 
+def bangbang_img(msg: IcaNewMessage, client: IcaClient) -> None:
+    data = requests.get("https://api.bangbang93.top/api/link")
+    if data.status_code != 200:
+        reply = msg.reply_with(f"请求失败 {data.status_code} {data.reason}")
+        client.send_message(reply)
+        return
+    raw_name = data.url.split("/")[-1]
+    img_suffix = raw_name.split(".")[-1]
+    img_name = raw_name[:-len(img_suffix) - 1]
+    img_name = urllib.parse.unquote(img_name)
+    mime_format = f"image/{img_suffix}"
+    reply = msg.reply_with(img_name)
+    reply.set_img(data.content, mime_format, True)
+    client.send_message(reply)
+
+
 help = """/bmcl -> dashboard
 /bmcl rank -> all rank
 /bmcl rank <name> -> rank of <name>
+/bm93 -> 随机怪图
 /brrs <name> -> rank of <name>
 搜索限制:
 1- 3 显示全部信息
@@ -296,6 +315,8 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
                     if len(name) > 1:
                         name = name[1]
                         bmcl_rank(msg, client, name)
+            elif msg.content == "/bm93":
+                bangbang_img(msg, client)
         except:  # noqa
             report_msg = f"bmcl插件发生错误,请呼叫shenjack\n{traceback.format_exc()}"
             reply = msg.reply_with(report_msg)
