@@ -264,9 +264,13 @@ def bangbang_img(msg: IcaNewMessage, client: IcaClient) -> None:
         return
     raw_name = data.url.split("/")[-1]
     img_suffix = raw_name.split(".")[-1]
+    # mine 映射一下
+    if img_suffix.lower() in ("jpeg", "jpg"):
+        img_suffix = "jpeg"
     img_name = raw_name[:-len(img_suffix) - 1]
     img_name = urllib.parse.unquote(img_name)
     mime_format = f"image/{img_suffix}"
+    client.info(f"获取到随机怪图: {img_name} {img_suffix}")
     reply = msg.reply_with(img_name)
     reply.set_img(data.content, mime_format, True)
     client.send_message(reply)
