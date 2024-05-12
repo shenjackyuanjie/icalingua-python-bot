@@ -275,7 +275,7 @@ impl NewMessage {
 
     /// 创建一条对这条消息的回复
     pub fn reply_with(&self, content: &String) -> SendMessage {
-        SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()))
+        SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()), false)
     }
 
     /// 作为被删除的消息
@@ -289,26 +289,56 @@ impl NewMessage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendMessage {
+    /// 就是消息内容
     pub content: String,
+    /// 发送的房间 id
     #[serde(rename = "roomId")]
     pub room_id: RoomId,
+    /// 回复的消息
     #[serde(rename = "replyMessage")]
     pub reply_to: Option<ReplyMessage>,
+    /// @ 谁
     #[serde(rename = "at")]
     pub at: JsonValue,
+    /// base64 的图片
+    #[serde(rename = "b64img")]
+    file_data: Option<String>,
+    /// 是否当作表情发送
+    ///
+    /// 默认 false
+    pub sticker: bool,
 }
 
 impl SendMessage {
-    pub fn new(content: String, room_id: RoomId, reply_to: Option<ReplyMessage>) -> Self {
+    pub fn new(
+        content: String,
+        room_id: RoomId,
+        reply_to: Option<ReplyMessage>,
+        sticker: bool,
+    ) -> Self {
         Self {
             content,
             room_id,
             reply_to,
             at: json!([]),
+            file_data: None,
+            sticker,
         }
     }
 
     pub fn as_value(&self) -> JsonValue { serde_json::to_value(self).unwrap() }
+
+    /// 设置消息的图片
+    ///
+    /// as_sticker: 是否当作表情发送
+    /// file: 图片数据
+    /// file_type: 图片类型(MIME) (image/png; image/jpeg)
+    pub fn set_img(&mut self, file: &Vec<u8>, file_type: &str, as_sticker: bool) {
+        self.sticker = as_sticker;
+        use base64::{engine::general_purpose, Engine as _};
+        let base64_data = general_purpose::STANDARD.encode(file);
+        self.file_data = Some(format!("data:{};base64,{}", file_type, base64_data));
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -4,6 +4,8 @@ import time
 import requests
 import traceback
 
+# import PIL
+
 from typing import TYPE_CHECKING, TypeVar, Optional, Tuple
 
 if TYPE_CHECKING:
@@ -198,9 +200,17 @@ def bmcl_rank_general(msg, client):
     # 显示前3名
     ranks = rank_data[:3]
     # ranks = rank_data
+
+    # image = PIL.Image.new("RGB", (100, 100), (255, 255, 255))
+    # img_cache = io.BytesIO()
+    # image.save(img_cache, format="JPEG")
+    # raw_img = img_cache.getvalue()
+    # img_cache.close()
+
     report_msg = display_rank_full(ranks, req_time)
     client.info(report_msg)
     reply = msg.reply_with(display_rank_full(ranks, req_time))
+    # reply.set_img(raw_img, "image/jpeg", False)
     client.send_message(reply)
 
 

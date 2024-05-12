@@ -1,5 +1,18 @@
 # 更新日志
 
+## 0.6.2
+
+- 添加 API
+  - `NewMessage.set_img` 用于设置消息的图片
+  - `IcaSendMessage.set_img` 用于设置消息的图片 (python)
+
+## 0.6.1
+
+还是没写完 tailchat 支持
+因为 rust_socketio 还是没写好 serdelizer 的支持
+
+- 正在添加发送图片的 api
+
 ## 0.6.0-dev
 
 - 去除了 matrix 的支持
