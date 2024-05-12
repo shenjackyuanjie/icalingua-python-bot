@@ -33,12 +33,14 @@ pub async fn add_message(payload: Payload, client: Client) {
             info!("add_message {}", message.to_string().cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
-            if message.content().eq("/bot-rs") && !message.is_from_self() && !message.is_reply() {
-                let reply = message.reply_with(&format!(
-                    "shenbot v{}\nica-async-rs pong v{}",
-                    VERSION, ICA_VERSION
-                ));
-                send_message(&client, &reply).await;
+            if !message.is_from_self() && !message.is_reply() {
+                if message.content() == "/bot-rs" {
+                    let reply = message.reply_with(&format!(
+                        "shenbot v{}\nica-async-rs pong v{}",
+                        VERSION, ICA_VERSION
+                    ));
+                    send_message(&client, &reply).await;
+                }
             }
             // python 插件
             py::call::ica_new_message_py(&message, &client).await;
