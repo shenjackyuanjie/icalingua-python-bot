@@ -101,7 +101,7 @@ impl BotConfig {
                     warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
                     false
                 } else {
-                    true
+                    enable
                 }
             }
             None => {
@@ -121,7 +121,7 @@ impl BotConfig {
                     warn!("enable_tailchat 为 true 但未填写 [tailchat] 配置\n将不启用 Tailchat");
                     false
                 } else {
-                    true
+                    enable
                 }
             }
             None => {

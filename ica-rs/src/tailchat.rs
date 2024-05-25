@@ -5,6 +5,7 @@ use futures_util::FutureExt;
 use md5::{Digest, Md5};
 use reqwest::{Body, ClientBuilder as reqwest_ClientBuilder};
 use rust_socketio::asynchronous::{Client, ClientBuilder};
+use rust_socketio::packet::PacketParser;
 use rust_socketio::{Event, Payload, TransportType};
 use serde_json::{from_str, from_value, json, Value};
 use tracing::{event, span, Level};
@@ -13,6 +14,48 @@ use crate::config::TailchatConfig;
 use crate::data_struct::tailchat::status::LoginData;
 use crate::error::{ClientResult, TailchatError};
 use crate::{wrap_any_callback, wrap_callback, StopGetter};
+
+mod packet_parser {
+    use bytes::{buf, Bytes};
+    use rust_socketio::error::Error;
+    use rust_socketio::packet::{Packet, PacketId};
+    use serde::{Deserialize, Serialize};
+    use serde_json::Value as JsonValue;
+    use msgpack_simple::{MsgPack, MapElement}
+
+    // #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+    // #[serde(rename = "map")]
+    // struct SerdeValue {
+    //     #[serde(rename = "@type")]
+    //     r#type: i64,
+    //     data: rmpv::Value,
+    //     nsp: String,
+    // }
+
+    pub fn encode(packet: &Packet) -> Bytes {
+        let raw_str = packet.data.as_ref().map(|v| v.to_string()).unwrap_or("{}".to_string());
+        let raw_value: rmpv::Value = serde_json::from_str(&raw_str).unwrap();
+        let value = SerdeValue {
+            r#type: packet.packet_type as u8 as i64,
+            data: raw_value,
+            nsp: packet.nsp.clone(),
+        };
+        let mut buffer = rmp_serde::to_vec(&value).unwrap();
+        println!("encoding packet: {:?} {:?}", packet, value);
+
+        buffer.reverse();
+        // 前面加上 \x83\xa4
+        buffer.push(0xa4);
+        buffer.push(0x83);
+        buffer.reverse();
+        Bytes::from(buffer)
+    }
+
+    pub fn default_decode(payload: &Bytes) -> Result<Packet, Error> {
+        println!("decoding bytes {:?}", payload);
+        todo!()
+    }
+}
 
 pub async fn start_tailchat(
     config: TailchatConfig,
@@ -60,11 +103,13 @@ pub async fn start_tailchat(
 
     header_map.append("X-Token", status.jwt.clone().parse().unwrap());
 
-    let client = reqwest_ClientBuilder::new().default_headers(header_map).build()?;
+    let packet_parser =
+        PacketParser::new(Box::new(packet_parser::encode), Box::new(packet_parser::default_decode));
 
     let socket = ClientBuilder::new(config.host)
         .auth(json!({"token": status.jwt.clone()}))
         .transport_type(TransportType::Websocket)
+        .packet_parser(packet_parser)
         .on_any(wrap_any_callback!(events::any_event))
         .on("chat.message.sendMessage", wrap_callback!(events::on_message))
         .connect()
@@ -86,7 +131,7 @@ pub async fn start_tailchat(
                 rust_socketio::Error::IncompleteResponseFromEngineIo(inner_e) => {
                     if inner_e.to_string().contains("AlreadyClosed") {
                         event!(Level::INFO, "socketio client stopped");
-                        return Ok(());
+                        Ok(())
                     } else {
                         event!(Level::ERROR, "socketio client stopped with error: {:?}", inner_e);
                         Err(TailchatError::SocketIoError(

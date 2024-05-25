@@ -1,6 +1,6 @@
 'use strict';
 
-const _version_ = "0.3.0";
+const _version_ = "0.4.0";
 
 // let name_input = "!test!\n\natest\n\ntest2";
 // let name_input = "!test!\n\nthis_is_a";
@@ -37,7 +37,7 @@ let run_env = {
  */
 const logger = {
     // 是否启用 logger
-    enable: true,
+    enable: false,
     // 显示等级
     //
     level: 30,
@@ -141,8 +141,8 @@ if (run_env.from_code) {
     let stored_elements = [];
 
     global.window = {
-        sessionStorage: function () { },
-        localStorage: function () { },
+        sessionStorage: () => { },
+        localStorage: () => { },
     };
 
     class fake_class_list {
@@ -216,7 +216,7 @@ if (run_env.from_code) {
         },
         body: new fake_element("body"),
         styleSheets: [{
-            "some": "thing"
+            some: "thing"
         }],
     };
 
@@ -271,7 +271,7 @@ function inherit(cls, sup) {
 }
 
 function inheritMany(sup, classes) {
-    for (var s = 0; s < classes.length; s++) inherit(classes[s], sup)
+    for (let s = 0; s < classes.length; s++) inherit(classes[s], sup)
 }
 
 function mixin(cls, mixin) {
@@ -280,14 +280,14 @@ function mixin(cls, mixin) {
 }
 
 function lazyOld(holder, name, getterName, initializer) {
-    var uninitializedSentinel = holder;
+    let uninitializedSentinel = holder;
     holder[name] = uninitializedSentinel;
     holder[getterName] = function () {
         holder[getterName] = function () {
             H.throwCyclicInit(name);
         };
-        var result;
-        var sentinelInProgress = initializer;
+        let result;
+        let sentinelInProgress = initializer;
         try {
             if (holder[name] === uninitializedSentinel) {
                 result = holder[name] = sentinelInProgress;
@@ -305,7 +305,7 @@ function lazyOld(holder, name, getterName, initializer) {
     };
 }
 
-function lazy(holder, name, getterName, initializer) {
+const lazy = (holder, name, getterName, initializer) => {
     var uninitializedSentinel = holder;
     holder[name] = uninitializedSentinel;
     holder[getterName] = function () {
@@ -316,9 +316,9 @@ function lazy(holder, name, getterName, initializer) {
         };
         return holder[name];
     };
-}
+};
 
-function lazyFinal(holder, name, getterName, initializer) {
+const lazyFinal = (holder, name, getterName, initializer) => {
     var uninitializedSentinel = holder;
     holder[name] = uninitializedSentinel;
     holder[getterName] = function () {
@@ -3190,348 +3190,348 @@ var H = {
     throwLateInitializationError(a) {
         return H.throw_expression(new H.fz("Field '" + H.as_string(a) + "' has been assigned during initialization."))
     }
-},
-    J = {
-        makeDispatchRecord(a, b, c, d) {
-            return {
-                i: a,
-                p: b,
-                e: c,
-                x: d
-            }
-        },
-        getNativeInterceptor(a) {
-            var proto, r, q, interceptor, o, n = a[init.dispatchPropertyName]
-            if (n == null)
-                if ($.mA == null) {
-                    H.initNativeDispatch()
-                    n = a[init.dispatchPropertyName]
-                } if (n != null) {
-                    proto = n.p
-                    if (false === proto) return n.i
-                    if (true === proto) return a
-                    r = Object.getPrototypeOf(a)
-                    if (proto === r) return n.i
-                    if (n.e === r) throw H.wrap_expression(P.hT("Return interceptor for " + H.as_string(proto(a, n))))
-                }
-            q = a.constructor
-            if (q == null) interceptor = null
-            else {
-                o = $.kU
-                if (o == null) o = $.kU = init.getIsolateTag("_$dart_js")
-                interceptor = q[o]
-            }
-            if (interceptor != null) return interceptor
-
-            // interceptor = H.lookupAndCacheInterceptor(a)
-            // if (interceptor != null) return interceptor
-
-            if (typeof a == "function") return C.JavaScriptFunction
-            proto = Object.getPrototypeOf(a)
-            if (proto == null) return C.PlainJavaScriptObject
-            if (proto === Object.prototype) return C.PlainJavaScriptObject
-            if (typeof q == "function") {
-                o = $.kU
-                if (o == null) o = $.kU = init.getIsolateTag("_$dart_js")
-                Object.defineProperty(q, o, {
-                    value: C.UnknownJavaScriptObject,
-                    enumerable: false,
-                    writable: true,
-                    configurable: true
-                })
-                return C.UnknownJavaScriptObject
-            }
-            return C.UnknownJavaScriptObject
-        },
-        rZ(a, b) {
-            if (!H.aP(a)) throw H.wrap_expression(P.da(a, "length", "is not an integer"))
-            if (a < 0 || a > 4294967295) throw H.wrap_expression(P.a8(a, 0, 4294967295, "length", null))
-            return J.t0(new Array(a), b)
-        },
-        t_(a, b) {
-            if (!H.aP(a) || a < 0) throw H.wrap_expression(P.bz("Length must be a non-negative integer: " + H.as_string(a), null))
-            return H.b(new Array(a), b.i("E<0>"))
-        },
-        t0(a, b) {
-            return J.nL(H.b(a, b.i("E<0>")))
-        },
-        nL(a) {
-            a.fixed$length = Array
-            return a
-        },
-        t1(a, b) {
-            return J.lV(a, b)
-        },
-        check_str_legeal(a) {
-            if (a < 256) switch (a) {
-                case 9:
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 32:
-                case 133:
-                case 160:
-                    return true
-                default:
-                    return false
-            }
-            switch (a) {
-                case 5760:
-                case 8192:
-                case 8193:
-                case 8194:
-                case 8195:
-                case 8196:
-                case 8197:
-                case 8198:
-                case 8199:
-                case 8200:
-                case 8201:
-                case 8202:
-                case 8232:
-                case 8233:
-                case 8239:
-                case 8287:
-                case 12288:
-                case 65279:
-                    return true
-                default:
-                    return false
-            }
-        },
-        check_from_start(a, b) {
-            var s, r
-            for (s = a.length; b < s;) {
-                r = C.String.a8(a, b)
-                if (r !== 32 && r !== 13 && !J.check_str_legeal(r)) break;
-                ++b
-            }
-            return b
-        },
-        check_from_end(a, b) {
-            var s, r
-            for (; b > 0; b = s) {
-                s = b - 1
-                r = C.String.aQ(a, s)
-                if (r !== 32 && r !== 13 && !J.check_str_legeal(r)) break
-            }
-            return b
-        },
-        cV(a) {
-            if (typeof a == "number") {
-                if (Math.floor(a) == a) return J.JsInt.prototype
-                return J.jF.prototype
-            }
-            if (typeof a == "string") return J.JsString.prototype
-            if (a == null) return J.cs.prototype
-            if (typeof a == "boolean") return J.fw.prototype
-            if (a.constructor == Array) return J.JsArray.prototype
-            if (typeof a != "object") {
-                if (typeof a == "function") return J.JavaScriptFunction.prototype
-                return a
-            }
-            if (a instanceof P.Object) return a
-            return J.getNativeInterceptor(a)
-        },
-        a3(a) {
-            if (typeof a == "string") return J.JsString.prototype
-            if (a == null) return a
-            if (a.constructor == Array) return J.JsArray.prototype
-            if (typeof a != "object") {
-                if (typeof a == "function") return J.JavaScriptFunction.prototype
-                return a
-            }
-            if (a instanceof P.Object) return a
-            return J.getNativeInterceptor(a)
-        },
-        cW(a) {
-            if (a == null) return a
-            if (a.constructor == Array) return J.JsArray.prototype
-            if (typeof a != "object") {
-                if (typeof a == "function") return J.JavaScriptFunction.prototype
-                return a
-            }
-            if (a instanceof P.Object) return a
-            return J.getNativeInterceptor(a)
-        },
-        oA(a) {
-            if (typeof a == "number") return J.JsNumber.prototype
-            if (typeof a == "string") return J.JsString.prototype
-            if (a == null) return a
-            if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
-            return a
-        },
-        aQ(a) {
-            if (typeof a == "string") return J.JsString.prototype
-            if (a == null) return a
-            if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
-            return a
-        },
-        uR(a) {
-            if (a == null) return J.cs.prototype
-            if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
-            return a
-        },
-        bv(a) {
-            if (a == null) return a
-            if (typeof a != "object") {
-                if (typeof a == "function") return J.JavaScriptFunction.prototype
-                return a
-            }
-            if (a instanceof P.Object) return a
-            return J.getNativeInterceptor(a)
-        },
-        uS(a) {
-            if (a == null) return a
-            if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
-            return a
-        },
-        iN(a, b) {
-            if (typeof a == "number" && typeof b == "number") return a + b
-            return J.oA(a).B(a, b)
-        },
-        Y(a, b) {
-            if (a == null) return b == null
-            if (typeof a != "object") return b != null && a === b
-            return J.cV(a).aW(a, b)
-        },
-        J(a, b) {
-            if (typeof b === "number")
-                if (a.constructor == Array || typeof a == "string" || H.oG(a, a[init.dispatchPropertyName]))
-                    if (b >>> 0 === b && b < a.length) return a[b]
-            return J.a3(a).h(a, b)
-        },
-        lT(a, b, c) {
-            if (typeof b === "number")
-                if ((a.constructor == Array || H.oG(a, a[init.dispatchPropertyName])) && !a.immutable$list && b >>> 0 === b && b < a.length) return a[b] = c
-            return J.cW(a).m(a, b, c)
-        },
-        rr(a, b) {
-            return J.cW(a).a5(a, b)
-        },
-        rs(a, b, c, d) {
-            // add_event_listener
-            return J.bv(a).eF(a, b, c, d)
-        },
-        lU(a, b) {
-            return J.aQ(a).de(a, b)
-        },
-        rt(a, b, c) {
-            return J.aQ(a).bK(a, b, c)
-        },
-        ny(a, b) {
-            return J.aQ(a).aQ(a, b)
-        },
-        lV(a, b) {
-            return J.oA(a).bg(a, b)
-        },
-        lW(a, b) {
-            return J.a3(a).w(a, b)
-        },
-        lX(a, b, c) {
-            return J.a3(a).dh(a, b, c)
-        },
-        iO(a, b, c, d) {
-            return J.bv(a).eQ(a, b, c, d)
-        },
-        ru(a, b) {
-            return J.cW(a).ai(a, b)
-        },
-        nz(a, b) {
-            return J.aQ(a).cl(a, b)
-        },
-        bj(a, b, c, d, e) {
-            return J.bv(a).eR(a, b, c, d, e)
-        },
-        lY(a, b) {
-            return J.cW(a).aw(a, b)
-        },
-        rv(a) {
-            return J.bv(a).geH(a)
-        },
-        cm(a) {
-            return J.bv(a).gck(a)
-        },
-        lZ(a) {
-            return J.cV(a).gak(a)
-        },
-        by(a) {
-            return J.cW(a).ga0(a)
-        },
-        aw(a) {
-            return J.a3(a).gp(a)
-        },
-        m_(a, b) {
-            return J.a3(a).aT(a, b)
-        },
-        rw(a, b, c) {
-            return J.aQ(a).dq(a, b, c)
-        },
-        m0(a, b, c) {
-            return J.bv(a).dt(a, b, c)
-        },
-        nA(a) {
-            return J.cW(a).fq(a)
-        },
-        rx(a) {
-            return J.bv(a).fv(a)
-        },
-        ry(a, b) {
-            // set a length -> b
-            return J.a3(a).sp(a, b)
-        },
-        m1(a, b) {
-            return J.aQ(a).bA(a, b)
-        },
-        rz(a, b, c) {
-            // call a.step()
-            return J.uS(a).dN(a, b, c)
-        },
-        nB(a, b) {
-            return J.aQ(a).ay(a, b)
-        },
-        rA(a, b, c) {
-            return J.aQ(a).af(a, b, c)
-        },
-        rB(a) {
-            return J.aQ(a).fN(a)
-        },
-        b4(a) {
-            return J.cV(a).k(a)
-        },
-        rC(a, b, c, d, e, f, g) {
-            return J.bv(a).fO(a, b, c, d, e, f, g)
-        },
-        rD(a) {
-            // return J.aQ(a).trim_name(a)
-            J.JsString.prototype.trim_name(a)
-        },
-        Interceptor: function af() { },
-        fw: function fw() { },
-        cs: function cs() { },
-        bE: function bE() { },
-        PlainJavaScriptObject: function fO() { },
-        UnknownJavaScriptObject: function bs() { },
-        JavaScriptFunction: function bn() { },
-        JsArray: function E(a) {
-            this.$ti = a
-        },
-        JsUnmodifiableArray: function jG(a) {
-            this.$ti = a
-        },
-        db: function db(a, b) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = 0
-            _.d = null
-        },
-        JsNumber: function dA() { },
-        JsInt: function dz() { },
-        jF: function jF() { },
-        JsString: function bD() { }
+}
+var J = {
+    makeDispatchRecord(a, b, c, d) {
+        return {
+            i: a,
+            p: b,
+            e: c,
+            x: d
+        }
     },
+    getNativeInterceptor(a) {
+        var proto, r, q, interceptor, o, n = a[init.dispatchPropertyName]
+        if (n == null)
+            if ($.mA == null) {
+                H.initNativeDispatch()
+                n = a[init.dispatchPropertyName]
+            } if (n != null) {
+                proto = n.p
+                if (false === proto) return n.i
+                if (true === proto) return a
+                r = Object.getPrototypeOf(a)
+                if (proto === r) return n.i
+                if (n.e === r) throw H.wrap_expression(P.hT("Return interceptor for " + H.as_string(proto(a, n))))
+            }
+        q = a.constructor
+        if (q == null) interceptor = null
+        else {
+            o = $.kU
+            if (o == null) o = $.kU = init.getIsolateTag("_$dart_js")
+            interceptor = q[o]
+        }
+        if (interceptor != null) return interceptor
+
+        // interceptor = H.lookupAndCacheInterceptor(a)
+        // if (interceptor != null) return interceptor
+
+        if (typeof a == "function") return C.JavaScriptFunction
+        proto = Object.getPrototypeOf(a)
+        if (proto == null) return C.PlainJavaScriptObject
+        if (proto === Object.prototype) return C.PlainJavaScriptObject
+        if (typeof q == "function") {
+            o = $.kU
+            if (o == null) o = $.kU = init.getIsolateTag("_$dart_js")
+            Object.defineProperty(q, o, {
+                value: C.UnknownJavaScriptObject,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            })
+            return C.UnknownJavaScriptObject
+        }
+        return C.UnknownJavaScriptObject
+    },
+    rZ(a, b) {
+        if (!H.aP(a)) throw H.wrap_expression(P.da(a, "length", "is not an integer"))
+        if (a < 0 || a > 4294967295) throw H.wrap_expression(P.a8(a, 0, 4294967295, "length", null))
+        return J.t0(new Array(a), b)
+    },
+    t_(a, b) {
+        if (!H.aP(a) || a < 0) throw H.wrap_expression(P.bz("Length must be a non-negative integer: " + H.as_string(a), null))
+        return H.b(new Array(a), b.i("E<0>"))
+    },
+    t0(a, b) {
+        return J.nL(H.b(a, b.i("E<0>")))
+    },
+    nL(a) {
+        a.fixed$length = Array
+        return a
+    },
+    t1(a, b) {
+        return J.lV(a, b)
+    },
+    check_str_legeal(a) {
+        if (a < 256) switch (a) {
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 32:
+            case 133:
+            case 160:
+                return true
+            default:
+                return false
+        }
+        switch (a) {
+            case 5760:
+            case 8192:
+            case 8193:
+            case 8194:
+            case 8195:
+            case 8196:
+            case 8197:
+            case 8198:
+            case 8199:
+            case 8200:
+            case 8201:
+            case 8202:
+            case 8232:
+            case 8233:
+            case 8239:
+            case 8287:
+            case 12288:
+            case 65279:
+                return true
+            default:
+                return false
+        }
+    },
+    check_from_start(a, b) {
+        var s, r
+        for (s = a.length; b < s;) {
+            r = C.String.a8(a, b)
+            if (r !== 32 && r !== 13 && !J.check_str_legeal(r)) break;
+            ++b
+        }
+        return b
+    },
+    check_from_end(a, b) {
+        var s, r
+        for (; b > 0; b = s) {
+            s = b - 1
+            r = C.String.aQ(a, s)
+            if (r !== 32 && r !== 13 && !J.check_str_legeal(r)) break
+        }
+        return b
+    },
+    cV(a) {
+        if (typeof a == "number") {
+            if (Math.floor(a) == a) return J.JsInt.prototype
+            return J.jF.prototype
+        }
+        if (typeof a == "string") return J.JsString.prototype
+        if (a == null) return J.cs.prototype
+        if (typeof a == "boolean") return J.fw.prototype
+        if (a.constructor == Array) return J.JsArray.prototype
+        if (typeof a != "object") {
+            if (typeof a == "function") return J.JavaScriptFunction.prototype
+            return a
+        }
+        if (a instanceof P.Object) return a
+        return J.getNativeInterceptor(a)
+    },
+    a3(a) {
+        if (typeof a == "string") return J.JsString.prototype
+        if (a == null) return a
+        if (a.constructor == Array) return J.JsArray.prototype
+        if (typeof a != "object") {
+            if (typeof a == "function") return J.JavaScriptFunction.prototype
+            return a
+        }
+        if (a instanceof P.Object) return a
+        return J.getNativeInterceptor(a)
+    },
+    cW(a) {
+        if (a == null) return a
+        if (a.constructor == Array) return J.JsArray.prototype
+        if (typeof a != "object") {
+            if (typeof a == "function") return J.JavaScriptFunction.prototype
+            return a
+        }
+        if (a instanceof P.Object) return a
+        return J.getNativeInterceptor(a)
+    },
+    oA(a) {
+        if (typeof a == "number") return J.JsNumber.prototype
+        if (typeof a == "string") return J.JsString.prototype
+        if (a == null) return a
+        if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
+        return a
+    },
+    aQ(a) {
+        if (typeof a == "string") return J.JsString.prototype
+        if (a == null) return a
+        if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
+        return a
+    },
+    uR(a) {
+        if (a == null) return J.cs.prototype
+        if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
+        return a
+    },
+    bv(a) {
+        if (a == null) return a
+        if (typeof a != "object") {
+            if (typeof a == "function") return J.JavaScriptFunction.prototype
+            return a
+        }
+        if (a instanceof P.Object) return a
+        return J.getNativeInterceptor(a)
+    },
+    uS(a) {
+        if (a == null) return a
+        if (!(a instanceof P.Object)) return J.UnknownJavaScriptObject.prototype
+        return a
+    },
+    iN(a, b) {
+        if (typeof a == "number" && typeof b == "number") return a + b
+        return J.oA(a).B(a, b)
+    },
+    Y(a, b) {
+        if (a == null) return b == null
+        if (typeof a != "object") return b != null && a === b
+        return J.cV(a).aW(a, b)
+    },
+    J(a, b) {
+        if (typeof b === "number")
+            if (a.constructor == Array || typeof a == "string" || H.oG(a, a[init.dispatchPropertyName]))
+                if (b >>> 0 === b && b < a.length) return a[b]
+        return J.a3(a).h(a, b)
+    },
+    lT(a, b, c) {
+        if (typeof b === "number")
+            if ((a.constructor == Array || H.oG(a, a[init.dispatchPropertyName])) && !a.immutable$list && b >>> 0 === b && b < a.length) return a[b] = c
+        return J.cW(a).m(a, b, c)
+    },
+    rr(a, b) {
+        return J.cW(a).a5(a, b)
+    },
+    rs(a, b, c, d) {
+        // add_event_listener
+        return J.bv(a).eF(a, b, c, d)
+    },
+    lU(a, b) {
+        return J.aQ(a).de(a, b)
+    },
+    rt(a, b, c) {
+        return J.aQ(a).bK(a, b, c)
+    },
+    ny(a, b) {
+        return J.aQ(a).aQ(a, b)
+    },
+    lV(a, b) {
+        return J.oA(a).bg(a, b)
+    },
+    lW(a, b) {
+        return J.a3(a).w(a, b)
+    },
+    lX(a, b, c) {
+        return J.a3(a).dh(a, b, c)
+    },
+    iO(a, b, c, d) {
+        return J.bv(a).eQ(a, b, c, d)
+    },
+    ru(a, b) {
+        return J.cW(a).ai(a, b)
+    },
+    nz(a, b) {
+        return J.aQ(a).cl(a, b)
+    },
+    bj(a, b, c, d, e) {
+        return J.bv(a).eR(a, b, c, d, e)
+    },
+    lY(a, b) {
+        return J.cW(a).aw(a, b)
+    },
+    rv(a) {
+        return J.bv(a).geH(a)
+    },
+    cm(a) {
+        return J.bv(a).gck(a)
+    },
+    lZ(a) {
+        return J.cV(a).gak(a)
+    },
+    by(a) {
+        return J.cW(a).ga0(a)
+    },
+    aw(a) {
+        return J.a3(a).gp(a)
+    },
+    m_(a, b) {
+        return J.a3(a).aT(a, b)
+    },
+    rw(a, b, c) {
+        return J.aQ(a).dq(a, b, c)
+    },
+    m0(a, b, c) {
+        return J.bv(a).dt(a, b, c)
+    },
+    nA(a) {
+        return J.cW(a).fq(a)
+    },
+    rx(a) {
+        return J.bv(a).fv(a)
+    },
+    ry(a, b) {
+        // set a length -> b
+        return J.a3(a).sp(a, b)
+    },
+    m1(a, b) {
+        return J.aQ(a).bA(a, b)
+    },
+    rz(a, b, c) {
+        // call a.step()
+        return J.uS(a).dN(a, b, c)
+    },
+    nB(a, b) {
+        return J.aQ(a).ay(a, b)
+    },
+    rA(a, b, c) {
+        return J.aQ(a).af(a, b, c)
+    },
+    rB(a) {
+        return J.aQ(a).fN(a)
+    },
+    b4(a) {
+        return J.cV(a).k(a)
+    },
+    rC(a, b, c, d, e, f, g) {
+        return J.bv(a).fO(a, b, c, d, e, f, g)
+    },
+    rD(a) {
+        // return J.aQ(a).trim_name(a)
+        J.JsString.prototype.trim_name(a)
+    },
+    Interceptor: function af() { },
+    fw: function fw() { },
+    cs: function cs() { },
+    bE: function bE() { },
+    PlainJavaScriptObject: function fO() { },
+    UnknownJavaScriptObject: function bs() { },
+    JavaScriptFunction: function bn() { },
+    JsArray: function E(a) {
+        this.$ti = a
+    },
+    JsUnmodifiableArray: function jG(a) {
+        this.$ti = a
+    },
+    db: function db(a, b) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = 0
+        _.d = null
+    },
+    JsNumber: function dA() { },
+    JsInt: function dz() { },
+    jF: function jF() { },
+    JsString: function bD() { }
+},
     L = {
         ProfileWinChance: function iR(a, b, c, d, e, f, g) {
             var _ = this
@@ -3617,4540 +3617,4544 @@ var H = {
                 return r
             }
         }
-    },
-    P = {
-        _AsyncRun__initializeScheduleImmediate() {
-            var s, r, q = {}
-            if (self.scheduleImmediate != null) {
-                return P.uK()
-            }
-            if (self.MutationObserver != null && self.document != null) {
-                s = self.document.createElement("div")
-                r = self.document.createElement("span")
-                q.a = null
-                new self.MutationObserver(H.convert_dart_closure_to_js_md5(new P.kB(q), 1)).observe(s, {
-                    childList: true
-                })
-                return new P._AsyncRun__initializeScheduleImmediate_closure(q, s, r)
-            } else if (self.setImmediate != null) {
-                // _AsyncRun__scheduleImmediateWithSetImmediate
-                return P.uL()
-            }
-            // _AsyncRun__scheduleImmediateWithTimer
-            return P.uM()
+    }
+var P = {
+    _AsyncRun__initializeScheduleImmediate() {
+        var s, r, q = {}
+        if (self.scheduleImmediate != null) {
+            return P.uK()
+        }
+        if (self.MutationObserver != null && self.document != null) {
+            s = self.document.createElement("div")
+            r = self.document.createElement("span")
+            q.a = null
+            new self.MutationObserver(H.convert_dart_closure_to_js_md5(new P.kB(q), 1)).observe(s, {
+                childList: true
+            })
+            return new P._AsyncRun__initializeScheduleImmediate_closure(q, s, r)
+        } else if (self.setImmediate != null) {
+            // _AsyncRun__scheduleImmediateWithSetImmediate
+            return P.uL()
+        }
+        // _AsyncRun__scheduleImmediateWithTimer
+        return P.uM()
 
-        },
-        _AsyncRun__scheduleImmediateJsOverride(a) {
-            self.scheduleImmediate(H.convert_dart_closure_to_js_md5(new P.kC(a), 0))
-        },
-        _AsyncRun__scheduleImmediateWithSetImmediate(a) {
-            self.setImmediate(H.convert_dart_closure_to_js_md5(new P.kD(a), 0))
-        },
-        _AsyncRun__scheduleImmediateWithTimer(a) {
-            P.Timer__createTimer(C.I, a)
-        },
-        Timer__createTimer(a, b) {
-            var s = C.JsInt.ag(a.a, 1000)
-            return P.Timerimpl(s < 0 ? 0 : s, b)
-        },
-        Timerimpl(a, b) {
-            var s = new P._TimerImpl()
-            s.e8(a, b)
-            return s
-        },
-        _makeAsyncAwaitCompleter(a) {
-            return new P.i_(new P._Future($.P, a.i("U<0>")), a.i("i_<0>"))
-        },
-        _asyncStartSync(a, b) {
-            a.$2(0, null)
-            // a(0, null)
-            b.b = true
-            return b.a
-        },
-        _asyncAwait(a, b) {
-            P._awaitOnObject(a, b)
-        },
-        _asyncReturn(a, b) {
-            b.bM(0, a)
-        },
-        async_rethrow(a, b) {
-            b.cj(H.unwrap_Exception(a), H.getTraceFromException(a))
-        },
-        _awaitOnObject(object, body_function) {
-            var s, future, q = new P._awaitOnObject_closure(body_function),
-                p = new P._awaitOnObject_closure0(body_function)
-            if (object instanceof P._Future) object.d7(q, p, t.z)
+    },
+    _AsyncRun__scheduleImmediateJsOverride(a) {
+        self.scheduleImmediate(H.convert_dart_closure_to_js_md5(new P.kC(a), 0))
+    },
+    _AsyncRun__scheduleImmediateWithSetImmediate(a) {
+        self.setImmediate(H.convert_dart_closure_to_js_md5(new P.kD(a), 0))
+    },
+    _AsyncRun__scheduleImmediateWithTimer(a) {
+        P.Timer__createTimer(C.I, a)
+    },
+    Timer__createTimer(a, b) {
+        var s = C.JsInt.ag(a.a, 1000)
+        return P.Timerimpl(s < 0 ? 0 : s, b)
+    },
+    Timerimpl(a, b) {
+        var s = new P._TimerImpl()
+        s.e8(a, b)
+        return s
+    },
+    _makeAsyncAwaitCompleter(a) {
+        return new P.i_(new P._Future($.P, a.i("U<0>")), a.i("i_<0>"))
+    },
+    _asyncStartSync(a, b) {
+        a.$2(0, null)
+        // a(0, null)
+        b.b = true
+        return b.a
+    },
+    _asyncAwait(a, b) {
+        P._awaitOnObject(a, b)
+    },
+    _asyncReturn(a, b) {
+        b.bM(0, a)
+    },
+    async_rethrow(a, b) {
+        b.cj(H.unwrap_Exception(a), H.getTraceFromException(a))
+    },
+    _awaitOnObject(object, body_function) {
+        var s, future, q = new P._awaitOnObject_closure(body_function),
+            p = new P._awaitOnObject_closure0(body_function)
+        if (object instanceof P._Future) object.d7(q, p, t.z)
+        else {
+            s = t.z
+            if (t.h.b(object)) object.cz(q, p, s)
             else {
-                s = t.z
-                if (t.h.b(object)) object.cz(q, p, s)
-                else {
-                    future = new P._Future($.P, t.eI)
-                    future.a = 8
-                    future.c = object
-                    future.d7(q, p, s)
+                future = new P._Future($.P, t.eI)
+                future.a = 8
+                future.c = object
+                future.d7(q, p, s)
+            }
+        }
+    },
+    _wrapJsFunctionForAsync(func) {
+        var protected_func = function (fn, error_) {
+            return function (error_code, async_result) {
+                while (true) try {
+                    if (run_env.from_code) {
+                        // console.log("O._wrapJsFunctionForAsync", error_code, async_result)
+                    }
+                    fn(error_code, async_result)
+                    break
+                } catch (error) {
+                    console.error(error.stack)
+                    async_result = error
+                    error_code = error_
                 }
             }
-        },
-        _wrapJsFunctionForAsync(func) {
-            var protected_func = function (fn, error_) {
-                return function (error_code, async_result) {
-                    while (true) try {
-                        if (run_env.from_code) {
-                            // console.log("O._wrapJsFunctionForAsync", error_code, async_result)
-                        }
-                        fn(error_code, async_result)
-                        break
-                    } catch (error) {
-                        console.error(error.stack)
-                        async_result = error
-                        error_code = error_
-                    }
+        }(func, 1)
+        return $.P.ct(new P._wrapJsFunctionForAsync_closure(protected_func))
+    },
+    async_error(a, b) {
+        var s = H.ls(a, "error", t.K)
+        return new P.f3(s, b == null ? P.AsyncError_defaultStackTrace(a) : b)
+    },
+    AsyncError_defaultStackTrace(a) {
+        var s
+        if (t.u.b(a)) {
+            s = a.gbz()
+            if (s != null) return s
+        }
+        return C.G
+    },
+    future_future_delayed(a, b) {
+        var s = new P._Future($.P, b.i("U<0>"))
+        P.Timer_Timer(a, new P.jp(null, s, b))
+        return s
+    },
+    rM(a) {
+        return new P.cg(new P._Future($.P, a.i("U<0>")), a.i("cg<0>"))
+    },
+    _Future__chainCoreFuture(a, b) {
+        var s, r
+        for (; s = a.a, (s & 4) !== 0;) a = a.c
+        if ((s & 24) !== 0) {
+            r = b.bI()
+            b.c1(a)
+            P._Future__propagateToListeners(b, r)
+        } else {
+            r = b.c
+            b.a = b.a & 1 | 4
+            b.c = a
+            a.d3(r)
+        }
+    },
+    _Future__propagateToListeners(a, b) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f = {},
+            t1 = f.a = a
+        for (s = t.h; true;) {
+            r = {}
+            q = t1.a
+            p = (q & 16) === 0
+            o = !p
+            if (b == null) {
+                if (o && (q & 1) === 0) {
+                    t1 = t1.c
+                    P._rootHandleUncaughtError(t1.a, t1.b)
                 }
-            }(func, 1)
-            return $.P.ct(new P._wrapJsFunctionForAsync_closure(protected_func))
-        },
-        async_error(a, b) {
-            var s = H.ls(a, "error", t.K)
-            return new P.f3(s, b == null ? P.AsyncError_defaultStackTrace(a) : b)
-        },
-        AsyncError_defaultStackTrace(a) {
-            var s
-            if (t.u.b(a)) {
-                s = a.gbz()
-                if (s != null) return s
+                return
             }
-            return C.G
-        },
-        future_future_delayed(a, b) {
-            var s = new P._Future($.P, b.i("U<0>"))
-            P.Timer_Timer(a, new P.jp(null, s, b))
-            return s
-        },
-        rM(a) {
-            return new P.cg(new P._Future($.P, a.i("U<0>")), a.i("cg<0>"))
-        },
-        _Future__chainCoreFuture(a, b) {
-            var s, r
-            for (; s = a.a, (s & 4) !== 0;) a = a.c
-            if ((s & 24) !== 0) {
-                r = b.bI()
-                b.c1(a)
-                P._Future__propagateToListeners(b, r)
-            } else {
-                r = b.c
-                b.a = b.a & 1 | 4
-                b.c = a
-                a.d3(r)
+            r.a = b
+            n = b.a
+            for (t1 = b; n != null; t1 = n, n = m) {
+                t1.a = null
+                P._Future__propagateToListeners(f.a, t1)
+                r.a = n
+                m = n.a
             }
-        },
-        _Future__propagateToListeners(a, b) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f = {},
-                t1 = f.a = a
-            for (s = t.h; true;) {
-                r = {}
-                q = t1.a
-                p = (q & 16) === 0
-                o = !p
-                if (b == null) {
-                    if (o && (q & 1) === 0) {
-                        t1 = t1.c
-                        P._rootHandleUncaughtError(t1.a, t1.b)
-                    }
+            q = f.a
+            l = q.c
+            r.b = o
+            r.c = l
+            if (p) {
+                k = t1.c
+                k = (k & 1) !== 0 || (k & 15) === 8
+            } else k = true
+            if (k) {
+                j = t1.b.b
+                if (o) {
+                    q = q.b === j
+                    q = !(q || q)
+                } else q = false
+                if (q) {
+                    P._rootHandleUncaughtError(l.a, l.b)
                     return
                 }
-                r.a = b
-                n = b.a
-                for (t1 = b; n != null; t1 = n, n = m) {
-                    t1.a = null
-                    P._Future__propagateToListeners(f.a, t1)
-                    r.a = n
-                    m = n.a
+                i = $.P
+                if (i !== j) $.P = j
+                else i = null
+                t1 = t1.c
+                if ((t1 & 15) === 8) new P._Future__propagateToListeners_handleWhenCompleteCallback(r, f, o).$0()
+                else if (p) {
+                    if ((t1 & 1) !== 0) new P._Future__propagateToListeners_handleValueCallback(r, l).$0()
+                } else if ((t1 & 2) !== 0) new P._Future__propagateToListeners_handleError(f, r).$0()
+                if (i != null) $.P = i
+                t1 = r.c
+                if (s.b(t1)) {
+                    q = r.a.$ti
+                    q = q.i("bl<2>").b(t1) || !q.Q[1].b(t1)
+                } else q = false
+                if (q) {
+                    h = r.a.b
+                    if (t1 instanceof P._Future)
+                        if ((t1.a & 24) !== 0) {
+                            g = h.c
+                            h.c = null
+                            b = h.bJ(g)
+                            h.a = t1.a & 30 | h.a & 1
+                            h.c = t1.c
+                            f.a = t1
+                            continue
+                        } else P._Future__chainCoreFuture(t1, h)
+                    else h.cV(t1)
+                    return
                 }
-                q = f.a
-                l = q.c
-                r.b = o
-                r.c = l
-                if (p) {
-                    k = t1.c
-                    k = (k & 1) !== 0 || (k & 15) === 8
-                } else k = true
-                if (k) {
-                    j = t1.b.b
-                    if (o) {
-                        q = q.b === j
-                        q = !(q || q)
-                    } else q = false
-                    if (q) {
-                        P._rootHandleUncaughtError(l.a, l.b)
-                        return
-                    }
-                    i = $.P
-                    if (i !== j) $.P = j
-                    else i = null
-                    t1 = t1.c
-                    if ((t1 & 15) === 8) new P._Future__propagateToListeners_handleWhenCompleteCallback(r, f, o).$0()
-                    else if (p) {
-                        if ((t1 & 1) !== 0) new P._Future__propagateToListeners_handleValueCallback(r, l).$0()
-                    } else if ((t1 & 2) !== 0) new P._Future__propagateToListeners_handleError(f, r).$0()
-                    if (i != null) $.P = i
-                    t1 = r.c
-                    if (s.b(t1)) {
-                        q = r.a.$ti
-                        q = q.i("bl<2>").b(t1) || !q.Q[1].b(t1)
-                    } else q = false
-                    if (q) {
-                        h = r.a.b
-                        if (t1 instanceof P._Future)
-                            if ((t1.a & 24) !== 0) {
-                                g = h.c
-                                h.c = null
-                                b = h.bJ(g)
-                                h.a = t1.a & 30 | h.a & 1
-                                h.c = t1.c
-                                f.a = t1
-                                continue
-                            } else P._Future__chainCoreFuture(t1, h)
-                        else h.cV(t1)
-                        return
-                    }
-                }
-                h = r.a.b
-                g = h.c
-                h.c = null
-                b = h.bJ(g)
-                t1 = r.b
-                q = r.c
-                if (!t1) {
-                    h.a = 8
-                    h.c = q
-                } else {
-                    h.a = h.a & 1 | 16
-                    h.c = q
-                }
-                f.a = h
-                t1 = h
             }
-        },
-        _registerErrorHandler(a, b) {
-            if (t.C.b(a)) return b.ct(a)
-            if (t.J.b(a)) return a
-            throw H.wrap_expression(P.da(a, "onError", u.c))
-        },
-        _microtaskLoop() {
-            var s, r
-            for (s = $.cR; s != null; s = $.cR) {
-                $.eO = null
-                r = s.b
-                $.cR = r
-                if (r == null) $.eN = null
-                s.a.$0()
-            }
-        },
-        _startMicrotaskLoop() {
-            $.ms = true
-            try {
-                P._microtaskLoop()
-            } finally {
-                $.eO = null
-                $.ms = false
-                if ($.cR != null) $.nw().$1(P.ow())
-            }
-        },
-        _scheduleAsyncCallback(a) {
-            var s = new P.i0(a),
-                r = $.eN
-            if (r == null) {
-                $.cR = $.eN = s
-                if (!$.ms) {
-                    $.nw().$1(P.ow())
-                }
-            } else $.eN = r.b = s
-        },
-        _schedulePriorityAsyncCallback(a) {
-            var s, r, q, p = $.cR
-            if (p == null) {
-                P._scheduleAsyncCallback(a)
-                $.eO = $.eN
-                return
-            }
-            s = new P.i0(a)
-            r = $.eO
-            if (r == null) {
-                s.b = p
-                $.cR = $.eO = s
+            h = r.a.b
+            g = h.c
+            h.c = null
+            b = h.bJ(g)
+            t1 = r.b
+            q = r.c
+            if (!t1) {
+                h.a = 8
+                h.c = q
             } else {
-                q = r.b
-                s.b = q
-                $.eO = r.b = s
-                if (q == null) $.eN = s
+                h.a = h.a & 1 | 16
+                h.c = q
             }
-        },
-        scheduleMicrotask(a) {
-            var s = null,
-                r = $.P
-            if (C.f === r) {
-                P.cS(s, s, C.f, a)
-                return
+            f.a = h
+            t1 = h
+        }
+    },
+    _registerErrorHandler(a, b) {
+        if (t.C.b(a)) return b.ct(a)
+        if (t.J.b(a)) return a
+        throw H.wrap_expression(P.da(a, "onError", u.c))
+    },
+    _microtaskLoop() {
+        var s, r
+        for (s = $.cR; s != null; s = $.cR) {
+            $.eO = null
+            r = s.b
+            $.cR = r
+            if (r == null) $.eN = null
+            s.a.$0()
+        }
+    },
+    _startMicrotaskLoop() {
+        $.ms = true
+        try {
+            P._microtaskLoop()
+        } finally {
+            $.eO = null
+            $.ms = false
+            if ($.cR != null) $.nw().$1(P.ow())
+        }
+    },
+    _scheduleAsyncCallback(a) {
+        var s = new P.i0(a),
+            r = $.eN
+        if (r == null) {
+            $.cR = $.eN = s
+            if (!$.ms) {
+                $.nw().$1(P.ow())
             }
-            P.cS(s, s, r, r.cf(a))
-        },
-        StreamIterator_StreamIterator(a) {
-            H.ls(a, "stream", t.K)
-            return new P.io()
-        },
-        mu(a) {
-            // what?
+        } else $.eN = r.b = s
+    },
+    _schedulePriorityAsyncCallback(a) {
+        var s, r, q, p = $.cR
+        if (p == null) {
+            P._scheduleAsyncCallback(a)
+            $.eO = $.eN
             return
-        },
-        tS(a, b) {
-            if (b == null) b = P.uN()
-            if (t.da.b(b)) return a.ct(b)
-            if (t.aX.b(b)) return b
-            throw H.wrap_expression(P.bz("handleError callback must take either an Object (the error), or both an Object (the error) and a StackTrace.", null))
-        },
-        ux(a, b) {
-            P._rootHandleUncaughtError(a, b)
-        },
-        Timer_Timer(a, b) {
-            var s = $.P
-            if (s === C.f) return P.Timer__createTimer(a, b)
-            return P.Timer__createTimer(a, s.cf(b))
-        },
-        _rootHandleUncaughtError(a, b) {
-            P._schedulePriorityAsyncCallback(new P.lo(a, b))
-        },
-        os(a, b, c, d) {
-            var s, r = $.P
-            if (r === c) return d.$0()
-            $.P = c
-            s = r
-            try {
-                r = d.$0()
-                return r
-            } finally {
-                $.P = s
-            }
-        },
-        _rootRun(a, b, c, d, e) {
-            var s, r = $.P
-            if (r === c) return d.$1(e)
-            $.P = c
-            s = r
-            try {
-                r = d.$1(e)
-                return r
-            } finally {
-                $.P = s
-            }
-        },
-        _rootRunUnary(a, b, c, d, e, f) {
-            var s, r = $.P
-            if (r === c) return d.$2(e, f)
-            $.P = c
-            s = r
-            try {
-                r = d.$2(e, f)
-                return r
-            } finally {
-                $.P = s
-            }
-        },
-        cS(a, b, c, d) {
-            if (C.f !== c) d = c.cf(d)
-            P._scheduleAsyncCallback(d)
-        },
-        kB: function kB(a) {
-            this.a = a
-        },
-        _AsyncRun__initializeScheduleImmediate_closure: function kA(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        kC: function kC(a) {
-            this.a = a
-        },
-        kD: function kD(a) {
-            this.a = a
-        },
-        _TimerImpl: function l8() { },
-        _TimerImpl_internalCallback: function l9(a, b) {
-            this.a = a
-            this.b = b
-        },
-        i_: function i_(a, b) {
-            this.a = a
-            this.b = false
-            this.$ti = b
-        },
-        _awaitOnObject_closure: function lh(a) {
-            this.a = a
-        },
-        _awaitOnObject_closure0: function li(a) {
-            this.a = a
-        },
-        _wrapJsFunctionForAsync_closure: function lr(a) {
-            this.a = a
-        },
-        f3: function f3(a, b) {
-            this.a = a
-            this.b = b
-        },
-        jp: function jp(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        i4: function i4() { },
-        cg: function cg(a, b) {
-            this.a = a
-            this.$ti = b
-        },
-        _FutureListener: function cN(a, b, c, d, e) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.d = c
-            _.e = d
-            _.$ti = e
-        },
-        _Future: function U(a, b) {
-            var _ = this
-            _.a = 0
-            _.b = a
-            _.c = null
-            _.$ti = b
-        },
-        kH: function kH(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kO: function kO(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kK: function kK(a) {
-            this.a = a
-        },
-        kL: function kL(a) {
-            this.a = a
-        },
-        kM: function kM(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        kJ: function kJ(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kN: function kN(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kI: function kI(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        _Future__propagateToListeners_handleWhenCompleteCallback: function kR(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        _Future__propagateToListeners_handleWhenCompleteCallback_closure: function kS(a) {
-            this.a = a
-        },
-        _Future__propagateToListeners_handleValueCallback: function kQ(a, b) {
-            this.a = a
-            this.b = b
-        },
-        _Future__propagateToListeners_handleError: function kP(a, b) {
-            this.a = a
-            this.b = b
-        },
-        i0: function i0(a) {
-            this.a = a
-            this.b = null
-        },
-        em: function em() { },
-        ke: function ke(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kf: function kf(a, b) {
-            this.a = a
-            this.b = b
-        },
-        hO: function hO() { },
-        hP: function hP() { },
-        im: function im() { },
-        l2: function l2(a) {
-            this.a = a
-        },
-        i1: function i1() { },
-        cK: function cK(a, b, c, d) {
-            var _ = this
-            _.a = null
-            _.b = 0
-            _.d = a
-            _.e = b
-            _.f = c
-            _.$ti = d
-        },
-        cM: function cM(a, b) {
-            this.a = a
-            this.$ti = b
-        },
-        i5: function i5(a, b, c, d) {
-            var _ = this
-            _.x = a
-            _.a = b
-            _.d = c
-            _.e = d
-            _.r = null
-        },
-        i3: function i3() { },
-        eF: function eF() { },
-        i7: function i7() { },
-        er: function er(a) {
-            this.b = a
-            this.a = null
-        },
-        ii: function ii() { },
-        kW: function kW(a, b) {
-            this.a = a
-            this.b = b
-        },
-        eG: function eG() {
-            this.c = this.b = null
-            this.a = 0
-        },
-        io: function io() { },
-        lf: function lf() { },
-        lo: function lo(a, b) {
-            this.a = a
-            this.b = b
-        },
-        _RootZone: function kX() { },
-        kY: function kY(a, b) {
-            this.a = a
-            this.b = b
-        },
-        _RootZone_bindCallback_closure: function kZ(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        create_meta_map(a, b) {
-            return new H.JsLinkedHashMap(a.i("@<0>").aL(b).i("aT<1,2>"))
-        },
-        create_StringInt_map(a, b, c) {
-            // Map<String, int>
-            return H.uQ(a, new H.JsLinkedHashMap(b.i("@<0>").aL(c).i("aT<1,2>")))
-        },
-        cu(a, b) {
-            return new H.JsLinkedHashMap(a.i("@<0>").aL(b).i("aT<1,2>"))
-        },
-        c5(a) {
-            return new P.eu(a.i("eu<0>"))
-        },
-        ml() {
-            var s = Object.create(null)
-            s["<non-identifier-key>"] = s
-            delete s["<non-identifier-key>"]
-            return s
-        },
-        rX(a, b, c) {
-            var s, r
-            if (P.mt(a)) {
-                if (b === "(" && c === ")") return "(...)"
-                return b + "..." + c
-            }
-            s = H.b([], t.s)
-            $.ch.push(a)
-            try {
-                P.uu(a, s)
-            } finally {
-                $.ch.pop()
-            }
-            r = P.o7(b, s, ", ") + c
-            return r.charCodeAt(0) == 0 ? r : r
-        },
-        IterableBase_iterableToFullString(a, b, c) {
-            var s, r
-            if (P.mt(a)) return b + "..." + c
-            s = new P.cH(b)
-            $.ch.push(a)
-            try {
-                r = s
-                r.a = P.o7(r.a, a, ", ")
-            } finally {
-                $.ch.pop()
-            }
-            s.a += c
-            r = s.a
-            return r.charCodeAt(0) == 0 ? r : r
-        },
-        mt(a) {
-            var s, r
-            for (s = $.ch.length, r = 0; r < s; ++r)
-                if (a === $.ch[r]) return true
-            return false
-        },
-        uu(a, b) {
-            var s, r, q, p, o, n, m, l = a.ga0(a),
-                k = 0,
-                j = 0
-            while (true) {
-                if (!(k < 80 || j < 3)) break
-                if (!l.u()) return
-                s = H.as_string(l.gC())
-                b.push(s)
-                k += s.length + 2;
-                ++j
-            }
+        }
+        s = new P.i0(a)
+        r = $.eO
+        if (r == null) {
+            s.b = p
+            $.cR = $.eO = s
+        } else {
+            q = r.b
+            s.b = q
+            $.eO = r.b = s
+            if (q == null) $.eN = s
+        }
+    },
+    scheduleMicrotask(a) {
+        var s = null,
+            r = $.P
+        if (C.f === r) {
+            P.cS(s, s, C.f, a)
+            return
+        }
+        P.cS(s, s, r, r.cf(a))
+    },
+    StreamIterator_StreamIterator(a) {
+        H.ls(a, "stream", t.K)
+        return new P.io()
+    },
+    mu(a) {
+        // what?
+        return
+    },
+    tS(a, b) {
+        if (b == null) b = P.uN()
+        if (t.da.b(b)) return a.ct(b)
+        if (t.aX.b(b)) return b
+        throw H.wrap_expression(P.bz("handleError callback must take either an Object (the error), or both an Object (the error) and a StackTrace.", null))
+    },
+    ux(a, b) {
+        P._rootHandleUncaughtError(a, b)
+    },
+    Timer_Timer(a, b) {
+        var s = $.P
+        if (s === C.f) return P.Timer__createTimer(a, b)
+        return P.Timer__createTimer(a, s.cf(b))
+    },
+    _rootHandleUncaughtError(a, b) {
+        P._schedulePriorityAsyncCallback(new P.lo(a, b))
+    },
+    os(a, b, c, d) {
+        var s, r = $.P
+        if (r === c) return d.$0()
+        $.P = c
+        s = r
+        try {
+            r = d.$0()
+            return r
+        } finally {
+            $.P = s
+        }
+    },
+    _rootRun(a, b, c, d, e) {
+        var s, r = $.P
+        if (r === c) return d.$1(e)
+        $.P = c
+        s = r
+        try {
+            r = d.$1(e)
+            return r
+        } finally {
+            $.P = s
+        }
+    },
+    _rootRunUnary(a, b, c, d, e, f) {
+        var s, r = $.P
+        if (r === c) return d.$2(e, f)
+        $.P = c
+        s = r
+        try {
+            r = d.$2(e, f)
+            return r
+        } finally {
+            $.P = s
+        }
+    },
+    cS(a, b, c, d) {
+        if (C.f !== c) d = c.cf(d)
+        P._scheduleAsyncCallback(d)
+    },
+    kB: function kB(a) {
+        this.a = a
+    },
+    _AsyncRun__initializeScheduleImmediate_closure: function kA(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    kC: function kC(a) {
+        this.a = a
+    },
+    kD: function kD(a) {
+        this.a = a
+    },
+    _TimerImpl: function l8() { },
+    _TimerImpl_internalCallback: function l9(a, b) {
+        this.a = a
+        this.b = b
+    },
+    i_: function i_(a, b) {
+        this.a = a
+        this.b = false
+        this.$ti = b
+    },
+    _awaitOnObject_closure: function lh(a) {
+        this.a = a
+    },
+    _awaitOnObject_closure0: function li(a) {
+        this.a = a
+    },
+    _wrapJsFunctionForAsync_closure: function lr(a) {
+        this.a = a
+    },
+    f3: function f3(a, b) {
+        this.a = a
+        this.b = b
+    },
+    jp: function jp(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    i4: function i4() { },
+    cg: function cg(a, b) {
+        this.a = a
+        this.$ti = b
+    },
+    _FutureListener: function cN(a, b, c, d, e) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.d = c
+        _.e = d
+        _.$ti = e
+    },
+    _Future: function U(a, b) {
+        var _ = this
+        _.a = 0
+        _.b = a
+        _.c = null
+        _.$ti = b
+    },
+    kH: function kH(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kO: function kO(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kK: function kK(a) {
+        this.a = a
+    },
+    kL: function kL(a) {
+        this.a = a
+    },
+    kM: function kM(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    kJ: function kJ(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kN: function kN(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kI: function kI(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback: function kR(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback_closure: function kS(a) {
+        this.a = a
+    },
+    _Future__propagateToListeners_handleValueCallback: function kQ(a, b) {
+        this.a = a
+        this.b = b
+    },
+    _Future__propagateToListeners_handleError: function kP(a, b) {
+        this.a = a
+        this.b = b
+    },
+    i0: function i0(a) {
+        this.a = a
+        this.b = null
+    },
+    em: function em() { },
+    ke: function ke(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kf: function kf(a, b) {
+        this.a = a
+        this.b = b
+    },
+    hO: function hO() { },
+    hP: function hP() { },
+    im: function im() { },
+    l2: function l2(a) {
+        this.a = a
+    },
+    i1: function i1() { },
+    cK: function cK(a, b, c, d) {
+        var _ = this
+        _.a = null
+        _.b = 0
+        _.d = a
+        _.e = b
+        _.f = c
+        _.$ti = d
+    },
+    cM: function cM(a, b) {
+        this.a = a
+        this.$ti = b
+    },
+    i5: function i5(a, b, c, d) {
+        var _ = this
+        _.x = a
+        _.a = b
+        _.d = c
+        _.e = d
+        _.r = null
+    },
+    i3: function i3() { },
+    eF: function eF() { },
+    i7: function i7() { },
+    er: function er(a) {
+        this.b = a
+        this.a = null
+    },
+    ii: function ii() { },
+    kW: function kW(a, b) {
+        this.a = a
+        this.b = b
+    },
+    eG: function eG() {
+        this.c = this.b = null
+        this.a = 0
+    },
+    io: function io() { },
+    lf: function lf() { },
+    lo: function lo(a, b) {
+        this.a = a
+        this.b = b
+    },
+    _RootZone: function kX() { },
+    kY: function kY(a, b) {
+        this.a = a
+        this.b = b
+    },
+    _RootZone_bindCallback_closure: function kZ(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    create_meta_map(a, b) {
+        return new H.JsLinkedHashMap(a.i("@<0>").aL(b).i("aT<1,2>"))
+    },
+    create_StringInt_map(a, b, c) {
+        // Map<String, int>
+        return H.uQ(a, new H.JsLinkedHashMap(b.i("@<0>").aL(c).i("aT<1,2>")))
+    },
+    cu(a, b) {
+        return new H.JsLinkedHashMap(a.i("@<0>").aL(b).i("aT<1,2>"))
+    },
+    c5(a) {
+        return new P.eu(a.i("eu<0>"))
+    },
+    ml() {
+        var s = Object.create(null)
+        s["<non-identifier-key>"] = s
+        delete s["<non-identifier-key>"]
+        return s
+    },
+    rX(a, b, c) {
+        var s, r
+        if (P.mt(a)) {
+            if (b === "(" && c === ")") return "(...)"
+            return b + "..." + c
+        }
+        s = H.b([], t.s)
+        $.ch.push(a)
+        try {
+            P.uu(a, s)
+        } finally {
+            $.ch.pop()
+        }
+        r = P.o7(b, s, ", ") + c
+        return r.charCodeAt(0) == 0 ? r : r
+    },
+    IterableBase_iterableToFullString(a, b, c) {
+        var s, r
+        if (P.mt(a)) return b + "..." + c
+        s = new P.cH(b)
+        $.ch.push(a)
+        try {
+            r = s
+            r.a = P.o7(r.a, a, ", ")
+        } finally {
+            $.ch.pop()
+        }
+        s.a += c
+        r = s.a
+        return r.charCodeAt(0) == 0 ? r : r
+    },
+    mt(a) {
+        var s, r
+        for (s = $.ch.length, r = 0; r < s; ++r)
+            if (a === $.ch[r]) return true
+        return false
+    },
+    uu(a, b) {
+        var s, r, q, p, o, n, m, l = a.ga0(a),
+            k = 0,
+            j = 0
+        while (true) {
+            if (!(k < 80 || j < 3)) break
+            if (!l.u()) return
+            s = H.as_string(l.gC())
+            b.push(s)
+            k += s.length + 2;
+            ++j
+        }
+        if (!l.u()) {
+            if (j <= 5) return
+            r = b.pop()
+            q = b.pop()
+        } else {
+            p = l.gC();
+            ++j
             if (!l.u()) {
-                if (j <= 5) return
-                r = b.pop()
+                if (j <= 4) {
+                    b.push(H.as_string(p))
+                    return
+                }
+                r = H.as_string(p)
                 q = b.pop()
+                k += r.length + 2
             } else {
-                p = l.gC();
+                o = l.gC();
                 ++j
-                if (!l.u()) {
-                    if (j <= 4) {
-                        b.push(H.as_string(p))
+                for (; l.u(); p = o, o = n) {
+                    n = l.gC();
+                    ++j
+                    if (j > 100) {
+                        while (true) {
+                            if (!(k > 75 && j > 3)) break
+                            k -= b.pop().length + 2;
+                            --j
+                        }
+                        b.push("...")
                         return
                     }
-                    r = H.as_string(p)
-                    q = b.pop()
-                    k += r.length + 2
-                } else {
-                    o = l.gC();
-                    ++j
-                    for (; l.u(); p = o, o = n) {
-                        n = l.gC();
-                        ++j
-                        if (j > 100) {
-                            while (true) {
-                                if (!(k > 75 && j > 3)) break
-                                k -= b.pop().length + 2;
-                                --j
-                            }
-                            b.push("...")
-                            return
-                        }
-                    }
-                    q = H.as_string(p)
-                    r = H.as_string(o)
-                    k += r.length + q.length + 4
                 }
+                q = H.as_string(p)
+                r = H.as_string(o)
+                k += r.length + q.length + 4
             }
-            if (j > b.length + 2) {
+        }
+        if (j > b.length + 2) {
+            k += 5
+            m = "..."
+        } else m = null
+        while (true) {
+            if (!(k > 80 && b.length > 3)) break
+            k -= b.pop().length + 2
+            if (m == null) {
                 k += 5
                 m = "..."
-            } else m = null
-            while (true) {
-                if (!(k > 80 && b.length > 3)) break
-                k -= b.pop().length + 2
-                if (m == null) {
-                    k += 5
-                    m = "..."
-                }
             }
-            if (m != null) b.push(m)
-            b.push(q)
-            b.push(r)
-        },
-        nQ(a, b) {
-            var s, r, q = P.c5(b)
-            for (s = a.length, r = 0; r < a.length; a.length === s || (0, H.F)(a), ++r) q.j(0, b.a(a[r]))
-            return q
-        },
-        nR(a) {
-            var s, r = {}
-            if (P.mt(a)) return "{...}"
-            s = new P.cH("")
-            try {
-                $.ch.push(a)
-                s.a += "{"
-                r.a = true
-                J.lY(a, new P.jM(r, s))
-                s.a += "}"
-            } finally {
-                $.ch.pop()
-            }
-            r = s.a
-            return r.charCodeAt(0) == 0 ? r : r
-        },
-        eu: function eu(a) {
-            var _ = this
-            _.a = 0
-            _.f = _.e = _.d = _.c = _.b = null
-            _.r = 0
-            _.$ti = a
-        },
-        kV: function kV(a) {
-            this.a = a
-            this.c = this.b = null
-        },
-        ie: function ie(a, b) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.d = _.c = null
-        },
-        dy: function dy() { },
-        dE: function dE() { },
-        z: function z() { },
-        dG: function dG() { },
-        jM: function jM(a, b) {
-            this.a = a
-            this.b = b
-        },
-        aU: function aU() { },
-        dY: function dY() { },
-        eC: function eC() { },
-        ev: function ev() { },
-        eM: function eM() { },
-        uy(a, b) {
-            var s, r, q, p = null
-            try {
-                p = JSON.parse(a)
-            } catch (r) {
-                s = H.unwrap_Exception(r)
-                q = P.FormatException(String(s), null, null)
-                throw H.wrap_expression(q)
-            }
-            q = P.lk(p)
-            return q
-        },
-        lk(a) {
-            var s
-            if (a == null) return null
-            if (typeof a != "object") return a
-            if (Object.getPrototypeOf(a) !== Array.prototype) return new P.ic(a, Object.create(null))
-            for (s = 0; s < a.length; ++s) a[s] = P.lk(a[s])
-            return a
-        },
-        tL(a, b, c, d) {
-            var s, r
-            if (b instanceof Uint8Array) {
-                s = b
-                d = s.length
-                if (d - c < 15) return null
-                r = P.tM(a, s, c, d)
-                if (r != null && a)
-                    if (r.indexOf("\ufffd") >= 0) return null
-                return r
-            }
-            return null
-        },
-        tM(a, b, c, d) {
-            var s = a ? $.ri() : $.rh()
-            if (s == null) return null
-            if (0 === c && d === b.length) return P.o9(s, b)
-            return P.o9(s, b.subarray(c, P.cE(c, d, b.length)))
-        },
-        o9(a, b) {
-            var s, r
-            try {
-                s = a.decode(b)
-                return s
-            } catch (r) {
-                H.unwrap_Exception(r)
-            }
-            return null
-        },
-        uc(a) {
-            switch (a) {
-                case 65:
-                    return "Missing extension byte"
-                case 67:
-                    return "Unexpected extension byte"
-                case 69:
-                    return "Invalid UTF-8 byte"
-                case 71:
-                    return "Overlong encoding"
-                case 73:
-                    return "Out of unicode range"
-                case 75:
-                    return "Encoded surrogate"
-                case 77:
-                    return "Unfinished UTF-8 octet sequence"
-                default:
-                    return ""
-            }
-        },
-        ub(a, b, c) {
-            var s, r, q = c - b,
-                p = new Uint8Array(q)
-            for (s = 0; s < q; ++s) {
-                r = a[b + s]
-                p[s] = (r & 4294967040) >>> 0 !== 0 ? 255 : r
-            }
-            return p
-        },
-        ic: function ic(a, b) {
-            this.a = a
-            this.b = b
-            this.c = null
-        },
-        id: function id(a) {
-            this.a = a
-        },
-        km: function km() { },
-        kl: function kl() { },
-        fg: function fg() { },
-        fi: function fi() { },
-        jg: function jg() { },
-        js: function js() { },
-        jr: function jr() { },
-        jI: function jI() { },
-        jJ: function jJ(a) {
-            this.a = a
-        },
-        kj: function kj() { },
-        kn: function kn() { },
-        lc: function lc(a) {
-            this.b = 0
-            this.c = a
-        },
-        kk: function kk(a) {
-            this.a = a
-        },
-        lb: function lb(a) {
-            this.a = a
-            this.b = 16
-            this.c = 0
-        },
-        oF(a) {
-            var s = H.tk(a, null)
-            if (s != null) return s
-            throw H.wrap_expression(P.FormatException(a, null, null))
-        },
-        Error__objectToString(a) {
-            if (a instanceof H.c_) return a.k(0)
-            return "Instance of '" + H.as_string(H.jZ(a)) + "'"
-        },
-        aL(a, b, c, d) {
-            var s, r = c ? J.t_(a, d) : J.rZ(a, d)
-            if (a !== 0 && b != null)
-                for (s = 0; s < r.length; ++s) r[s] = b
+        }
+        if (m != null) b.push(m)
+        b.push(q)
+        b.push(r)
+    },
+    nQ(a, b) {
+        var s, r, q = P.c5(b)
+        for (s = a.length, r = 0; r < a.length; a.length === s || (0, H.F)(a), ++r) q.j(0, b.a(a[r]))
+        return q
+    },
+    nR(a) {
+        var s, r = {}
+        if (P.mt(a)) return "{...}"
+        s = new P.cH("")
+        try {
+            $.ch.push(a)
+            s.a += "{"
+            r.a = true
+            J.lY(a, new P.jM(r, s))
+            s.a += "}"
+        } finally {
+            $.ch.pop()
+        }
+        r = s.a
+        return r.charCodeAt(0) == 0 ? r : r
+    },
+    eu: function eu(a) {
+        var _ = this
+        _.a = 0
+        _.f = _.e = _.d = _.c = _.b = null
+        _.r = 0
+        _.$ti = a
+    },
+    kV: function kV(a) {
+        this.a = a
+        this.c = this.b = null
+    },
+    ie: function ie(a, b) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.d = _.c = null
+    },
+    dy: function dy() { },
+    dE: function dE() { },
+    z: function z() { },
+    dG: function dG() { },
+    jM: function jM(a, b) {
+        this.a = a
+        this.b = b
+    },
+    aU: function aU() { },
+    dY: function dY() { },
+    eC: function eC() { },
+    ev: function ev() { },
+    eM: function eM() { },
+    uy(a, b) {
+        var s, r, q, p = null
+        try {
+            p = JSON.parse(a)
+        } catch (r) {
+            s = H.unwrap_Exception(r)
+            q = P.FormatException(String(s), null, null)
+            throw H.wrap_expression(q)
+        }
+        q = P.lk(p)
+        return q
+    },
+    lk(a) {
+        var s
+        if (a == null) return null
+        if (typeof a != "object") return a
+        if (Object.getPrototypeOf(a) !== Array.prototype) return new P.ic(a, Object.create(null))
+        for (s = 0; s < a.length; ++s) a[s] = P.lk(a[s])
+        return a
+    },
+    tL(a, b, c, d) {
+        var s, r
+        if (b instanceof Uint8Array) {
+            s = b
+            d = s.length
+            if (d - c < 15) return null
+            r = P.tM(a, s, c, d)
+            if (r != null && a)
+                if (r.indexOf("\ufffd") >= 0) return null
             return r
-        },
-        List_List_of(a, b, c) {
-            var s = P.List_List__of(a, c)
+        }
+        return null
+    },
+    tM(a, b, c, d) {
+        var s = a ? $.ri() : $.rh()
+        if (s == null) return null
+        if (0 === c && d === b.length) return P.o9(s, b)
+        return P.o9(s, b.subarray(c, P.cE(c, d, b.length)))
+    },
+    o9(a, b) {
+        var s, r
+        try {
+            s = a.decode(b)
             return s
-        },
-        List_List__of(a, b) {
-            var s, r
-            if (Array.isArray(a)) return H.b(a.slice(0), b.i("E<0>")) // JSArray<0>
-            s = H.b([], b.i("E<0>"))
-            for (r = J.by(a); r.u();) s.push(r.gC())
-            return s
-        },
-        mh(a, b, c) {
-            var s, r
-            if (Array.isArray(a)) {
-                s = a
-                r = s.length
-                c = P.cE(b, c, r)
-                return H.nZ(b > 0 || c < r ? s.slice(b, c) : s)
+        } catch (r) {
+            H.unwrap_Exception(r)
+        }
+        return null
+    },
+    uc(a) {
+        switch (a) {
+            case 65:
+                return "Missing extension byte"
+            case 67:
+                return "Unexpected extension byte"
+            case 69:
+                return "Invalid UTF-8 byte"
+            case 71:
+                return "Overlong encoding"
+            case 73:
+                return "Out of unicode range"
+            case 75:
+                return "Encoded surrogate"
+            case 77:
+                return "Unfinished UTF-8 octet sequence"
+            default:
+                return ""
+        }
+    },
+    ub(a, b, c) {
+        var s, r, q = c - b,
+            p = new Uint8Array(q)
+        for (s = 0; s < q; ++s) {
+            r = a[b + s]
+            p[s] = (r & 4294967040) >>> 0 !== 0 ? 255 : r
+        }
+        return p
+    },
+    ic: function ic(a, b) {
+        this.a = a
+        this.b = b
+        this.c = null
+    },
+    id: function id(a) {
+        this.a = a
+    },
+    km: function km() { },
+    kl: function kl() { },
+    fg: function fg() { },
+    fi: function fi() { },
+    jg: function jg() { },
+    js: function js() { },
+    jr: function jr() { },
+    jI: function jI() { },
+    jJ: function jJ(a) {
+        this.a = a
+    },
+    kj: function kj() { },
+    kn: function kn() { },
+    lc: function lc(a) {
+        this.b = 0
+        this.c = a
+    },
+    kk: function kk(a) {
+        this.a = a
+    },
+    lb: function lb(a) {
+        this.a = a
+        this.b = 16
+        this.c = 0
+    },
+    oF(a) {
+        var s = H.tk(a, null)
+        if (s != null) return s
+        throw H.wrap_expression(P.FormatException(a, null, null))
+    },
+    Error__objectToString(a) {
+        if (a instanceof H.c_) return a.k(0)
+        return "Instance of '" + H.as_string(H.jZ(a)) + "'"
+    },
+    aL(a, b, c, d) {
+        var s, r = c ? J.t_(a, d) : J.rZ(a, d)
+        if (a !== 0 && b != null)
+            for (s = 0; s < r.length; ++s) r[s] = b
+        return r
+    },
+    List_List_of(a, b, c) {
+        var s = P.List_List__of(a, c)
+        return s
+    },
+    List_List__of(a, b) {
+        var s, r
+        if (Array.isArray(a)) return H.b(a.slice(0), b.i("E<0>")) // JSArray<0>
+        s = H.b([], b.i("E<0>"))
+        for (r = J.by(a); r.u();) s.push(r.gC())
+        return s
+    },
+    mh(a, b, c) {
+        var s, r
+        if (Array.isArray(a)) {
+            s = a
+            r = s.length
+            c = P.cE(b, c, r)
+            return H.nZ(b > 0 || c < r ? s.slice(b, c) : s)
+        }
+        if (t.bm.b(a)) return H.tm(a, b, P.cE(b, c, a.length))
+        return P.tK(a, b, c)
+    },
+    tK(a, b, c) {
+        var s, r, q, p, o = null
+        if (b < 0) throw H.wrap_expression(P.a8(b, 0, a.length, o, o))
+        s = c == null
+        if (!s && c < b) throw H.wrap_expression(P.a8(c, b, a.length, o, o))
+        r = J.by(a)
+        for (q = 0; q < b; ++q)
+            if (!r.u()) throw H.wrap_expression(P.a8(b, 0, q, o, o))
+        p = []
+        if (s)
+            for (; r.u();) p.push(r.gC())
+        else
+            for (q = b; q < c; ++q) {
+                if (!r.u()) throw H.wrap_expression(P.a8(c, b, q, o, o))
+                p.push(r.gC())
             }
-            if (t.bm.b(a)) return H.tm(a, b, P.cE(b, c, a.length))
-            return P.tK(a, b, c)
-        },
-        tK(a, b, c) {
-            var s, r, q, p, o = null
-            if (b < 0) throw H.wrap_expression(P.a8(b, 0, a.length, o, o))
-            s = c == null
-            if (!s && c < b) throw H.wrap_expression(P.a8(c, b, a.length, o, o))
-            r = J.by(a)
-            for (q = 0; q < b; ++q)
-                if (!r.u()) throw H.wrap_expression(P.a8(b, 0, q, o, o))
-            p = []
-            if (s)
-                for (; r.u();) p.push(r.gC())
-            else
-                for (q = b; q < c; ++q) {
-                    if (!r.u()) throw H.wrap_expression(P.a8(c, b, q, o, o))
-                    p.push(r.gC())
-                }
-            return H.nZ(p)
-        },
-        RegExp_RegExp(a) {
-            return new H.JSSyntaxRegExp(a, H.JSSyntaxRegExp_makeNative(a, false, true, false, false, false))
-        },
-        o7(a, b, c) {
-            var s = J.by(b)
-            if (!s.u()) return a
-            if (c.length === 0) {
-                do a += H.as_string(s.gC())
-                while (s.u())
+        return H.nZ(p)
+    },
+    RegExp_RegExp(a) {
+        return new H.JSSyntaxRegExp(a, H.JSSyntaxRegExp_makeNative(a, false, true, false, false, false))
+    },
+    o7(a, b, c) {
+        var s = J.by(b)
+        if (!s.u()) return a
+        if (c.length === 0) {
+            do a += H.as_string(s.gC())
+            while (s.u())
+        } else {
+            a += H.as_string(s.gC())
+            for (; s.u();) a = a + c + H.as_string(s.gC())
+        }
+        return a
+    },
+    rN(a) {
+        var s = Math.abs(a),
+            r = a < 0 ? "-" : ""
+        if (s >= 1000) return "" + a
+        if (s >= 100) return r + "0" + s
+        if (s >= 10) return r + "00" + s
+        return r + "000" + s
+    },
+    rO(a) {
+        if (a >= 100) return "" + a
+        if (a >= 10) return "0" + a
+        return "00" + a
+    },
+    fk(a) {
+        if (a >= 10) return "" + a
+        return "0" + a
+    },
+    duration_milsec_sec(millsec, sec) {
+        // a: milliseconds
+        // b: seconds
+        return new P.Duration(1e6 * sec + 1000 * millsec)
+    },
+    jh(a) {
+        if (typeof a == "number" || H.lm(a) || a == null) return J.b4(a)
+        if (typeof a == "string") return JSON.stringify(a)
+        return P.Error__objectToString(a)
+    },
+    iP(a) {
+        return new P.f2(a)
+    },
+    bz(a, b) {
+        return new P.aS(false, null, b, a)
+    },
+    da(a, b, c) {
+        return new P.aS(true, a, b, c)
+    },
+    tn(a) {
+        var s = null
+        return new P.cD(s, s, false, s, s, a)
+    },
+    k0(a, b) {
+        return new P.cD(null, null, true, a, b, "Value not in range")
+    },
+    a8(a, b, c, d, e) {
+        return new P.cD(b, c, true, a, d, "Invalid value")
+    },
+    tp(a, b, c, d) {
+        if (a < b || a > c) throw H.wrap_expression(P.a8(a, b, c, d, null))
+        return a
+    },
+    cE(a, b, c) {
+        if (0 > a || a > c) throw H.wrap_expression(P.a8(a, 0, c, "start", null))
+        if (b != null) {
+            if (a > b || b > c) throw H.wrap_expression(P.a8(b, a, c, "end", null))
+            return b
+        }
+        return c
+    },
+    to(a, b) {
+        if (a < 0) throw H.wrap_expression(P.a8(a, 0, null, b, null))
+        return a
+    },
+    ft(a, b, c, d, e) {
+        var s = e == null ? J.aw(b) : e
+        return new P.fs(s, true, a, c, "Index out of range")
+    },
+    UnsupportError(a) {
+        return new P.hW(a)
+    },
+    hT(a) {
+        return new P.hS(a)
+    },
+    cd(a) {
+        return new P.bJ(a)
+    },
+    aK(a) {
+        return new P.fh(a)
+    },
+    FormatException(a, b, c) {
+        return new P.jm(a, b, c)
+    },
+    dq: function dq(a, b) {
+        this.a = a
+        this.b = b
+    },
+    Duration: function c1(a) {
+        this.a = a
+    },
+    Duration_toString_sixDigits: function jc() { },
+    Duration_toString_twoDigits: function jd() { },
+    O: function O() { },
+    f2: function f2(a) {
+        this.a = a
+    },
+    bc: function bc() { },
+    fL: function fL() { },
+    aS: function aS(a, b, c, d) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+    },
+    cD: function cD(a, b, c, d, e, f) {
+        var _ = this
+        _.e = a
+        _.f = b
+        _.a = c
+        _.b = d
+        _.c = e
+        _.d = f
+    },
+    fs: function fs(a, b, c, d, e) {
+        var _ = this
+        _.f = a
+        _.a = b
+        _.b = c
+        _.c = d
+        _.d = e
+    },
+    hW: function hW(a) {
+        this.a = a
+    },
+    hS: function hS(a) {
+        this.a = a
+    },
+    bJ: function bJ(a) {
+        this.a = a
+    },
+    fh: function fh(a) {
+        this.a = a
+    },
+    fM: function fM() { },
+    el: function el() { },
+    CyclicInitializationError: function fj(a) {
+        this.a = a
+    },
+    kG: function kG(a) {
+        this.a = a
+    },
+    jm: function jm(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    L: function L() { },
+    fv: function fv() { },
+    N: function N() { },
+    Object: function H() { },
+    iq: function iq() { },
+    cH: function cH(a) {
+        this.a = a
+    },
+    my(a) {
+        var s
+        if (t.I.b(a)) {
+            s = J.cm(a)
+            if (s.constructor === Array)
+                if (typeof CanvasPixelArray !== "undefined") {
+                    s.constructor = CanvasPixelArray
+                    s.BYTES_PER_ELEMENT = 1
+                } return a
+        }
+        return new P.eJ(a.data, a.height, a.width)
+    },
+    uO(a) {
+        if (a instanceof P.eJ) return {
+            data: a.a,
+            height: a.b,
+            width: a.c
+        }
+        return a
+    },
+    m3() {
+        return window.navigator.userAgent
+    },
+    _StructuredClone: function l4() { },
+    l5: function l5(a, b) {
+        this.a = a
+        this.b = b
+    },
+    l6: function l6(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kw: function kw() { },
+    ky: function ky(a, b) {
+        this.a = a
+        this.b = b
+    },
+    eJ: function eJ(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    _StructuredCloneDart2Js: function ir(a, b) {
+        this.a = a
+        this.b = b
+    },
+    kx: function kx(a, b) {
+        this.a = a
+        this.b = b
+        this.c = false
+    },
+    vf(a, b) {
+        var s = new P._Future($.P, b.i("U<0>")),
+            r = new P.cg(s, b.i("cg<0>"))
+        a.then(H.convert_dart_closure_to_js_md5(new P.lE(r), 1), H.convert_dart_closure_to_js_md5(new P.lF(r), 1))
+        return s
+    },
+    jQ: function jQ(a) {
+        this.a = a
+    },
+    lE: function lE(a) {
+        this.a = a
+    },
+    lF: function lF(a) {
+        this.a = a
+    },
+    o_() {
+        return C.F
+    },
+    kT: function kT() { },
+    cF: function cF() { },
+    p: function p() { }
+}
+var S = {
+    fK: function fK() { }
+}
+var T = {
+    ty(a, b, c, d, e) {
+        // SklAbsorb 的 onDamage (static)
+        // static void onDamage(Plr caster, Plr target, int dmg, R r, RunUpdates updates) {
+        var s, r, q, p = 0
+        if (c > p && !(a.fx <= p)) {
+            s = C.JsInt.P(c + 1, $.t())
+            p = a.fy
+            r = a.fx
+            q = p - r
+            if (s > q) s = q
+            a.fx = r + s
+            // [1]回复体力[2]点
+            p = LangData.get_lang("imin")
+            r = new T.HPlr(r)
+            r.a = a.e
+            r.d = a.fx
+            e.a.push(T.RunUpdate_init(p, a, r, new T.HRecover(s), null, s, 1000, 100))
+        }
+    },
+    nC(a) {
+        var s = new T.BerserkState(1, 0)
+        s.r = a
+        return s
+    },
+    tA(a, b, c, d, e) {
+        var s, r = 0
+        if (c > r && !(b.fx <= r)) {
+            if (b.a7($.aJ(), d)) return
+            s = t.aJ.a(b.r2.h(0, $.aJ()))
+            if (s == null) {
+                s = T.nC(b)
+                s.aP(0)
+                e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("jIRA"), $.nc()), a, b, null, null, $.a6(), 1000, 100))
+            } else s.fr = s.fr + 1
+            if (a.r2.J(0, $.a7())) s.fr = s.fr + 1
+        }
+    },
+    CharmState_init(a, b) {
+        var s = new T.CharmState(a, b, 1)
+        s.y = new T.PostActionImpl(s)
+        return s
+    },
+    getMinionName(plr) {
+        var s, r, q
+        for (s = t.fM; s.b(plr);) plr = plr.gap()
+        s = plr.r2
+        r = t.f5.a(s.h(0, $.na()))
+        if (r == null) {
+            r = new T.MinionCount(0)
+            s.m(0, $.na(), r)
+        }
+        s = H.as_string(plr.a) + "?"
+        q = r.b
+        r.b = q + 1
+        return s + H.as_string(q) + "@" + H.as_string(plr.b)
+    },
+    init_PlrClone(owner) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f = owner.a,
+            e = owner.b,
+            d = owner.c,
+            c = owner.d,
+            b = 0,
+            a = $.T(),
+            a0 = H.b([], t.q),
+            a1 = H.b([], t.H),
+            a2 = P.create_meta_map(t.X, t.W),
+            a3 = new Sgls.MList(t.n)
+        a3.c = a3
+        a3.b = a3
+        s = new Sgls.MList(t.p)
+        s.c = s
+        s.b = s
+        r = new Sgls.MList(t.g)
+        r.c = r
+        r.b = r
+        q = new Sgls.MList(t.G)
+        q.c = q
+        q.b = q
+        p = new Sgls.MList(t._)
+        p.c = p
+        p.b = p
+        o = new Sgls.MList(t.e)
+        o.c = o
+        o.b = o
+        n = new Sgls.MList(t.k)
+        n.c = n
+        n.b = n
+        m = new Sgls.MList(t.l)
+        m.c = m
+        m.b = m
+        l = new Sgls.MList(t.m)
+        l.c = l
+        l.b = l
+        k = t.i
+        j = H.b([], k)
+        i = H.b([], k)
+        h = H.b([], k)
+        k = H.b([], k)
+        g = 0
+        g = new T.PlrClone(f, e, d, c, b, a, a0, a1, a2, a3, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
+        g.a1(f, e, d, c)
+        g.cm = owner
+        g.e = T.getMinionName(owner instanceof T.PlrClone ? g.a6 = owner.a6 : g.a6 = owner)
+        f = owner.t
+        f = H.b(f.slice(0), H._arrayInstanceType(f))
+        g.t = f
+        return g
+    },
+    tC(a, b, c, d, e) {
+        var s, r = 0
+        if (c > r && !(b.fx <= r)) {
+            if (b.a7($.bh(), d)) return
+            r = b.r2
+            s = t.dK.a(r.h(0, $.bh()))
+            if (s == null) {
+                s = new T.CurseState(a, b, $.pK(), $.t())
+                s.y = new T.UpdateStateImpl(s)
+                r.m(0, $.bh(), s)
+                b.y2.j(0, s)
+                b.rx.j(0, s.y)
+                b.F()
             } else {
-                a += H.as_string(s.gC())
-                for (; s.u();) a = a + c + H.as_string(s.gC())
+                s.z = s.z + $.Z()
+                s.Q = s.Q + 1
             }
-            return a
-        },
-        rN(a) {
-            var s = Math.abs(a),
-                r = a < 0 ? "-" : ""
-            if (s >= 1000) return "" + a
-            if (s >= 100) return r + "0" + s
-            if (s >= 10) return r + "00" + s
-            return r + "000" + s
-        },
-        rO(a) {
-            if (a >= 100) return "" + a
-            if (a >= 10) return "0" + a
-            return "00" + a
-        },
-        fk(a) {
-            if (a >= 10) return "" + a
-            return "0" + a
-        },
-        duration_milsec_sec(millsec, sec) {
-            // a: milliseconds
-            // b: seconds
-            return new P.Duration(1e6 * sec + 1000 * millsec)
-        },
-        jh(a) {
-            if (typeof a == "number" || H.lm(a) || a == null) return J.b4(a)
-            if (typeof a == "string") return JSON.stringify(a)
-            return P.Error__objectToString(a)
-        },
-        iP(a) {
-            return new P.f2(a)
-        },
-        bz(a, b) {
-            return new P.aS(false, null, b, a)
-        },
-        da(a, b, c) {
-            return new P.aS(true, a, b, c)
-        },
-        tn(a) {
-            var s = null
-            return new P.cD(s, s, false, s, s, a)
-        },
-        k0(a, b) {
-            return new P.cD(null, null, true, a, b, "Value not in range")
-        },
-        a8(a, b, c, d, e) {
-            return new P.cD(b, c, true, a, d, "Invalid value")
-        },
-        tp(a, b, c, d) {
-            if (a < b || a > c) throw H.wrap_expression(P.a8(a, b, c, d, null))
-            return a
-        },
-        cE(a, b, c) {
-            if (0 > a || a > c) throw H.wrap_expression(P.a8(a, 0, c, "start", null))
-            if (b != null) {
-                if (a > b || b > c) throw H.wrap_expression(P.a8(b, a, c, "end", null))
-                return b
+            if (r.h(0, $.a7()) != null) {
+                s.z = s.z + $.Z()
+                s.Q = s.Q + 1
             }
-            return c
-        },
-        to(a, b) {
-            if (a < 0) throw H.wrap_expression(P.a8(a, 0, null, b, null))
-            return a
-        },
-        ft(a, b, c, d, e) {
-            var s = e == null ? J.aw(b) : e
-            return new P.fs(s, true, a, c, "Index out of range")
-        },
-        UnsupportError(a) {
-            return new P.hW(a)
-        },
-        hT(a) {
-            return new P.hS(a)
-        },
-        cd(a) {
-            return new P.bJ(a)
-        },
-        aK(a) {
-            return new P.fh(a)
-        },
-        FormatException(a, b, c) {
-            return new P.jm(a, b, c)
-        },
-        dq: function dq(a, b) {
-            this.a = a
-            this.b = b
-        },
-        Duration: function c1(a) {
-            this.a = a
-        },
-        Duration_toString_sixDigits: function jc() { },
-        Duration_toString_twoDigits: function jd() { },
-        O: function O() { },
-        f2: function f2(a) {
-            this.a = a
-        },
-        bc: function bc() { },
-        fL: function fL() { },
-        aS: function aS(a, b, c, d) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-        },
-        cD: function cD(a, b, c, d, e, f) {
-            var _ = this
-            _.e = a
-            _.f = b
-            _.a = c
-            _.b = d
-            _.c = e
-            _.d = f
-        },
-        fs: function fs(a, b, c, d, e) {
-            var _ = this
-            _.f = a
-            _.a = b
-            _.b = c
-            _.c = d
-            _.d = e
-        },
-        hW: function hW(a) {
-            this.a = a
-        },
-        hS: function hS(a) {
-            this.a = a
-        },
-        bJ: function bJ(a) {
-            this.a = a
-        },
-        fh: function fh(a) {
-            this.a = a
-        },
-        fM: function fM() { },
-        el: function el() { },
-        CyclicInitializationError: function fj(a) {
-            this.a = a
-        },
-        kG: function kG(a) {
-            this.a = a
-        },
-        jm: function jm(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        L: function L() { },
-        fv: function fv() { },
-        N: function N() { },
-        Object: function H() { },
-        iq: function iq() { },
-        cH: function cH(a) {
-            this.a = a
-        },
-        my(a) {
-            var s
-            if (t.I.b(a)) {
-                s = J.cm(a)
-                if (s.constructor === Array)
-                    if (typeof CanvasPixelArray !== "undefined") {
-                        s.constructor = CanvasPixelArray
-                        s.BYTES_PER_ELEMENT = 1
-                    } return a
-            }
-            return new P.eJ(a.data, a.height, a.width)
-        },
-        uO(a) {
-            if (a instanceof P.eJ) return {
-                data: a.a,
-                height: a.b,
-                width: a.c
-            }
-            return a
-        },
-        m3() {
-            return window.navigator.userAgent
-        },
-        _StructuredClone: function l4() { },
-        l5: function l5(a, b) {
-            this.a = a
-            this.b = b
-        },
-        l6: function l6(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kw: function kw() { },
-        ky: function ky(a, b) {
-            this.a = a
-            this.b = b
-        },
-        eJ: function eJ(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        _StructuredCloneDart2Js: function ir(a, b) {
-            this.a = a
-            this.b = b
-        },
-        kx: function kx(a, b) {
-            this.a = a
-            this.b = b
-            this.c = false
-        },
-        vf(a, b) {
-            var s = new P._Future($.P, b.i("U<0>")),
-                r = new P.cg(s, b.i("cg<0>"))
-            a.then(H.convert_dart_closure_to_js_md5(new P.lE(r), 1), H.convert_dart_closure_to_js_md5(new P.lF(r), 1))
-            return s
-        },
-        jQ: function jQ(a) {
-            this.a = a
-        },
-        lE: function lE(a) {
-            this.a = a
-        },
-        lF: function lF(a) {
-            this.a = a
-        },
-        o_() {
-            return C.F
-        },
-        kT: function kT() { },
-        cF: function cF() { },
-        p: function p() { }
+            e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("spfN"), $.qx()), a, b, null, null, $.a6(), 1000, 100))
+        }
     },
-    S = {
-        fK: function fK() { }
+    tD(a, b, c, d, e) {
+        var s, r, q, p, o
+        if (c > 0) {
+            s = b.r2
+            r = s.gad(s)
+            q = P.List_List_of(r, true, H._instanceType(r).i("L.E"))
+            C.Array.aJ(q)
+            for (r = q.length, p = 0; p < q.length; q.length === r || (0, H.F)(q), ++p) {
+                o = s.h(0, q[p])
+                if (o.gT() > 0) o.K(a, e)
+            }
+            s = b.go
+            r = $.au()
+            if (s > r) b.go = s - r
+            else {
+                r = $.at()
+                if (s > r) b.go = 0
+                else b.go = s - r
+            }
+        }
     },
-    T = {
-        ty(a, b, c, d, e) {
-            // SklAbsorb 的 onDamage (static)
-            // static void onDamage(Plr caster, Plr target, int dmg, R r, RunUpdates updates) {
-            var s, r, q, p = 0
-            if (c > p && !(a.fx <= p)) {
-                s = C.JsInt.P(c + 1, $.t())
-                p = a.fy
-                r = a.fx
-                q = p - r
-                if (s > q) s = q
-                a.fx = r + s
-                // [1]回复体力[2]点
-                p = LangData.get_lang("imin")
-                r = new T.HPlr(r)
-                r.a = a.e
-                r.d = a.fx
-                e.a.push(T.RunUpdate_init(p, a, r, new T.HRecover(s), null, s, 1000, 100))
+    tE(a, b, c, d, e) {
+        var s, r = 0
+        if (c > r && !(b.fx <= r)) {
+            if (b.a7($.eY(), d)) return
+            r = b.r2
+            s = t.a.a(r.h(0, $.eY()))
+            if (s == null) {
+                s = new T.FireState($.ao())
+                r.m(0, $.eY(), s)
             }
-        },
-        nC(a) {
-            var s = new T.BerserkState(1, 0)
-            s.r = a
-            return s
-        },
-        tA(a, b, c, d, e) {
-            var s, r = 0
-            if (c > r && !(b.fx <= r)) {
-                if (b.a7($.aJ(), d)) return
-                s = t.aJ.a(b.r2.h(0, $.aJ()))
-                if (s == null) {
-                    s = T.nC(b)
-                    s.aP(0)
-                    e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("jIRA"), $.nc()), a, b, null, null, $.a6(), 1000, 100))
-                } else s.fr = s.fr + 1
-                if (a.r2.J(0, $.a7())) s.fr = s.fr + 1
-            }
-        },
-        CharmState_init(a, b) {
-            var s = new T.CharmState(a, b, 1)
-            s.y = new T.PostActionImpl(s)
-            return s
-        },
-        getMinionName(plr) {
-            var s, r, q
-            for (s = t.fM; s.b(plr);) plr = plr.gap()
-            s = plr.r2
-            r = t.f5.a(s.h(0, $.na()))
+            s.b = s.b + $.b0()
+        }
+    },
+    tF(a, b, c, d, e) {
+        var ica_state, r = 0
+        if (c > r && !(b.fx <= r)) {
+            if (b.a7($.bS(), d)) return
+            r = b.r2
+            ica_state = t.ck.a(r.h(0, $.bS()))
+            if (ica_state == null) {
+                ica_state = new T.IceState(b, $.cX())
+                ica_state.x = new T.PreStepImpl(ica_state)
+                r.m(0, $.bS(), ica_state)
+                b.rx.j(0, ica_state)
+                b.ry.j(0, ica_state.x)
+                b.F()
+            } else ica_state.y = ica_state.y + $.cX()
+
+            // iceState.frozenStep += 2048;
+            if (a.r2.J(0, $.a7())) ica_state.y = ica_state.y + $.bx()
+            // sklIceHit
+            // [1]被[冰冻]了
+            r = T.RunUpdate_init(C.String.B(LangData.get_lang("HBga"), $.qF()), a, b, null, null, $.bg(), 1000, 100)
+            e.a.push(r)
+        }
+    },
+    tI(a, b, c, d, e) {
+        var s, r
+        if (c > $.C() && !(b.fx <= 0)) {
+            if (b.a7($.bT(), d)) return
+            s = b.r2
+            r = t.ax.a(s.h(0, $.bT()))
             if (r == null) {
-                r = new T.MinionCount(0)
-                s.m(0, $.na(), r)
+                r = new T.PoisonState(a, b, $.C())
+                r.y = T.getAt(a, true, d) * $.eV()
+                s.m(0, $.bT(), r)
+                b.x2.j(0, r)
+            } else {
+                r.y = r.y + T.getAt(a, true, d) * $.eV()
+                r.z = $.C()
+                r.r = a
             }
-            s = H.as_string(plr.a) + "?"
-            q = r.b
-            r.b = q + 1
-            return s + H.as_string(q) + "@" + H.as_string(plr.b)
-        },
-        init_PlrClone(owner) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f = owner.a,
-                e = owner.b,
-                d = owner.c,
-                c = owner.d,
-                b = 0,
-                a = $.T(),
-                a0 = H.b([], t.q),
-                a1 = H.b([], t.H),
-                a2 = P.create_meta_map(t.X, t.W),
-                a3 = new Sgls.MList(t.n)
-            a3.c = a3
-            a3.b = a3
-            s = new Sgls.MList(t.p)
-            s.c = s
-            s.b = s
-            r = new Sgls.MList(t.g)
-            r.c = r
-            r.b = r
-            q = new Sgls.MList(t.G)
-            q.c = q
-            q.b = q
-            p = new Sgls.MList(t._)
-            p.c = p
-            p.b = p
-            o = new Sgls.MList(t.e)
-            o.c = o
-            o.b = o
-            n = new Sgls.MList(t.k)
+            e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("Okln"), $.qH()), a, b, null, null, $.a6(), 1000, 100))
+        }
+    },
+    getAt(a, b, c) {
+        var s, r, q, p, o = b ? a.dx : a.ch,
+            n = t.i,
+            m = H.b([c.n() & 127, c.n() & 127, c.n() & 127, o + $.au(), o], n)
+        C.Array.aJ(m)
+        s = m[$.t()]
+        m = c.n()
+        r = $.au()
+        q = c.n()
+        p = $.au()
+        n = H.b([(m & 63) + r, (q & 63) + p, o + p], n)
+        C.Array.aJ(n)
+        return s * n[1] * a.id
+    },
+    d9(a, b, c) {
+        if (b) return a.dy + $.au()
+        return a.cx + $.au()
+    },
+    bW(a, b, c) {
+        var s = $.eW() + b - a,
+            r = $.ap()
+        if (s < r) s = r
+        if (s > $.au()) s = C.JsInt.P(s, $.C()) + $.aI()
+        return c.n() <= s
+    },
+    rateHiHp(a) {
+        var s = a.fx
+        if (s < $.as()) return $.pz()
+        if (s > $.mR()) return $.py()
+        return s
+    },
+    choose_boss(name, clan_name, fgt, weapon_name) {
+        // MARK: WTF 什么鬼这么长
+        var team_name, fgt, q, p, o, n, m, l, k, j, i, h, g, f, e, d, c, b, a, a0, a1, a2, a3 = null
+        if (clan_name == $.nk()) {
+            team_name = 0
+            fgt = $.T()
+            q = H.b([], t.q)
+            p = H.b([], t.H)
+            o = P.create_meta_map(t.X, t.W)
+            n = new Sgls.MList(t.n)
             n.c = n
             n.b = n
-            m = new Sgls.MList(t.l)
+            m = new Sgls.MList(t.p)
             m.c = m
             m.b = m
-            l = new Sgls.MList(t.m)
+            l = new Sgls.MList(t.g)
             l.c = l
             l.b = l
-            k = t.i
-            j = H.b([], k)
-            i = H.b([], k)
-            h = H.b([], k)
-            k = H.b([], k)
-            g = 0
-            g = new T.PlrClone(f, e, d, c, b, a, a0, a1, a2, a3, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
-            g.a1(f, e, d, c)
-            g.cm = owner
-            g.e = T.getMinionName(owner instanceof T.PlrClone ? g.a6 = owner.a6 : g.a6 = owner)
-            f = owner.t
-            f = H.b(f.slice(0), H._arrayInstanceType(f))
-            g.t = f
-            return g
-        },
-        tC(a, b, c, d, e) {
-            var s, r = 0
-            if (c > r && !(b.fx <= r)) {
-                if (b.a7($.bh(), d)) return
-                r = b.r2
-                s = t.dK.a(r.h(0, $.bh()))
-                if (s == null) {
-                    s = new T.CurseState(a, b, $.pK(), $.t())
-                    s.y = new T.UpdateStateImpl(s)
-                    r.m(0, $.bh(), s)
-                    b.y2.j(0, s)
-                    b.rx.j(0, s.y)
-                    b.F()
-                } else {
-                    s.z = s.z + $.Z()
-                    s.Q = s.Q + 1
-                }
-                if (r.h(0, $.a7()) != null) {
-                    s.z = s.z + $.Z()
-                    s.Q = s.Q + 1
-                }
-                e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("spfN"), $.qx()), a, b, null, null, $.a6(), 1000, 100))
-            }
-        },
-        tD(a, b, c, d, e) {
-            var s, r, q, p, o
-            if (c > 0) {
-                s = b.r2
-                r = s.gad(s)
-                q = P.List_List_of(r, true, H._instanceType(r).i("L.E"))
-                C.Array.aJ(q)
-                for (r = q.length, p = 0; p < q.length; q.length === r || (0, H.F)(q), ++p) {
-                    o = s.h(0, q[p])
-                    if (o.gT() > 0) o.K(a, e)
-                }
-                s = b.go
-                r = $.au()
-                if (s > r) b.go = s - r
-                else {
-                    r = $.at()
-                    if (s > r) b.go = 0
-                    else b.go = s - r
-                }
-            }
-        },
-        tE(a, b, c, d, e) {
-            var s, r = 0
-            if (c > r && !(b.fx <= r)) {
-                if (b.a7($.eY(), d)) return
-                r = b.r2
-                s = t.a.a(r.h(0, $.eY()))
-                if (s == null) {
-                    s = new T.FireState($.ao())
-                    r.m(0, $.eY(), s)
-                }
-                s.b = s.b + $.b0()
-            }
-        },
-        tF(a, b, c, d, e) {
-            var ica_state, r = 0
-            if (c > r && !(b.fx <= r)) {
-                if (b.a7($.bS(), d)) return
-                r = b.r2
-                ica_state = t.ck.a(r.h(0, $.bS()))
-                if (ica_state == null) {
-                    ica_state = new T.IceState(b, $.cX())
-                    ica_state.x = new T.PreStepImpl(ica_state)
-                    r.m(0, $.bS(), ica_state)
-                    b.rx.j(0, ica_state)
-                    b.ry.j(0, ica_state.x)
-                    b.F()
-                } else ica_state.y = ica_state.y + $.cX()
-
-                // iceState.frozenStep += 2048;
-                if (a.r2.J(0, $.a7())) ica_state.y = ica_state.y + $.bx()
-                // sklIceHit
-                // [1]被[冰冻]了
-                r = T.RunUpdate_init(C.String.B(LangData.get_lang("HBga"), $.qF()), a, b, null, null, $.bg(), 1000, 100)
-                e.a.push(r)
-            }
-        },
-        tI(a, b, c, d, e) {
-            var s, r
-            if (c > $.C() && !(b.fx <= 0)) {
-                if (b.a7($.bT(), d)) return
-                s = b.r2
-                r = t.ax.a(s.h(0, $.bT()))
-                if (r == null) {
-                    r = new T.PoisonState(a, b, $.C())
-                    r.y = T.getAt(a, true, d) * $.eV()
-                    s.m(0, $.bT(), r)
-                    b.x2.j(0, r)
-                } else {
-                    r.y = r.y + T.getAt(a, true, d) * $.eV()
-                    r.z = $.C()
-                    r.r = a
-                }
-                e.a.push(T.RunUpdate_init(C.String.B(LangData.get_lang("Okln"), $.qH()), a, b, null, null, $.a6(), 1000, 100))
-            }
-        },
-        getAt(a, b, c) {
-            var s, r, q, p, o = b ? a.dx : a.ch,
-                n = t.i,
-                m = H.b([c.n() & 127, c.n() & 127, c.n() & 127, o + $.au(), o], n)
-            C.Array.aJ(m)
-            s = m[$.t()]
-            m = c.n()
-            r = $.au()
-            q = c.n()
-            p = $.au()
-            n = H.b([(m & 63) + r, (q & 63) + p, o + p], n)
-            C.Array.aJ(n)
-            return s * n[1] * a.id
-        },
-        d9(a, b, c) {
-            if (b) return a.dy + $.au()
-            return a.cx + $.au()
-        },
-        bW(a, b, c) {
-            var s = $.eW() + b - a,
-                r = $.ap()
-            if (s < r) s = r
-            if (s > $.au()) s = C.JsInt.P(s, $.C()) + $.aI()
-            return c.n() <= s
-        },
-        rateHiHp(a) {
-            var s = a.fx
-            if (s < $.as()) return $.pz()
-            if (s > $.mR()) return $.py()
-            return s
-        },
-        choose_boss(name, clan_name, fgt, weapon_name) {
-            // MARK: WTF 什么鬼这么长
-            var team_name, r, q, p, o, n, m, l, k, j, i, h, g, f, e, d, c, b, a, a0, a1, a2, a3 = null
-            if (clan_name == $.nk()) {
-                team_name = 0
-                r = $.T()
-                q = H.b([], t.q)
-                p = H.b([], t.H)
-                o = P.create_meta_map(t.X, t.W)
-                n = new Sgls.MList(t.n)
-                n.c = n
-                n.b = n
-                m = new Sgls.MList(t.p)
-                m.c = m
-                m.b = m
-                l = new Sgls.MList(t.g)
-                l.c = l
-                l.b = l
-                k = new Sgls.MList(t.G)
+            k = new Sgls.MList(t.G)
+            k.c = k
+            k.b = k
+            j = new Sgls.MList(t._)
+            j.c = j
+            j.b = j
+            i = new Sgls.MList(t.e)
+            i.c = i
+            i.b = i
+            h = new Sgls.MList(t.k)
+            h.c = h
+            h.b = h
+            g = new Sgls.MList(t.l)
+            g.c = g
+            g.b = g
+            f = new Sgls.MList(t.m)
+            f.c = f
+            f.b = f
+            e = t.i
+            d = H.b([], e)
+            c = H.b([], e)
+            b = H.b([], e)
+            e = H.b([], e)
+            a = 0
+            a = new T.PlrBossTest(name, clan_name, name, a3, team_name, fgt, q, p, o, n, m, l, k, j, i, h, g, f, d, c, b, e, a, a, a, $.W(), a)
+            a.a1(name, clan_name, name, a3)
+            a.e4(name, clan_name, fgt)
+            return a
+        }
+        // MARK: BOSS INIT(上面也是)
+        // \u0003
+        if (clan_name == $.qR()) {
+            team_name = 0
+            fgt = $.T()
+            q = H.b([], t.q)
+            p = H.b([], t.H)
+            o = P.create_meta_map(t.X, t.W)
+            n = new Sgls.MList(t.n)
+            n.c = n
+            n.b = n
+            m = new Sgls.MList(t.p)
+            m.c = m
+            m.b = m
+            l = new Sgls.MList(t.g)
+            l.c = l
+            l.b = l
+            k = new Sgls.MList(t.G)
+            k.c = k
+            k.b = k
+            j = new Sgls.MList(t._)
+            j.c = j
+            j.b = j
+            i = new Sgls.MList(t.e)
+            i.c = i
+            i.b = i
+            h = new Sgls.MList(t.k)
+            h.c = h
+            h.b = h
+            g = new Sgls.MList(t.l)
+            g.c = g
+            g.b = g
+            f = new Sgls.MList(t.m)
+            f.c = f
+            f.b = f
+            e = t.i
+            d = H.b([], e)
+            c = H.b([], e)
+            b = H.b([], e)
+            e = H.b([], e)
+            a = 0
+            a = new T.PlrBossTest2(name, clan_name, name, a3, team_name, fgt, q, p, o, n, m, l, k, j, i, h, g, f, d, c, b, e, a, a, a, $.W(), a)
+            a.a1(name, clan_name, name, a3)
+            a.e5(name, clan_name)
+            return a
+        }
+        // MARK: 强评?
+        // cl -> !
+        team_name = $.cl()
+        if (clan_name == team_name) {
+            if (name == $.lQ()) {
+                fgt = 0
+                q = H.as_string(name) + H.as_string($.aD())
+                p = 0
+                o = $.T()
+                n = H.b([], t.q)
+                m = H.b([], t.H)
+                l = P.create_meta_map(t.X, t.W)
+                k = new Sgls.MList(t.n)
                 k.c = k
                 k.b = k
-                j = new Sgls.MList(t._)
+                j = new Sgls.MList(t.p)
                 j.c = j
                 j.b = j
-                i = new Sgls.MList(t.e)
+                i = new Sgls.MList(t.g)
                 i.c = i
                 i.b = i
-                h = new Sgls.MList(t.k)
+                h = new Sgls.MList(t.G)
                 h.c = h
                 h.b = h
-                g = new Sgls.MList(t.l)
+                g = new Sgls.MList(t._)
                 g.c = g
                 g.b = g
-                f = new Sgls.MList(t.m)
+                f = new Sgls.MList(t.e)
                 f.c = f
                 f.b = f
-                e = t.i
-                d = H.b([], e)
-                c = H.b([], e)
-                b = H.b([], e)
-                e = H.b([], e)
-                a = 0
-                a = new T.PlrBossTest(name, clan_name, name, a3, team_name, r, q, p, o, n, m, l, k, j, i, h, g, f, d, c, b, e, a, a, a, $.W(), a)
-                a.a1(name, clan_name, name, a3)
-                a.e4(name, clan_name, fgt)
-                return a
-            }
-            // MARK: BOSS INIT(上面也是)
-            // \u0003
-            if (clan_name == $.qR()) {
-                team_name = 0
-                r = $.T()
-                q = H.b([], t.q)
-                p = H.b([], t.H)
-                o = P.create_meta_map(t.X, t.W)
-                n = new Sgls.MList(t.n)
-                n.c = n
-                n.b = n
-                m = new Sgls.MList(t.p)
-                m.c = m
-                m.b = m
-                l = new Sgls.MList(t.g)
-                l.c = l
-                l.b = l
-                k = new Sgls.MList(t.G)
-                k.c = k
-                k.b = k
-                j = new Sgls.MList(t._)
-                j.c = j
-                j.b = j
-                i = new Sgls.MList(t.e)
-                i.c = i
-                i.b = i
-                h = new Sgls.MList(t.k)
-                h.c = h
-                h.b = h
-                g = new Sgls.MList(t.l)
-                g.c = g
-                g.b = g
-                f = new Sgls.MList(t.m)
-                f.c = f
-                f.b = f
-                e = t.i
-                d = H.b([], e)
-                c = H.b([], e)
-                b = H.b([], e)
-                e = H.b([], e)
-                a = 0
-                a = new T.PlrBossTest2(name, clan_name, name, a3, team_name, r, q, p, o, n, m, l, k, j, i, h, g, f, d, c, b, e, a, a, a, $.W(), a)
-                a.a1(name, clan_name, name, a3)
-                a.e5(name, clan_name)
-                return a
-            }
-            // MARK: 强评?
-            // cl -> !
-            team_name = $.cl()
-            if (clan_name == team_name) {
-                if (name == $.lQ()) {
-                    r = 0
-                    q = H.as_string(name) + H.as_string($.aD())
-                    p = 0
-                    o = $.T()
-                    n = H.b([], t.q)
-                    m = H.b([], t.H)
-                    l = P.create_meta_map(t.X, t.W)
-                    k = new Sgls.MList(t.n)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.p)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.g)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t.G)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t._)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.e)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.k)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.l)
-                    d.c = d
-                    d.b = d
-                    c = new Sgls.MList(t.m)
-                    c.c = c
-                    c.b = c
-                    b = t.i
-                    a = H.b([], b)
-                    a0 = H.b([], b)
-                    a1 = H.b([], b)
-                    b = H.b([], b)
-                    a2 = 0
-                    a2 = new T.PlrBossMario(r, name, team_name, q, a3, p, o, n, m, l, k, j, i, h, g, f, e, d, c, a, a0, a1, b, a2, a2, a2, $.W(), a2)
-                    a2.a1(name, team_name, q, a3)
-                    a2.av(name, team_name)
-                    return a2
-                }
-                if (name == $.qP()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossSonic(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.qo()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossMosquito(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.qY()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossYuri(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                // slime
-                if (name == $.qO()) return T.init_BossSlime(name, team_name)
-                if (name == $.qh()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossIkaruga(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.qb()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossConan(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.q9()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossAokiji(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.d5()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossLazy(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                // covid
-                if (name == $.ck()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossCovid(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                if (name == $.qL()) {
-                    r = H.as_string(name) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBossSaitama(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    a1.av(name, team_name)
-                    return a1
-                }
-                r = $.ni()
-                // seed:
-                if (J.m1(name, r)) {
-                    // startwith seed:
-                    r = H.as_string(r) + H.as_string($.aD())
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrSeed(name, team_name, r, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, r, a3)
-                    r = a1.r = C.String.ay(name, $.X())
-                    team_name = $.C()
-                    $.vq = r.length > team_name && C.String.a8(r, team_name) === $.q0() ? $.pE() : $.mS()
-                    return a1
-                }
-                // boosted
-                if ($.nr().J(0, name)) {
-                    team_name = $.cl()
-                    r = $.nr().h(0, name)
-                    q = 0
-                    p = $.T()
-                    o = H.b([], t.q)
-                    n = H.b([], t.H)
-                    m = P.create_meta_map(t.X, t.W)
-                    l = new Sgls.MList(t.n)
-                    l.c = l
-                    l.b = l
-                    k = new Sgls.MList(t.p)
-                    k.c = k
-                    k.b = k
-                    j = new Sgls.MList(t.g)
-                    j.c = j
-                    j.b = j
-                    i = new Sgls.MList(t.G)
-                    i.c = i
-                    i.b = i
-                    h = new Sgls.MList(t._)
-                    h.c = h
-                    h.b = h
-                    g = new Sgls.MList(t.e)
-                    g.c = g
-                    g.b = g
-                    f = new Sgls.MList(t.k)
-                    f.c = f
-                    f.b = f
-                    e = new Sgls.MList(t.l)
-                    e.c = e
-                    e.b = e
-                    d = new Sgls.MList(t.m)
-                    d.c = d
-                    d.b = d
-                    c = t.i
-                    b = H.b([], c)
-                    a = H.b([], c)
-                    a0 = H.b([], c)
-                    c = H.b([], c)
-                    a1 = 0
-                    a1 = new T.PlrBoost(r, name, team_name, name, weapon_name, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
-                    a1.a1(name, team_name, name, weapon_name)
-                    a1.e1(name, team_name, r, weapon_name)
-                    return a1
-                }
-                team_name = $.cl()
-                r = 0
-                q = $.T()
-                p = H.b([], t.q)
-                o = H.b([], t.H)
-                n = P.create_meta_map(t.X, t.W)
-                m = new Sgls.MList(t.n)
-                m.c = m
-                m.b = m
-                l = new Sgls.MList(t.p)
-                l.c = l
-                l.b = l
-                k = new Sgls.MList(t.g)
-                k.c = k
-                k.b = k
-                j = new Sgls.MList(t.G)
-                j.c = j
-                j.b = j
-                i = new Sgls.MList(t._)
-                i.c = i
-                i.b = i
-                h = new Sgls.MList(t.e)
-                h.c = h
-                h.b = h
-                g = new Sgls.MList(t.k)
-                g.c = g
-                g.b = g
-                f = new Sgls.MList(t.l)
-                f.c = f
-                f.b = f
-                e = new Sgls.MList(t.m)
+                e = new Sgls.MList(t.k)
                 e.c = e
                 e.b = e
-                d = t.i
-                c = H.b([], d)
-                b = H.b([], d)
-                a = H.b([], d)
-                d = H.b([], d)
-                a0 = 0
-                a0 = new T.PlrEx(name, team_name, name, weapon_name, r, q, p, o, n, m, l, k, j, i, h, g, f, e, c, b, a, d, a0, a0, a0, $.W(), a0)
-                a0.a1(name, team_name, name, weapon_name)
-                a0.e2(name, team_name, name, weapon_name)
-                return a0
+                d = new Sgls.MList(t.l)
+                d.c = d
+                d.b = d
+                c = new Sgls.MList(t.m)
+                c.c = c
+                c.b = c
+                b = t.i
+                a = H.b([], b)
+                a0 = H.b([], b)
+                a1 = H.b([], b)
+                b = H.b([], b)
+                a2 = 0
+                a2 = new T.PlrBossMario(fgt, name, team_name, q, a3, p, o, n, m, l, k, j, i, h, g, f, e, d, c, a, a0, a1, b, a2, a2, a2, $.W(), a2)
+                a2.a1(name, team_name, q, a3)
+                a2.av(name, team_name)
+                return a2
             }
-            return T.init_plr(name, clan_name, a3, weapon_name)
-        },
-        oq(a) {
-            var s = a.d
-            if (s != null) s = C.String.cl(s, $.qm()) || C.String.cl(s, $.qn())
-            else s = false
-            return s
-        },
-        j7(a, b, c, d, e) {
-            // Plr caster, Plr target, int mutation, R r, RunUpdates updates
-            var s, r, q, p, o, n = b.r2,
-                m = t.cu,
-                l = m.a(n.h(0, $.ck()))
-            if (l != null) s = l.b && !l.c.w(0, c)
-            else s = true
-            if (s) {
-                s = 0
-                r = new T.CovidState(a, b, s, c, s)
-                r.k1 = new T.PostActionImpl(r)
-                r.k2 = new T.PreActionImpl(r)
-                m = m.a(n.h(0, $.ck()))
-                r.id = m
-                s = r.go
-                if (m != null) m.c.j(0, s)
-                else {
-                    m = P.c5(t.B)
-                    q = new T.CovidMeta(m)
-                    m.j(0, s)
-                    r.id = q
-                    n.m(0, $.ck(), q)
-                }
-                b.x2.j(0, r.k1)
-                b.x1.j(0, r.k2)
-                b.F()
-                // sklCovidHit
-                // [1]感染了[新冠病毒]
-                e.a.push(T.RunUpdate_init(LangData.get_lang("toAn"), a, b, null, null, 0, 1000, 100))
-                for (n = a.y.a.e, m = n.length, p = 0; p < n.length; n.length === m || (0, H.F)(n), ++p) {
-                    o = n[p]
-                    // if (J.Y(o, b)) {
-                    if (o === b) {
-                        // p.spsum += 2048
-                        o.l = o.l + $.bx()
-                    } else {
-                        // p.spsum -= 256
-                        o.l = o.l - $.eX()
-                    }
-                }
-                return true
+            if (name == $.qP()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossSonic(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
             }
-            return false
-        },
-        tB(a, b, c, d, e) {
-            if (b.r2.h(0, $.ck()) == null && (d.n() & 63) + 1 < c) T.j7(a, b, $.bg(), d, e)
-        },
-        LazyState_init(a, b) {
-            var s = new T.LazyState(a, b, 0)
-            s.fy = new T.PostActionImpl(s)
-            s.go = new T.UpdateStateImpl(s)
-            s.id = new T.PreActionImpl(s)
-            return s
-        },
-        beLazy(a, b, c) {
-            var s, r = null,
-                q = 1000,
-                p = b.n()
-            if (p < $.b1()) {
-                s = c.a
-                s.push(T.RunUpdate_init(LangData.get_lang("yZbn"), a, r, r, r, 0, q, 100))
-            } else if (p < $.ci()) {
-                s = c.a
-                s.push(T.RunUpdate_init(LangData.get_lang("PdCA"), a, r, r, r, 0, q, 100))
-            } else if (p < $.mJ()) {
-                s = c.a
-                s.push(T.RunUpdate_init(LangData.get_lang("gjTN"), a, r, r, r, 0, q, 100))
-            } else if (p < $.pc()) {
-                s = c.a
-                s.push(T.RunUpdate_init(LangData.get_lang("xraA"), a, r, r, r, 0, q, 100))
-            } else {
-                s = c.a
-                if (p < $.pp())
-                    s.push(T.RunUpdate_init(LangData.get_lang("OBXn"), a, r, r, r, 0, q, 100))
-                else
-                    s.push(T.RunUpdate_init(LangData.get_lang("fNKA"), a, r, r, r, 0, q, 100))
+            if (name == $.qo()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossMosquito(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
             }
-            s.push(T.RunUpdate_init(LangData.get_lang("hXqA"), a, r, r, r, 0, q, 100))
-        },
-        tG(a, b, c, d, e) {
-            if (t.r.a(b.r2.h(0, $.d5())) == null && !(b instanceof T.PlrBossLazy)) {
-                T.LazyState_init(a, b).aP(0)
-                e.a.push(T.RunUpdate_init(LangData.get_lang("JnTA"), a, b, null, null, 0, 1000, 100))
+            if (name == $.qY()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossYuri(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
             }
-        },
-        tH(a, b) {
-            var s = new T.SklMarioReraise(b, 0)
-            s.r = a
-            return s
-        },
-        init_BossSlime(a2, a3) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f = 0,
-                e = H.as_string(a2) + H.as_string($.aD()),
-                d = 0,
-                c = $.T(),
-                b = H.b([], t.q),
-                a = H.b([], t.H),
-                a0 = P.create_meta_map(t.X, t.W),
-                a1 = new Sgls.MList(t.n)
-            a1.c = a1
-            a1.b = a1
-            s = new Sgls.MList(t.p)
-            s.c = s
-            s.b = s
-            r = new Sgls.MList(t.g)
-            r.c = r
-            r.b = r
-            q = new Sgls.MList(t.G)
-            q.c = q
-            q.b = q
-            p = new Sgls.MList(t._)
-            p.c = p
-            p.b = p
-            o = new Sgls.MList(t.e)
-            o.c = o
-            o.b = o
-            n = new Sgls.MList(t.k)
-            n.c = n
-            n.b = n
-            m = new Sgls.MList(t.l)
+            // slime
+            if (name == $.qO()) return T.init_BossSlime(name, team_name)
+            if (name == $.qh()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossIkaruga(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            if (name == $.qb()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossConan(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            if (name == $.q9()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossAokiji(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            if (name == $.d5()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossLazy(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            // covid
+            if (name == $.ck()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossCovid(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            if (name == $.qL()) {
+                fgt = H.as_string(name) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBossSaitama(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, fgt, a3)
+                a1.av(name, team_name)
+                return a1
+            }
+            fgt = $.ni()
+            // seed:
+            if (J.m1(name, fgt)) {
+                // startwith seed:
+                // $.aD = @!
+                fgt = H.as_string(fgt) + H.as_string($.aD())
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = new T.PlrSeed(name, team_name, fgt, a3, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, 0, 0, 0, $.W(), 0)
+                a1.a1(name, team_name, fgt, a3)
+                fgt = a1.r = C.String.ay(name, $.X())
+                team_name = $.C()
+                $.vq = fgt.length > team_name && C.String.a8(fgt, team_name) === $.q0() ? $.pE() : $.mS()
+                return a1
+            }
+            // boosted
+            if ($.nr().J(0, name)) {
+                team_name = $.cl()
+                fgt = $.nr().h(0, name)
+                q = 0
+                p = $.T()
+                o = H.b([], t.q)
+                n = H.b([], t.H)
+                m = P.create_meta_map(t.X, t.W)
+                l = new Sgls.MList(t.n)
+                l.c = l
+                l.b = l
+                k = new Sgls.MList(t.p)
+                k.c = k
+                k.b = k
+                j = new Sgls.MList(t.g)
+                j.c = j
+                j.b = j
+                i = new Sgls.MList(t.G)
+                i.c = i
+                i.b = i
+                h = new Sgls.MList(t._)
+                h.c = h
+                h.b = h
+                g = new Sgls.MList(t.e)
+                g.c = g
+                g.b = g
+                f = new Sgls.MList(t.k)
+                f.c = f
+                f.b = f
+                e = new Sgls.MList(t.l)
+                e.c = e
+                e.b = e
+                d = new Sgls.MList(t.m)
+                d.c = d
+                d.b = d
+                c = t.i
+                b = H.b([], c)
+                a = H.b([], c)
+                a0 = H.b([], c)
+                c = H.b([], c)
+                a1 = 0
+                a1 = new T.PlrBoost(fgt, name, team_name, name, weapon_name, q, p, o, n, m, l, k, j, i, h, g, f, e, d, b, a, a0, c, a1, a1, a1, $.W(), a1)
+                a1.a1(name, team_name, name, weapon_name)
+                a1.e1(name, team_name, fgt, weapon_name)
+                return a1
+            }
+            team_name = $.cl()
+            fgt = 0
+            q = $.T()
+            p = H.b([], t.q)
+            o = H.b([], t.H)
+            n = P.create_meta_map(t.X, t.W)
+            m = new Sgls.MList(t.n)
             m.c = m
             m.b = m
-            l = new Sgls.MList(t.m)
+            l = new Sgls.MList(t.p)
             l.c = l
             l.b = l
-            k = t.i
-            j = H.b([], k)
-            i = H.b([], k)
-            h = H.b([], k)
-            k = H.b([], k)
-            g = 0
-            g = new T.PlrBossSlime(f, a2, a3, e, null, d, c, b, a, a0, a1, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
-            g.a1(a2, a3, e, null)
-            g.av(a2, a3)
-            return g
-        },
-        init_BossSlime2(a2, a3, a4) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f = 0,
-                e = H.as_string(a3) + H.as_string($.aD()),
-                d = 0,
-                c = $.T(),
-                b = H.b([], t.q),
-                a = H.b([], t.H),
-                a0 = P.create_meta_map(t.X, t.W),
-                a1 = new Sgls.MList(t.n)
-            a1.c = a1
-            a1.b = a1
-            s = new Sgls.MList(t.p)
-            s.c = s
-            s.b = s
-            r = new Sgls.MList(t.g)
-            r.c = r
-            r.b = r
-            q = new Sgls.MList(t.G)
-            q.c = q
-            q.b = q
-            p = new Sgls.MList(t._)
-            p.c = p
-            p.b = p
-            o = new Sgls.MList(t.e)
-            o.c = o
-            o.b = o
-            n = new Sgls.MList(t.k)
-            n.c = n
-            n.b = n
-            m = new Sgls.MList(t.l)
-            m.c = m
-            m.b = m
-            l = new Sgls.MList(t.m)
-            l.c = l
-            l.b = l
-            k = t.i
-            j = H.b([], k)
-            i = H.b([], k)
-            h = H.b([], k)
-            k = H.b([], k)
-            g = 0
-            g = new T.BossSlime2(a2, f, a3, a4, e, null, d, c, b, a, a0, a1, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
-            g.a1(a3, a4, e, null)
-            g.av(a3, a4)
-            g.e = T.getMinionName(a2)
-            g.eV()
-            return g
-        },
-        parse_names(a) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f, e = null,
-                d = t.E,
-                c = H.b([], d),
-                b = C.String.cK(a, $.r_())
-            for (s = 0; s < b.length; ++s) {
-                r = b[s]
-                q = $.r0()
-                r.toString
-                r = H.iG(r, q, " ", 0)
-                q = $.nq()
-                b[s] = H.iG(r, q, "", 0)
-            }
-            // for (; J.Y(C.Array.gbl(b), "");) {
-            for (; C.Array.gbl(b) === "";) {
-                b.pop()
-                if (b.length === 0) return H.b([], d)
-            }
-            p = C.Array.w(b, "") && true
-            d = t.t
-            o = H.b([], d)
-            for (s = 0, r = t.V, q = !p, n = e; s < b.length; ++s) {
-                m = b[s]
-                if (m === "") {
-                    if (o.length !== 0) c.push(o)
-                    o = H.b([], d)
-                    n = e
-                    continue
-                }
-                if (q) {
-                    if (o.length !== 0) c.push(o)
-                    o = H.b([], d)
-                }
-                // if includes "+"
-                // weapon
-                l = $.lO()
-                m.toString
-                // if (l == null) H.throw_expression(H.R(l))
-                // if (H.iF(m, l, 0)) {
-                if (m.includes("+")) {
-                    k = C.String.aT(m, $.lO())
-                    // j = C.String.dF(C.String.ay(m, k + 1))
-                    j = C.String.trim_name(C.String.ay(m, k + 1))
-                    l = C.String.af(m, 0, k)
-                    i = $.nq()
-                    m = H.iG(l, i, "", 0)
-                } else {
-                    j = e
-                }
-                // console.log("weapon: " + j)
-                l = $.n3()
-                if (l == null) H.throw_expression(H.R(l))
-                if (H.iF(m, l, 0)) {
-                    h = C.String.cK(m, $.n3())
-                    if (J.m1(h[0], " ")) {
-                        l = 0
-                        h[l] = J.nB(h[l], 1)
-                    }
-                    if (!J.Y(h[1], "")) {
-                        l = h[1]
-                        i = $.n5()
-                        l.toString
-                        if (i == null) H.throw_expression(H.R(i))
-                        g = J.a3(l)
-                        f = g.gp(l)
-                        if (0 > f) H.throw_expression(P.a8(0, 0, g.gp(l), e, e))
-                        l = H.iF(l, i, 0)
-                    } else l = true
-                    if (l) o.push(H.b([h[0], null, j], r))
-                    else o.push(H.b([h[0], h[1], j], r))
-                } else if (C.String.bA(m, " ")) {
-                    o.push(H.b([C.String.ay(m, 1), n, j], r))
-                } else {
-                    if (s + 1 < b.length) {
-                        l = $.n5()
-                        if (l == null) H.throw_expression(H.R(l))
-                        l = !H.iF(m, l, 0) && J.m1(b[s + 1], " ")
-                    } else l = false
-                    if (l) n = m
-                    else {
-                        o.push(H.b([m, null, j], r))
-                        n = e
-                    }
-                }
-            }
-            if (o.length !== 0) c.push(o)
-            return c
-        },
-        // Engine start!
-        start_main(target) {
-            var async_goto = 0,
-                async_completer = P._makeAsyncAwaitCompleter(t.eF),
-                result, p, o, n, m, runner, k, j, i, h
-            var $async$c2 = P._wrapJsFunctionForAsync(function (async_error_code, async_result) {
-                if (async_error_code === 1) return P.async_rethrow(async_result, async_completer)
-                while (true) switch (async_goto) {
-                    case 0:
-                        k = t.eV
-                        j = H.b([], k)
-                        i = t.L
-                        h = H.b([], i)
-                        k = H.b([], k)
-                        i = H.b([], i)
-                        p = H.b([], t.gr)
-                        o = 0
-                        n = 1
-                        m = -n
-                        // run here?
-                        runner = new T.Engine(j, h, k, i, new H.JsLinkedHashMap(t.d5), target, p, o, m, m, new Float64Array(n))
-                        async_goto = 3
-                        return P._asyncAwait(runner.bD(), $async$c2)
-                    case 3:
-                        result = runner
-                        async_goto = 1
-                    // break
-                    case 1:
-                        return P._asyncReturn(result, async_completer)
-                }
-            })
-            return P._asyncStartSync($async$c2, async_completer)
-        },
-        DummyRunUpdates_init(a, b) {
-            // T.v4
-            var s = a.e,
-                r = 0
-            return T.DummyRunUpdates(s[r], b.e[r])
-        },
-        RunUpdate_init(message, caster, c, d, e, f, delay0, delay1) {
-            // logger.debug("RunUpdate_init", message, H.as_string(caster), H.as_string(c), H.as_string(d))
-            var s = new T.RunUpdate(f, 0, 0, message, caster, c, e, d)
-            // var s = new T.aX(f, delay0, delay1, message, caster, c, e, d)
-            // s.aK(message, caster, c, d, e, f, delay0, delay1)
-            s.aK(message, caster, c, d, e, f, 0, 0)
-            return s
-        },
-        RunUpdateCancel_init(a, b, c) {
-            var s = null,
-                r = new T.RunUpdateCancel(0, 1000, 500, a, b, c, s, s)
-            r.aK(a, b, c, s, s, 0, 1000, 500)
-            return r
-        },
-        mw() {
-            var s, r, q, p
-            if ($.lj == null) {
-                $.lj = P.c5(t.B)
-                s = -1
-                for (r = 0; q = $.ox, p = q.length, r < p; ++r) {
-                    s += C.String.a8(q, r) - $.b2()
-                    $.lj.j(0, C.JsInt.V(s * $.pF(), $.pn()) + $.p9() + p)
-                }
-            }
-            return $.lj
-        },
-        lC(a) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, g, f, e = {},
-                d = 0,
-                c = H.b([d, d, d, d, d, d], t.i),
-                b = 0
-            e.a = -$.t() // -2
-            e.b = -1
-            e.c = b
-            s = new T.lD(e, c)
-            for (d = a.length, r = b; r < d; ++r) {
-                q = C.String.a8(a, r)
-                if (q < $.d_()) {
-                    if (q === $.at()) { // 32
-                        ++b
-                        continue
-                    }
-                    if (q !== $.mW()) p = q >= $.aI() && q <= $.pO()
-                    else p = true
-                    if (p) s.$1(0)
-                    else if (q >= $.q6() && q <= $.p5()) s.$1(1)
-                    else if (q >= $.pT() && q <= $.q3()) s.$1($.t())
-                    else s.$1($.B())
-                } else if (T.mw().w(0, q)) s.$1($.C())
-                else {
-                    p = $.X()
-                    o = c[p]
-                    if (o > 0) c[p] = o + 1
-                    s.$1(p)
-                }
-            }
-            d = $.t()
-            if (b > d) {
-                p = 0
-                c[p] = c[p] + b
-            }
-            n = e.a
-            m = 0
-            if (n < m) {
-                e.a = m
-                n = m
-            }
-            p = e.c
-            o = $.av()
-            if (p > o) {
-                l = $.C()
-                o = p - o
-                c[l] = c[l] + o
-                l = $.B()
-                c[l] = c[l] + o
-                n += o * d
-            }
-            if (n > m) {
-                d = $.B()
-                c[d] = c[d] + 1
-                for (k = $.X(); k >= m; --k) {
-                    d = c[k]
-                    if (d > m) {
-                        c[k] = d + e.a
-                        break
-                    }
-                }
-                d = $.B()
-                c[d] = c[d] - 1
-                for (r = m; r < $.a4(); ++r) {
-                    d = c[r]
-                    if (d > m)
-                        if (d >= n) {
-                            c[r] = d - n
-                            break
-                        } else {
-                            n -= d
-                            c[r] = m
-                        }
-                }
-            }
-            d = $.C()
-            p = c[d]
-            o = 1
-            if (p == o) {
-                p = $.X()
-                c[p] = c[p] + o
-                c[d] = m
-            }
-            d = $.pa()
-            p = c[m]
-            H.ar(d)
-            H.ar(p)
-            p = Math.pow(d, p)
-            d = $.pB() // 32
-            o = c[1]
-            H.ar(d) // 检查是否为 number
-            H.ar(o)
-            o = Math.pow(d, o)
-            d = $.pS()
-            l = c[$.t()]
-            H.ar(d)
-            H.ar(l)
-            l = Math.pow(d, l)
-            d = $.ps()
-            j = c[$.B()]
-            H.ar(d)
-            H.ar(j)
-            j = Math.pow(d, j)
-            d = $.pm()
-            i = c[$.C()]
-            H.ar(d)
-            H.ar(i)
-            i = Math.pow(d, i)
-            d = $.W()
-            h = c[$.X()]
-            H.ar(d)
-            H.ar(h)
-            g = Math.log(p * o * l * j * i * Math.pow(d, h))
-            if (g > $.aI()) {
-                f = $.n1()
-                if (g > f) g = f
-                g = g * $.b0() + $.eW()
-            } else if (g < $.eW()) g = g * $.b0() + $.cY()
-            g -= $.at()
-            if (g > 0) return g / ($.rp() - T.mw().a)
+            k = new Sgls.MList(t.g)
+            k.c = k
+            k.b = k
+            j = new Sgls.MList(t.G)
+            j.c = j
+            j.b = j
+            i = new Sgls.MList(t._)
+            i.c = i
+            i.b = i
+            h = new Sgls.MList(t.e)
+            h.c = h
+            h.b = h
+            g = new Sgls.MList(t.k)
+            g.c = g
+            g.b = g
+            f = new Sgls.MList(t.l)
+            f.c = f
+            f.b = f
+            e = new Sgls.MList(t.m)
+            e.c = e
+            e.b = e
+            d = t.i
+            c = H.b([], d)
+            b = H.b([], d)
+            a = H.b([], d)
+            d = H.b([], d)
+            a0 = 0
+            a0 = new T.PlrEx(name, team_name, name, weapon_name, fgt, q, p, o, n, m, l, k, j, i, h, g, f, e, c, b, a, d, a0, a0, a0, $.W(), a0)
+            a0.a1(name, team_name, name, weapon_name)
+            a0.e2(name, team_name, name, weapon_name)
+            return a0
+        }
+        return T.init_plr(name, clan_name, a3, weapon_name)
+    },
+    oq(a) {
+        var s = a.d
+        if (s != null) s = C.String.cl(s, $.qm()) || C.String.cl(s, $.qn())
+        else s = false
+        return s
+    },
+    j7(a, b, c, d, e) {
+        // Plr caster, Plr target, int mutation, R r, RunUpdates updates
+        var s, r, q, p, o, n = b.r2,
+            m = t.cu,
+            l = m.a(n.h(0, $.ck()))
+        if (l != null) s = l.b && !l.c.w(0, c)
+        else s = true
+        if (s) {
+            s = 0
+            r = new T.CovidState(a, b, s, c, s)
+            r.k1 = new T.PostActionImpl(r)
+            r.k2 = new T.PreActionImpl(r)
+            m = m.a(n.h(0, $.ck()))
+            r.id = m
+            s = r.go
+            if (m != null) m.c.j(0, s)
             else {
-                d = $.rq()
-                if (g < -d) return (g + d) / ($.pD() + d - T.mw().a)
+                m = P.c5(t.B)
+                q = new T.CovidMeta(m)
+                m.j(0, s)
+                r.id = q
+                n.m(0, $.ck(), q)
             }
-            return $.ao() // 0
-        },
-        DummyRunUpdates(a, b) {
-            var s = a.Q - b.Q
-            if (s !== 0) return s
-            return J.lV(a.e, b.e)
-        },
-        init_plr(name, clan_name, fgt, weapon) {
-            var s, r, q, p, o, n, m, l, k, j, i, h, f = 0,
-                e = $.T(),
-                d = H.b([], t.q),
-                c = H.b([], t.H),
-                b = P.create_meta_map(t.X, t.W),
-                a = new Sgls.MList(t.n)
-            a.c = a
-            a.b = a
-            s = new Sgls.MList(t.p)
-            s.c = s
-            s.b = s
-            r = new Sgls.MList(t.g)
-            r.c = r
-            r.b = r
-            q = new Sgls.MList(t.G)
-            q.c = q
-            q.b = q
-            p = new Sgls.MList(t._)
-            p.c = p
-            p.b = p
-            o = new Sgls.MList(t.e)
-            o.c = o
-            o.b = o
-            n = new Sgls.MList(t.k)
-            n.c = n
-            n.b = n
-            m = new Sgls.MList(t.l)
-            m.c = m
-            m.b = m
-            l = new Sgls.MList(t.m)
-            l.c = l
-            l.b = l
-            k = t.i
-            j = H.b([], k)
-            i = H.b([], k)
-            h = H.b([], k)
-            k = H.b([], k)
-            let plr = new T.Plr(name, clan_name, fgt, weapon, f, e, d, c, b, a, s, r, q, p, o, n, m, l, j, i, h, k, 0, 0, 0, $.W(), 0)
-            plr.a1(name, clan_name, fgt, weapon)
-            return plr
-        },
-        t6(a, b) {
-            return J.lV(b.b, a.b)
-        },
-        tx(a, b, c, d, e) { },
-        tz(a, b, c, d, e) { },
-        SklAttack_init(a) {
-            var s = new T.SklAttack(0)
-            s.r = a
-            return s
-        },
-        SklSimpleAttack_init(a) {
-            var s = new T.SklSimpleAttack(0)
-            s.r = a
-            return s
-        },
-        NoWeapon(a, b) {
-            var s = new T.NoWeapon(a, b, P.aL($.av(), 0, false, t.B))
-            s.a = a
-            return s
-        },
-        Weapon_factory(a, b) {
-            var s = new T.Weapon(a, b, P.aL($.av(), 0, false, t.B))
-            s.a = a
-            return s
-        },
-        SklAbsorb: function e1(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklAccumulate: function h5(a, b) {
-            var _ = this
-            _.fr = null
-            _.fx = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        SklAssassinate: function h7(a) {
-            var _ = this
-            _.fy = _.fx = _.fr = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        BerserkState: function dd(a, b) {
-            var _ = this
-            _.fr = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        SklBerserk: function h9(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklCharge: function ha(a, b) {
-            var _ = this
-            _.fx = _.fr = null
-            _.fy = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        CharmState: function dj(a, b, c) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.y = null
-            _.z = c
-            _.c = _.b = _.a = null
-        },
-        SklCharm: function e3(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        MinionCount: function dI(a) {
-            this.b = a
-        },
-        PlrClone: function PlrClone(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.cm = _.a6 = null
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklClone: function e4(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklCloneCallback: function k9() { },
-        SklCritical: function e5(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        CurseState: function dn(a, b, c, d) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.y = null
-            _.z = c
-            _.Q = d
-            _.c = _.b = _.a = null
-        },
-        SklCurse: function hf(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklDisperse: function hh(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklExchange: function hi(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        FireState: function c3(a) {
-            this.b = a
-        },
-        SklFire: function cc(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        sklHalf: function e7(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        HasteState: function dw(a, b, c) {
-            var _ = this
-            _.x = a
-            _.y = null
-            _.z = b
-            _.Q = c
-            _.c = _.b = _.a = null
-        },
-        SklHaste: function hk(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklHeal: function e8(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklHealCallback: function ka(a) {
-            this.a = a
-        },
-        IceState: function dx(a, b) {
-            var _ = this
-            _.r = a
-            _.x = null
-            _.y = b
-            _.c = _.b = _.a = null
-        },
-        SklIce: function e9(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklIron: function ho(a, b, c) {
-            var _ = this
-            _.fy = _.fx = _.fr = null
-            _.go = a
-            _.id = b
-            _.e = false
-            _.f = c
-            _.c = _.b = _.a = _.r = null
-        },
-        PoisonState: function dS(a, b, c) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.y = null
-            _.z = c
-            _.c = _.b = _.a = null
-        },
-        SklPoison: function ht(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklQuake: function hv(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklRapid: function ec(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklRevive: function hx(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklPossess: function hu(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrShadow: function fS(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a6 = _.aj = null
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklShadow: function hB(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SlowState: function eh(a, b) {
-            var _ = this
-            _.x = a
-            _.y = null
-            _.z = b
-            _.c = _.b = _.a = null
-        },
-        SklSlow: function hG(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklExplode: function hj(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrSummon: function fT(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.bi = _.aj = null
-            _.aR = false
-            _.a6 = null
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklSummon: function hx(a) {
-            var _ = this
-            _.fr = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklThunder: function hu(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossAokiji: function f5(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklAokijiDefend: function h6(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklAokijiIceAge: function e2(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBoost: function fP(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
-            var _ = this
-            _.a6 = a
-            _.a = b
-            _.b = c
-            _.c = d
-            _.d = e
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = f
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = g
-            _.k1 = h
-            _.k3 = _.k2 = null
-            _.k4 = i
-            _.r1 = null
-            _.r2 = j
-            _.rx = k
-            _.ry = l
-            _.x1 = m
-            _.x2 = n
-            _.y1 = o
-            _.y2 = p
-            _.G = q
-            _.L = r
-            _.S = s
-            _.A = false
-            _.q = a0
-            _.X = null
-            _.E = a1
-            _.t = a2
-            _.a2 = a3
-            _.M = a4
-            _.N = a5
-            _.Y = a6
-            _.H = a7
-            _.l = a8
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBossTest: function fU(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBossTest2: function fV(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrEx: function fQ(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBoss: function cz() { },
-        PlrBossConan: function f6(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklConan: function hb(a, b, c) {
-            var _ = this
-            _.fr = a
-            _.fx = b
-            _.e = false
-            _.f = c
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossCovid: function f7(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        CovidMeta: function dk(a) {
-            this.b = false
-            this.c = a
-        },
-        CovidState: function dl(a, b, c, d, e) {
-            var _ = this
-            _.fr = a
-            _.fx = b
-            _.fy = c
-            _.go = d
-            _.k2 = _.k1 = _.id = null
-            _.e = false
-            _.f = e
-            _.c = _.b = _.a = _.r = null
-        },
-        SklCovidDefend: function he(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklCovidAttack: function hd(a, b) {
-            var _ = this
-            _.fr = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossIkaruga: function f8(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklIkarugaDefend: function hn(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklIkarugaAttack: function hm(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossLazy: function de(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        LazyState: function dB(a, b, c) {
-            var _ = this
-            _.fr = a
-            _.fx = b
-            _.id = _.go = _.fy = null
-            _.e = false
-            _.f = c
-            _.c = _.b = _.a = _.r = null
-        },
-        SklLazyDefend: function hq(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklLazyAttack: function hp(a, b, c) {
-            var _ = this
-            _.fr = a
-            _.fx = b
-            _.e = false
-            _.f = c
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossMario: function df(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
-            var _ = this
-            _.aC = a
-            _.aR = _.bi = _.aj = null
-            _.a = b
-            _.b = c
-            _.c = d
-            _.d = e
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = f
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = g
-            _.k1 = h
-            _.k3 = _.k2 = null
-            _.k4 = i
-            _.r1 = null
-            _.r2 = j
-            _.rx = k
-            _.ry = l
-            _.x1 = m
-            _.x2 = n
-            _.y1 = o
-            _.y2 = p
-            _.G = q
-            _.L = r
-            _.S = s
-            _.A = false
-            _.q = a0
-            _.X = null
-            _.E = a1
-            _.t = a2
-            _.a2 = a3
-            _.M = a4
-            _.N = a5
-            _.Y = a6
-            _.H = a7
-            _.l = a8
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklMarioGet: function hr(a, b) {
-            var _ = this
-            _.fr = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        SklMarioReraise: function ea(a, b) {
-            var _ = this
-            _.Q = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossMosquito: function f9(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBossSaitama: function fa(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklSaitama: function hA(a, b, c, d, e) {
-            var _ = this
-            _.fr = a
-            _.fx = b
-            _.fy = c
-            _.go = d
-            _.id = null
-            _.e = false
-            _.f = e
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrSeed_: function PlrSeed_() { },
-        PlrSeed: function PlrSeed(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBossSlime: function PlrBossSlime(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
-            var _ = this
-            _.aC = a
-            _.a = b
-            _.b = c
-            _.c = d
-            _.d = e
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = f
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = g
-            _.k1 = h
-            _.k3 = _.k2 = null
-            _.k4 = i
-            _.r1 = null
-            _.r2 = j
-            _.rx = k
-            _.ry = l
-            _.x1 = m
-            _.x2 = n
-            _.y1 = o
-            _.y2 = p
-            _.G = q
-            _.L = r
-            _.S = s
-            _.A = false
-            _.q = a0
-            _.X = null
-            _.E = a1
-            _.t = a2
-            _.a2 = a3
-            _.M = a4
-            _.N = a5
-            _.Y = a6
-            _.H = a7
-            _.l = a8
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        BossSlime2: function BossSlime2(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
-            var _ = this
-            _.dk = a
-            _.aC = b
-            _.a = c
-            _.b = d
-            _.c = e
-            _.d = f
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = g
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = h
-            _.k1 = i
-            _.k3 = _.k2 = null
-            _.k4 = j
-            _.r1 = null
-            _.r2 = k
-            _.rx = l
-            _.ry = m
-            _.x1 = n
-            _.x2 = o
-            _.y1 = p
-            _.y2 = q
-            _.G = r
-            _.L = s
-            _.S = a0
-            _.A = false
-            _.q = a1
-            _.X = null
-            _.E = a2
-            _.t = a3
-            _.a2 = a4
-            _.M = a5
-            _.N = a6
-            _.Y = a7
-            _.H = a8
-            _.l = a9
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklSlimeSpawnState: function hF() { },
-        SklSlimeSpawn: function ef(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrBossSonic: function fc(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        PlrBossYuri: function fd(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        SklYuriControl: function eg(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        Engine: function Engine(a, b, c, d, e, f, g, h, i, j, k) {
-            var _ = this
-            _.a = a
-            _.b = null
-            _.c = b
-            _.d = c
-            _.e = d
-            _.f = null
-            // 可从 this.gbu 获取
-
-            _.r = e
-            _.x = f
-            _.z = g
-            _.Q = h
-            _.ch = i
-            _.cx = false
-            _.cy = null
-            _.db = j
-            _.dx = k
-        },
-        jk: function jk() { },
-        jj: function jj() { },
-        jl: function jl(a) {
-            this.a = a
-        },
-        ji: function ji(a) {
-            this.a = a
-        },
-        Grp: function b7(a, b, c, d, e) {
-            var _ = this
-            _.a = a
-            _.b = null
-            _.c = b
-            _.d = c
-            _.e = d
-            _.f = e
-        },
-        IPlr: function fr() { },
-        NPlr: function bF() {
-            this.a = null
-        },
-        HPlr: function V(a) {
-            var _ = this
-            _.b = null
-            _.c = a
-            _.a = _.d = null
-        },
-        MPlr: function dF() {
-            this.a = this.c = this.b = null
-        },
-        DPlr: function dp() {
-            this.a = null
-        },
-        HDamage: function bB(a) {
-            this.a = a
-        },
-        HRecover: function bm(a) {
-            this.a = a
-        },
-        RunUpdate: function aX(a, b, c, d, e, f, g, h) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.e = e
-            _.f = f
-            _.r = g
-            _.x = h
-        },
-        RunUpdateCancel: function h2(a, b, c, d, e, f, g, h) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.e = e
-            _.f = f
-            _.r = g
-            _.x = h
-        },
-        RunUpdateWin: function dX(a, b, c, d, e, f, g, h) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.e = e
-            _.f = f
-            _.r = g
-            _.x = h
-        },
-        aq: function aq(a, b) {
-            this.a = a
-            this.b = b
-        },
-        lD: function lD(a, b) {
-            this.a = a
-            this.b = b
-        },
-        Minion: function aM() { },
-        Plr: function u(name, clan_name, fgt, weapon, e, f, skills, actions, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            /*skl.f -> skl.level
-            action.e -> action.boosted
-
-            Plr的属性
-            this.k1 -> skills 打乱前的技能，固定顺序，是createSkills操作的属性
-            this.k2 -> sortedSkills 打乱后的技能，顺序不固定，initSkills操作的属性
-            this.k4 -> 主动技能actions 
-            this.q -> 八围，前七围要+36才是显示的数字
-
-            k1,k2,k4数组应该是引用技能对象（地址）的，所以更改一个后，在其他会随时同步
-            */
-            var _ = this
-            _.a = name
-            _.b = clan_name
-            _.c = fgt
-            _.d = weapon
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = skills
-            _.k3 = _.k2 = null
-            _.k4 = actions
-            _.weapon = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = q
-            _.S = r
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        jX: function jX() { },
-        BoostPassive: function BoostPassive() { }, // boostPassive
-        jY: function jY() { },
-        IMeta: function x() { },
-        UpdateStateEntry: function aZ() { },
-        PreStepEntry: function cB() { },
-        PreDefendEntry: function bH() { },
-        PostDefendEntry: function aB() { },
-        PostDamageEntry: function ah() { },
-        PreActionEntry: function aV() { },
-        PostActionEntry: function bq() { },
-        aF: function aF() { },
-        UpdateStateImpl: function UpdateStateImpl(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        PreStepImpl: function fY(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        PostDefendImpl: function PostDefendImpl(a, b) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.c = _.b = _.a = null
-        },
-        PostDamageImpl: function cA(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        PreActionImpl: function ca(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        PostActionImpl: function b8(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        cp: function cp(a) {
-            var _ = this
-            _.x = a
-            _.c = _.b = _.a = null
-        },
-        bG: function bG(a, b) {
-            this.a = a
-            this.b = b
-        },
-        Skill: function Skill() { },
-        ActionSkill: function b5() { },
-        SklAttack: function h8(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklSimpleAttack: function hD(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklCounter: function SklCounter(a) {
-            var _ = this
-            _.Q = false
-            _.cx = _.ch = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklDefend: function SklDefend(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklHide: function SklHide(a) {
-            var _ = this
-            _.ch = _.Q = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        MergeState: function fC() { },
-        SklMerge: function SklMerge(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        ProtectStat: function dV(a, b) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.c = _.b = _.a = null
-        },
-        SklProtect: function SklProtect(a) {
-            var _ = this
-            _.Q = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklReflect: function SklReflect(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklReraise: function SklReraise(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        ShieldStat_: function e0(a, b) {
-            var _ = this
-            _.r = a
-            _.x = b
-            _.c = _.b = _.a = null
-        },
-        SklShield: function SklShield(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SklUpgrade: function SklUpgrade(a) {
-            var _ = this
-            _.Q = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        SkillVoid: function SkillVoid(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        PlrZombie: function fX(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, dies, kills, s, a0, a1, a2, a3, a4, a5, a6, a7) {
-            var _ = this
-            _.a6 = _.aj = null
-            _.a = a
-            _.b = b
-            _.c = c
-            _.d = d
-            _.z = _.y = _.x = _.r = _.f = _.e = null
-            _.Q = e
-            _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
-            _.id = f
-            _.k1 = g
-            _.k3 = _.k2 = null
-            _.k4 = h
-            _.r1 = null
-            _.r2 = i
-            _.rx = j
-            _.ry = k
-            _.x1 = l
-            _.x2 = m
-            _.y1 = n
-            _.y2 = o
-            _.G = p
-            _.L = dies
-            _.S = kills
-            _.A = false
-            _.q = s
-            _.X = null
-            _.E = a0
-            _.t = a1
-            _.a2 = a2
-            _.M = a3
-            _.N = a4
-            _.Y = a5
-            _.H = a6
-            _.l = a7
-            _.a_ = _.Z = false
-            _.I = null
-        },
-        ZombieState: function hY() { },
-        SklZombie: function SklZombie(a) {
-            var _ = this
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        BossWeapon: function j2(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        SklDeathNote: function hg(a) {
-            var _ = this
-            _.fx = _.fr = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        WeaponDeathNote: function eo(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        DummyChargeMeta: function fl() { },
-        GuiYue: function jq(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        NoWeapon: function jN(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        RinickModifier: function k1(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        k3: function k3() { },
-        RinickModifierPreAction: function h0(a) {
-            var _ = this
-            _.r = a
-            _.c = _.b = _.a = null
-        },
-        k2: function k2(a) {
-            this.a = a
-        },
-        RinickModifierUpdateState: function RinickModifierUpdateState() {
-            this.c = this.b = this.a = null
-        },
-        SklRinickModifierClone: function SklRinickModifierClone(a, b) {
-            var _ = this
-            _.fr = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        hy: function hy(a, b) {
-            var _ = this
-            _.Q = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        SklS11: function hz(a, b) {
-            var _ = this
-            _.fr = a
-            _.e = false
-            _.f = b
-            _.c = _.b = _.a = _.r = null
-        },
-        kb: function kb() { },
-        WeaponS11: function ep(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        Weapon: function Weapon(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        kq: function kq() { },
-        kr: function kr() { },
-        ks: function ks() { },
-        kt: function kt() { },
-        ku: function ku() { },
-        ko: function ko() { },
-        kp: function kp() { },
-        hc: function hc(a) {
-            var _ = this
-            _.Q = false
-            _.cx = _.ch = null
-            _.e = false
-            _.f = a
-            _.c = _.b = _.a = _.r = null
-        },
-        kv: function kv(a, b, c) {
-            var _ = this
-            _.a = null
-            _.b = a
-            _.c = b
-            _.f = _.e = _.d = null
-            _.r = c
-        },
-        ij: function ij() { },
-        ShieldStat: function ik() { }
+            b.x2.j(0, r.k1)
+            b.x1.j(0, r.k2)
+            b.F()
+            // sklCovidHit
+            // [1]感染了[新冠病毒]
+            e.a.push(T.RunUpdate_init(LangData.get_lang("toAn"), a, b, null, null, 0, 1000, 100))
+            for (n = a.y.a.e, m = n.length, p = 0; p < n.length; n.length === m || (0, H.F)(n), ++p) {
+                o = n[p]
+                // if (J.Y(o, b)) {
+                if (o === b) {
+                    // p.spsum += 2048
+                    o.l = o.l + $.bx()
+                } else {
+                    // p.spsum -= 256
+                    o.l = o.l - $.eX()
+                }
+            }
+            return true
+        }
+        return false
     },
-    V = {
-        // 评分
-        // 普评/强评
-        ProfileMain: function iV(a, b, c, d, e, f, g) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = false
-            _.d = 1000
-            _.e = 33554431
-            _.f = c
-            _.r = d
-            _.x = null
-            _.y = e
-            _.z = f
-            _.ch = _.Q = 0
-            _.cx = null
-            _.cy = g
-        },
-        j_: function j_(a, b) {
-            this.a = a
-            this.b = b
-        },
-        j0: function j0() { },
-        j1: function j1(a) {
-            this.a = a
+    tB(a, b, c, d, e) {
+        if (b.r2.h(0, $.ck()) == null && (d.n() & 63) + 1 < c) T.j7(a, b, $.bg(), d, e)
+    },
+    LazyState_init(a, b) {
+        var s = new T.LazyState(a, b, 0)
+        s.fy = new T.PostActionImpl(s)
+        s.go = new T.UpdateStateImpl(s)
+        s.id = new T.PreActionImpl(s)
+        return s
+    },
+    beLazy(a, b, c) {
+        var s, r = null,
+            q = 1000,
+            p = b.n()
+        if (p < $.b1()) {
+            s = c.a
+            s.push(T.RunUpdate_init(LangData.get_lang("yZbn"), a, r, r, r, 0, q, 100))
+        } else if (p < $.ci()) {
+            s = c.a
+            s.push(T.RunUpdate_init(LangData.get_lang("PdCA"), a, r, r, r, 0, q, 100))
+        } else if (p < $.mJ()) {
+            s = c.a
+            s.push(T.RunUpdate_init(LangData.get_lang("gjTN"), a, r, r, r, 0, q, 100))
+        } else if (p < $.pc()) {
+            s = c.a
+            s.push(T.RunUpdate_init(LangData.get_lang("xraA"), a, r, r, r, 0, q, 100))
+        } else {
+            s = c.a
+            if (p < $.pp())
+                s.push(T.RunUpdate_init(LangData.get_lang("OBXn"), a, r, r, r, 0, q, 100))
+            else
+                s.push(T.RunUpdate_init(LangData.get_lang("fNKA"), a, r, r, r, 0, q, 100))
+        }
+        s.push(T.RunUpdate_init(LangData.get_lang("hXqA"), a, r, r, r, 0, q, 100))
+    },
+    tG(a, b, c, d, e) {
+        if (t.r.a(b.r2.h(0, $.d5())) == null && !(b instanceof T.PlrBossLazy)) {
+            T.LazyState_init(a, b).aP(0)
+            e.a.push(T.RunUpdate_init(LangData.get_lang("JnTA"), a, b, null, null, 0, 1000, 100))
         }
     },
-    W = {
-        j4() {
-            var s = document.createElement("canvas")
-            return s
-        },
-        rP(a, b, c) {
-            var s, doc_body = document.body
-            doc_body.toString
-            s = C.BodyElement.aA(doc_body, a, b, c)
-            s.toString
-            doc_body = new H.cf(new W.az(s), new W.jf(), t.ac.i("cf<z.E>"))
-            return t.R.a(doc_body.gba(doc_body))
-        },
-        ds(a) {
-            var s, r, q = "element tag unavailable"
-            try {
-                s = J.bv(a)
-                if (typeof s.gdD(a) == "string") q = s.gdD(a)
-            } catch (r) {
-                H.unwrap_Exception(r)
-            }
-            return q
-        },
-        nK() {
-            var s = document.createElement("img")
-            return s
-        },
-        es(a, b, c, d) {
-            // 设置 event listener
-            var s = W.uJ(new W.kF(c), t.aD)
-            if (s != null) {
-                J.rs(a, b, s, false)
-            }
-            return new W.ia(a, b, s, false)
-        },
-        oc(a) {
-            var s = document.createElement("a"),
-                r = new W.l_(s, window.location)
-            r = new W.cP(r)
-            r.e6(a)
-            return r
-        },
-        tT(a, b, c, d) {
-            return true
-        },
-        tU(a, b, c, d) {
-            var s, r = d.a,
-                q = r.a
-            q.href = c
-            s = q.hostname
-            r = r.b
-            if (!(s == r.hostname && q.port == r.port && q.protocol == r.protocol))
-                if (s === "")
-                    if (q.port === "") {
-                        r = q.protocol
-                        r = r === ":" || r === ""
-                    } else r = false
-                else r = false
-            else r = true
-            return r
-        },
-        oh() {
-            var s = t.N,
-                r = P.nQ(C.r, s),
-                q = H.b(["TEMPLATE"], t.s)
-            s = new W.it(r, P.c5(s), P.c5(s), P.c5(s), null)
-            s.e7(null, new H.y(C.r, new W.l7(), t.fj), q, null)
-            return s
-        },
-        ll(a) {
-            return W.oa(a)
-        },
-        oa(a) {
-            if (a === window) return a
-            else return new W.kE(a)
-        },
-        uJ(a, b) {
-            var s = $.P
-            if (s === C.f) return a
-            return s.eI(a, b)
-        },
-        HtmlElement: function HtmlElement() { },
-        AnchorElement: function AnchorElement() { },
-        AreaElement: function AreaElement() { },
-        BaseElement: function BaseElement() { },
-        Blob: function Blob() { },
-        BodyElement: function BodyElement() { },
-        CanvasElement: function CanvasElement() { },
-        CanvasRenderingContext2D: function CanvasRenderingContext2D() { },
-        b6: function b6() { },
-        co: function co() { },
-        j8: function j8() { },
-        dm: function dm() { },
-        c0: function c0() { },
-        ja: function ja() { },
-        jb: function jb() { },
-        Element: function Element() { },
-        jf: function jf() { },
-        o: function o() { },
-        fn: function fn() { },
-        File: function cq() { },
-        fp: function fp() { },
-        c4: function c4() { },
-        jL: function jL() { },
-        c8: function c8() { },
-        dH: function dH() { },
-        bp: function bp() { },
-        az: function az(a) {
-            this.a = a
-        },
-        v: function v() { },
-        dM: function dM() { },
-        dQ: function dQ() { },
-        h4: function h4() { },
-        ek: function ek() { },
-        hN: function hN() { },
-        kd: function kd(a) {
-            this.a = a
-        },
-        bb: function bb() { },
-        ce: function ce() { },
-        en: function en() { },
-        hQ: function hQ() { },
-        hR: function hR() { },
-        cI: function cI() { },
-        aY: function aY() { },
-        eq: function eq() { },
-        cL: function cL() { },
-        ex: function ex() { },
-        eH: function eH() { },
-        i2: function i2() { },
-        i8: function i8(a) {
-            this.a = a
-        },
-        m5: function m5(a, b) {
-            this.a = a
-            this.$ti = b
-        },
-        ia: function ia(a, b, c, d) {
-            var _ = this
-            _.b = a
-            _.c = b
-            _.d = c
-            _.e = d
-        },
-        kF: function kF(a) {
-            this.a = a
-        },
-        cP: function cP(a) {
-            this.a = a
-        },
-        cr: function cr() { },
-        dN: function dN(a) {
-            this.a = a
-        },
-        jP: function jP(a) {
-            this.a = a
-        },
-        jO: function jO(a, b, c) {
-            this.a = a
-            this.b = b
-            this.c = c
-        },
-        eD: function eD() { },
-        l0: function l0() { },
-        l1: function l1() { },
-        it: function it(a, b, c, d, e) {
-            var _ = this
-            _.e = a
-            _.a = b
-            _.b = c
-            _.c = d
-            _.d = e
-        },
-        l7: function l7() { },
-        is: function is() { },
-        dv: function dv(a, b) {
-            var _ = this
-            _.a = a
-            _.b = b
-            _.c = -1
-            _.d = null
-        },
-        kE: function kE(a) {
-            this.a = a
-        },
-        l_: function l_(a, b) {
-            this.a = a
-            this.b = b
-        },
-        ix: function ix(a) {
-            this.a = a
-            this.b = 0
-        },
-        le: function le(a) {
-            this.a = a
-        },
-        i6: function i6() { },
-        ig: function ig() { },
-        ih: function ih() { },
-        il: function il() { },
-        iy: function iy() { },
-        iz: function iz() { },
-        iA: function iA() { },
-        iB: function iB() { }
+    tH(a, b) {
+        var s = new T.SklMarioReraise(b, 0)
+        s.r = a
+        return s
     },
-    X = {
-        dc(a) {
-            // 似乎是什么算号方法?
-            var s, r, q, p, o, n, m = a.length,
-                l = P.aL(C.d.R(m * 8 / 6.5), 0, true, t.B)
-            for (s = 0, r = 0, q = 0, p = 0, o = 0; o < m; ++o) {
-                s = (s | C.JsInt.bX(a[o] & 255 ^ 0, r)) >>> 0
-                r += 8
-                if (r > 13) {
-                    q = s & 8191
-                    if (q > 456) {
-                        s = s >>> 13
-                        r -= 13
-                    } else {
-                        q = s & 16383
-                        s = s >>> 14
-                        r -= 14
-                    }
-                    n = p + 1
-                    // l[p] = J.J($.iM(), C.JsInt.V(q, 93))
-                    l[p] = $.iM()[C.JsInt.V(q, 93)]
-                    p = n + 1
-                    // l[n] = J.J($.iM(), q / 93 | 0)
-                    l[n] = $.iM()[q / 93 | 0]
+    init_BossSlime(a2, a3) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f = 0,
+            e = H.as_string(a2) + H.as_string($.aD()),
+            d = 0,
+            c = $.T(),
+            b = H.b([], t.q),
+            a = H.b([], t.H),
+            a0 = P.create_meta_map(t.X, t.W),
+            a1 = new Sgls.MList(t.n)
+        a1.c = a1
+        a1.b = a1
+        s = new Sgls.MList(t.p)
+        s.c = s
+        s.b = s
+        r = new Sgls.MList(t.g)
+        r.c = r
+        r.b = r
+        q = new Sgls.MList(t.G)
+        q.c = q
+        q.b = q
+        p = new Sgls.MList(t._)
+        p.c = p
+        p.b = p
+        o = new Sgls.MList(t.e)
+        o.c = o
+        o.b = o
+        n = new Sgls.MList(t.k)
+        n.c = n
+        n.b = n
+        m = new Sgls.MList(t.l)
+        m.c = m
+        m.b = m
+        l = new Sgls.MList(t.m)
+        l.c = l
+        l.b = l
+        k = t.i
+        j = H.b([], k)
+        i = H.b([], k)
+        h = H.b([], k)
+        k = H.b([], k)
+        g = 0
+        g = new T.PlrBossSlime(f, a2, a3, e, null, d, c, b, a, a0, a1, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
+        g.a1(a2, a3, e, null)
+        g.av(a2, a3)
+        return g
+    },
+    init_BossSlime2(a2, a3, a4) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f = 0,
+            e = H.as_string(a3) + H.as_string($.aD()),
+            d = 0,
+            c = $.T(),
+            b = H.b([], t.q),
+            a = H.b([], t.H),
+            a0 = P.create_meta_map(t.X, t.W),
+            a1 = new Sgls.MList(t.n)
+        a1.c = a1
+        a1.b = a1
+        s = new Sgls.MList(t.p)
+        s.c = s
+        s.b = s
+        r = new Sgls.MList(t.g)
+        r.c = r
+        r.b = r
+        q = new Sgls.MList(t.G)
+        q.c = q
+        q.b = q
+        p = new Sgls.MList(t._)
+        p.c = p
+        p.b = p
+        o = new Sgls.MList(t.e)
+        o.c = o
+        o.b = o
+        n = new Sgls.MList(t.k)
+        n.c = n
+        n.b = n
+        m = new Sgls.MList(t.l)
+        m.c = m
+        m.b = m
+        l = new Sgls.MList(t.m)
+        l.c = l
+        l.b = l
+        k = t.i
+        j = H.b([], k)
+        i = H.b([], k)
+        h = H.b([], k)
+        k = H.b([], k)
+        g = 0
+        g = new T.BossSlime2(a2, f, a3, a4, e, null, d, c, b, a, a0, a1, s, r, q, p, o, n, m, l, j, i, h, k, g, g, g, $.W(), g)
+        g.a1(a3, a4, e, null)
+        g.av(a3, a4)
+        g.e = T.getMinionName(a2)
+        g.eV()
+        return g
+    },
+    parse_names(a) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f, e = null,
+            d = t.E,
+            c = H.b([], d),
+            b = C.String.cK(a, $.r_())
+        for (s = 0; s < b.length; ++s) {
+            r = b[s]
+            q = $.r0()
+            r.toString
+            r = H.iG(r, q, " ", 0)
+            q = $.nq()
+            b[s] = H.iG(r, q, "", 0)
+        }
+        // for (; J.Y(C.Array.gbl(b), "");) {
+        for (; C.Array.gbl(b) === "";) {
+            b.pop()
+            if (b.length === 0) return H.b([], d)
+        }
+        p = C.Array.w(b, "") && true
+        d = t.t
+        o = H.b([], d)
+        for (s = 0, r = t.V, q = !p, n = e; s < b.length; ++s) {
+            m = b[s]
+            if (m === "") {
+                if (o.length !== 0) c.push(o)
+                o = H.b([], d)
+                n = e
+                continue
+            }
+            if (q) {
+                if (o.length !== 0) c.push(o)
+                o = H.b([], d)
+            }
+            // if includes "+"
+            // weapon
+            l = $.lO()
+            m.toString
+            // if (l == null) H.throw_expression(H.R(l))
+            // if (H.iF(m, l, 0)) {
+            if (m.includes("+")) {
+                k = C.String.aT(m, $.lO())
+                // j = C.String.dF(C.String.ay(m, k + 1))
+                j = C.String.trim_name(C.String.ay(m, k + 1))
+                l = C.String.af(m, 0, k)
+                i = $.nq()
+                m = H.iG(l, i, "", 0)
+            } else {
+                j = e
+            }
+            // console.log("weapon: " + j)
+            l = $.n3()
+            if (l == null) H.throw_expression(H.R(l))
+            if (H.iF(m, l, 0)) {
+                h = C.String.cK(m, $.n3())
+                if (J.m1(h[0], " ")) {
+                    l = 0
+                    h[l] = J.nB(h[l], 1)
+                }
+                if (!J.Y(h[1], "")) {
+                    l = h[1]
+                    i = $.n5()
+                    l.toString
+                    if (i == null) H.throw_expression(H.R(i))
+                    g = J.a3(l)
+                    f = g.gp(l)
+                    if (0 > f) H.throw_expression(P.a8(0, 0, g.gp(l), e, e))
+                    l = H.iF(l, i, 0)
+                } else l = true
+                if (l) o.push(H.b([h[0], null, j], r))
+                else o.push(H.b([h[0], h[1], j], r))
+            } else if (C.String.bA(m, " ")) {
+                o.push(H.b([C.String.ay(m, 1), n, j], r))
+            } else {
+                if (s + 1 < b.length) {
+                    l = $.n5()
+                    if (l == null) H.throw_expression(H.R(l))
+                    l = !H.iF(m, l, 0) && J.m1(b[s + 1], " ")
+                } else l = false
+                if (l) n = m
+                else {
+                    o.push(H.b([m, null, j], r))
+                    n = e
                 }
             }
-            if (r > 0) {
-                n = p + 1
-                // l[p] = J.J($.iM(), C.JsInt.V(s, 93))
-                l[p] = $.iM()[C.JsInt.V(s, 93)]
-                if (r > 7 || s > 92) {
-                    p = n + 1
-                    // l[n] = J.J($.iM(), s / 93 | 0)
-                    l[n] = $.iM()[s / 93 | 0]
-                } else {
-                    p = n
-                }
+        }
+        if (o.length !== 0) c.push(o)
+        return c
+    },
+    // Engine start!
+    start_main(target) {
+        var async_goto = 0,
+            async_completer = P._makeAsyncAwaitCompleter(t.eF),
+            result, p, o, n, m, runner, k, j, i, h
+        var $async$c2 = P._wrapJsFunctionForAsync(function (async_error_code, async_result) {
+            if (async_error_code === 1) return P.async_rethrow(async_result, async_completer)
+            while (true) switch (async_goto) {
+                case 0:
+                    k = t.eV
+                    j = H.b([], k)
+                    i = t.L
+                    h = H.b([], i)
+                    k = H.b([], k)
+                    i = H.b([], i)
+                    p = H.b([], t.gr)
+                    o = 0
+                    n = 1
+                    m = -n
+                    // run here?
+                    runner = new T.Engine(j, h, k, i, new H.JsLinkedHashMap(t.d5), target, p, o, m, m, new Float64Array(n))
+                    async_goto = 3
+                    return P._asyncAwait(runner.bD(), $async$c2)
+                case 3:
+                    result = runner
+                    async_goto = 1
+                // break
+                case 1:
+                    return P._asyncReturn(result, async_completer)
             }
-            C.Array.sp(l, p)
-            return P.mh(l, 0, null)
-        },
-        f4(a, b) {
-            var s, r, q, p, o, n, m, l, k, j = a.length,
-                i = P.aL(C.d.R(j * 7 / 8), 0, true, t.B)
-            for (s = J.aQ(a), r = 0, q = 0, p = -1, o = 0, n = 0; n < j; ++n) {
-                m = s.a8(a, n)
-                if (m > 126) continue
-                // l = J.J($.oS(), m)
-                l = $.oS()[m]
-                if (l === 93) {
+        })
+        return P._asyncStartSync($async$c2, async_completer)
+    },
+    DummyRunUpdates_init(a, b) {
+        // T.v4
+        var s = a.e,
+            r = 0
+        return T.DummyRunUpdates(s[r], b.e[r])
+    },
+    RunUpdate_init(message, caster, c, d, e, f, delay0, delay1) {
+        // logger.debug("RunUpdate_init", message, H.as_string(caster), H.as_string(c), H.as_string(d))
+        var s = new T.RunUpdate(f, 0, 0, message, caster, c, e, d)
+        // var s = new T.aX(f, delay0, delay1, message, caster, c, e, d)
+        // s.aK(message, caster, c, d, e, f, delay0, delay1)
+        s.aK(message, caster, c, d, e, f, 0, 0)
+        return s
+    },
+    RunUpdateCancel_init(a, b, c) {
+        var s = null,
+            r = new T.RunUpdateCancel(0, 1000, 500, a, b, c, s, s)
+        r.aK(a, b, c, s, s, 0, 1000, 500)
+        return r
+    },
+    mw() {
+        var s, r, q, p
+        if ($.lj == null) {
+            $.lj = P.c5(t.B)
+            s = -1
+            for (r = 0; q = $.ox, p = q.length, r < p; ++r) {
+                s += C.String.a8(q, r) - $.b2()
+                $.lj.j(0, C.JsInt.V(s * $.pF(), $.pn()) + $.p9() + p)
+            }
+        }
+        return $.lj
+    },
+    lC(a) {
+        logger.info("lC", a)
+        var s, r, q, p, o, n, m, l, k, j, i, h, g, f,
+            d = 0,
+            c = H.b([d, d, d, d, d, d], t.i),
+            b = 0
+        let e = {
+            a: -2,
+            b: -1,
+            c: b
+        }
+        // e.a = -$.t() // -2
+        // e.b = -1
+        // e.c = b
+        s = new T.lD(e, c)
+        for (d = a.length, r = b; r < d; ++r) {
+            q = C.String.a8(a, r)
+            if (q < $.d_()) {
+                if (q === $.at()) { // 32
+                    ++b
                     continue
                 }
-                if (p === -1) {
-                    p = l
-                } else {
-                    p += l * 93
-                    r |= C.JsInt.bX(p, q)
-                    q += (p & 8191) > 456 ? 13 : 14
-                    do {
-                        k = o + 1
-                        i[o] = r & 255 ^ b
-                        r = r >>> 8
-                        q -= 8
-                        if (q > 7) {
-                            o = k
-                            continue
-                        } else break
-                    } while (true)
-                    o = k
-                    p = -1
+                if (q !== $.mW()) p = q >= $.aI() && q <= $.pO()
+                else p = true
+                if (p) s.$1(0)
+                else if (q >= $.q6() && q <= $.p5()) s.$1(1)
+                else if (q >= $.pT() && q <= $.q3()) s.$1($.t())
+                else s.$1($.B())
+            } else if (T.mw().w(0, q)) s.$1($.C())
+            else {
+                p = $.X()
+                o = c[p]
+                if (o > 0) c[p] = o + 1
+                s.$1(p)
+            }
+        }
+        d = $.t()
+        if (b > d) {
+            p = 0
+            c[p] = c[p] + b
+        }
+        n = e.a
+        m = 0
+        if (n < m) {
+            e.a = m
+            n = m
+        }
+        p = e.c
+        o = $.av()
+        if (p > o) {
+            l = $.C()
+            o = p - o
+            c[l] = c[l] + o
+            l = $.B()
+            c[l] = c[l] + o
+            n += o * d
+        }
+        if (n > m) {
+            d = $.B()
+            c[d] = c[d] + 1
+            for (k = $.X(); k >= m; --k) {
+                d = c[k]
+                if (d > m) {
+                    c[k] = d + e.a
+                    break
                 }
             }
-            if (p !== -1) {
-                k = o + 1
-                i[o] = ((r | C.JsInt.bX(p, q)) ^ b) >>> 0
-                o = k
+            d = $.B()
+            c[d] = c[d] - 1
+            for (r = m; r < $.a4(); ++r) {
+                d = c[r]
+                if (d > m)
+                    if (d >= n) {
+                        c[r] = d - n
+                        break
+                    } else {
+                        n -= d
+                        c[r] = m
+                    }
             }
-            C.Array.sp(i, o)
-            return i
-        },
-        k(a, b) {
-            var s, r, q = new Uint8Array(H.on(X.f4(a, b))).buffer
-            H.mq(q, 0, null)
-            s = q.byteLength
-            r = C.JsInt.ag(s - 0, 4)
-            let result = new Uint32Array(q, 0, r)[1]
-            // return new Uint32Array(q, 0, r)[1]
-            // if (run_env.from_code) {
-            //     console.log("X.k", a, b, result)
-            // }
-            logger.debug("X.k", a, b, result)
-            return result
-        },
-        D(a, b) {
-            var s, r, q = new Uint8Array(H.on(X.f4(a, b))).buffer
-            H.mq(q, 0, null)
-            s = q.byteLength
-            r = C.JsInt.ag(s - 0, 4)
-            let result = new Float32Array(q, 0, r)[1];
-            // return new Float32Array(q, 0, r)[1]
-            // if (run_env.from_code) {
-            //     console.log("X.D", a, b, result)
-            // }
-            logger.debug("X.D", a, b, result)
-            return result
-        },
-        je: function je() { },
-        j9: function j9() { },
-        ProfileFind: function iW(a, b) {
-            var _ = this
-            _.a = a
-            _.b = -1
-            _.c = 33554431
-            _.e = 0
-            _.f = null
-            _.r = b
-        },
-        iX: function iX() { },
-        iY: function iY(a) {
-            this.a = a
-        },
-        iZ: function iZ(a) {
-            this.a = a
         }
+        d = $.C() // 4
+        p = c[d]
+        o = 1
+        if (p == o) {
+            p = $.X()
+            c[p] = c[p] + o
+            c[d] = m
+        }
+        d = $.pa()
+        p = c[m]
+        H.ar(d)
+        H.ar(p)
+        p = Math.pow(d, p)
+        d = $.pB() // 32
+        o = c[1]
+        H.ar(d) // 检查是否为 number
+        H.ar(o)
+        o = Math.pow(d, o)
+        d = $.pS()
+        l = c[$.t()]
+        H.ar(d)
+        H.ar(l)
+        l = Math.pow(d, l)
+        d = $.ps()
+        j = c[$.B()]
+        H.ar(d)
+        H.ar(j)
+        j = Math.pow(d, j)
+        d = $.pm()
+        i = c[$.C()]
+        H.ar(d)
+        H.ar(i)
+        i = Math.pow(d, i)
+        d = $.W()
+        h = c[$.X()]
+        H.ar(d)
+        H.ar(h)
+        g = Math.log(p * o * l * j * i * Math.pow(d, h))
+        if (g > $.aI()) {
+            f = $.n1()
+            if (g > f) { g = f }
+            g = g * $.b0() + $.eW()
+        } else if (g < $.eW()) { g = g * $.b0() + $.cY() }
+        g -= $.at()
+        if (g > 0) { return g / ($.rp() - T.mw().a) }
+        else {
+            d = $.rq()
+            if (g < -d) return (g + d) / ($.pD() + d - T.mw().a)
+        }
+        return $.ao() // 0
+    },
+    DummyRunUpdates(a, b) {
+        var s = a.Q - b.Q
+        if (s !== 0) return s
+        return J.lV(a.e, b.e)
+    },
+    init_plr(name, clan_name, fgt, weapon) {
+        var s, r, q, p, o, n, m, l, k, j, i, h, f = 0,
+            e = $.T(),
+            d = H.b([], t.q),
+            c = H.b([], t.H),
+            b = P.create_meta_map(t.X, t.W),
+            a = new Sgls.MList(t.n)
+        a.c = a
+        a.b = a
+        s = new Sgls.MList(t.p)
+        s.c = s
+        s.b = s
+        r = new Sgls.MList(t.g)
+        r.c = r
+        r.b = r
+        q = new Sgls.MList(t.G)
+        q.c = q
+        q.b = q
+        p = new Sgls.MList(t._)
+        p.c = p
+        p.b = p
+        o = new Sgls.MList(t.e)
+        o.c = o
+        o.b = o
+        n = new Sgls.MList(t.k)
+        n.c = n
+        n.b = n
+        m = new Sgls.MList(t.l)
+        m.c = m
+        m.b = m
+        l = new Sgls.MList(t.m)
+        l.c = l
+        l.b = l
+        k = t.i
+        j = H.b([], k)
+        i = H.b([], k)
+        h = H.b([], k)
+        k = H.b([], k)
+        let plr = new T.Plr(name, clan_name, fgt, weapon, f, e, d, c, b, a, s, r, q, p, o, n, m, l, j, i, h, k, 0, 0, 0, $.W(), 0)
+        plr.a1(name, clan_name, fgt, weapon)
+        return plr
+    },
+    t6(a, b) {
+        return J.lV(b.b, a.b)
+    },
+    tx(a, b, c, d, e) { },
+    tz(a, b, c, d, e) { },
+    SklAttack_init(a) {
+        var s = new T.SklAttack(0)
+        s.r = a
+        return s
+    },
+    SklSimpleAttack_init(a) {
+        var s = new T.SklSimpleAttack(0)
+        s.r = a
+        return s
+    },
+    NoWeapon(a, b) {
+        var s = new T.NoWeapon(a, b, P.aL($.av(), 0, false, t.B))
+        s.a = a
+        return s
+    },
+    Weapon_factory(a, b) {
+        var s = new T.Weapon(a, b, P.aL($.av(), 0, false, t.B))
+        s.a = a
+        return s
+    },
+    SklAbsorb: function SklAbsorb(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklAccumulate: function SklAccumulate(a, b) {
+        var _ = this
+        _.fr = null
+        _.fx = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    SklAssassinate: function SklAssassinate(a) {
+        var _ = this
+        _.fy = _.fx = _.fr = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    BerserkState: function dd(a, b) {
+        var _ = this
+        _.fr = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    SklBerserk: function SklBerserk(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklCharge: function SklCharge(a, b) {
+        var _ = this
+        _.fx = _.fr = null
+        _.fy = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    CharmState: function dj(a, b, c) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.y = null
+        _.z = c
+        _.c = _.b = _.a = null
+    },
+    SklCharm: function SklCharm(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    MinionCount: function dI(a) {
+        this.b = a
+    },
+    PlrClone: function PlrClone(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.cm = _.a6 = null
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklClone: function SklClone(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklCloneCallback: function k9() { },
+    SklCritical: function SklCritical(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    CurseState: function dn(a, b, c, d) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.y = null
+        _.z = c
+        _.Q = d
+        _.c = _.b = _.a = null
+    },
+    SklCurse: function SklCurse(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklDisperse: function SklDisperse(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklExchange: function SklExchange(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    FireState: function c3(a) {
+        this.b = a
+    },
+    SklFire: function SklFire(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    sklHalf: function sklHalf(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    HasteState: function dw(a, b, c) {
+        var _ = this
+        _.x = a
+        _.y = null
+        _.z = b
+        _.Q = c
+        _.c = _.b = _.a = null
+    },
+    SklHaste: function SklHaste(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklHeal: function SklHeal(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklHealCallback: function ka(a) {
+        this.a = a
+    },
+    IceState: function dx(a, b) {
+        var _ = this
+        _.r = a
+        _.x = null
+        _.y = b
+        _.c = _.b = _.a = null
+    },
+    SklIce: function SklIce(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklIron: function SklIron(a, b, c) {
+        var _ = this
+        _.fy = _.fx = _.fr = null
+        _.go = a
+        _.id = b
+        _.e = false
+        _.f = c
+        _.c = _.b = _.a = _.r = null
+    },
+    PoisonState: function dS(a, b, c) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.y = null
+        _.z = c
+        _.c = _.b = _.a = null
+    },
+    SklPoison: function SklPoison(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklQuake: function SklQuake(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklRapid: function SklRapid(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklRevive: function SklRevive(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklPossess: function SklPossess(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrShadow: function fS(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a6 = _.aj = null
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklShadow: function SklShadow(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SlowState: function eh(a, b) {
+        var _ = this
+        _.x = a
+        _.y = null
+        _.z = b
+        _.c = _.b = _.a = null
+    },
+    SklSlow: function SklSlow(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklExplode: function SklExplode(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrSummon: function fT(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.bi = _.aj = null
+        _.aR = false
+        _.a6 = null
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklSummon: function SklSummon(a) {
+        var _ = this
+        _.fr = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklThunder: function SklThunder(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossAokiji: function f5(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklAokijiDefend: function h6(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklAokijiIceAge: function e2(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBoost: function fP(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
+        var _ = this
+        _.a6 = a
+        _.a = b
+        _.b = c
+        _.c = d
+        _.d = e
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = f
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = g
+        _.k1 = h
+        _.k3 = _.k2 = null
+        _.k4 = i
+        _.r1 = null
+        _.r2 = j
+        _.rx = k
+        _.ry = l
+        _.x1 = m
+        _.x2 = n
+        _.y1 = o
+        _.y2 = p
+        _.G = q
+        _.L = r
+        _.S = s
+        _.A = false
+        _.q = a0
+        _.X = null
+        _.E = a1
+        _.t = a2
+        _.a2 = a3
+        _.M = a4
+        _.N = a5
+        _.Y = a6
+        _.H = a7
+        _.l = a8
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBossTest: function fU(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBossTest2: function fV(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrEx: function fQ(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBoss: function cz() { },
+    PlrBossConan: function f6(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklConan: function hb(a, b, c) {
+        var _ = this
+        _.fr = a
+        _.fx = b
+        _.e = false
+        _.f = c
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossCovid: function f7(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    CovidMeta: function dk(a) {
+        this.b = false
+        this.c = a
+    },
+    CovidState: function dl(a, b, c, d, e) {
+        var _ = this
+        _.fr = a
+        _.fx = b
+        _.fy = c
+        _.go = d
+        _.k2 = _.k1 = _.id = null
+        _.e = false
+        _.f = e
+        _.c = _.b = _.a = _.r = null
+    },
+    SklCovidDefend: function he(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklCovidAttack: function hd(a, b) {
+        var _ = this
+        _.fr = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossIkaruga: function f8(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklIkarugaDefend: function hn(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklIkarugaAttack: function hm(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossLazy: function de(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    LazyState: function dB(a, b, c) {
+        var _ = this
+        _.fr = a
+        _.fx = b
+        _.id = _.go = _.fy = null
+        _.e = false
+        _.f = c
+        _.c = _.b = _.a = _.r = null
+    },
+    SklLazyDefend: function hq(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklLazyAttack: function hp(a, b, c) {
+        var _ = this
+        _.fr = a
+        _.fx = b
+        _.e = false
+        _.f = c
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossMario: function df(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
+        var _ = this
+        _.aC = a
+        _.aR = _.bi = _.aj = null
+        _.a = b
+        _.b = c
+        _.c = d
+        _.d = e
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = f
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = g
+        _.k1 = h
+        _.k3 = _.k2 = null
+        _.k4 = i
+        _.r1 = null
+        _.r2 = j
+        _.rx = k
+        _.ry = l
+        _.x1 = m
+        _.x2 = n
+        _.y1 = o
+        _.y2 = p
+        _.G = q
+        _.L = r
+        _.S = s
+        _.A = false
+        _.q = a0
+        _.X = null
+        _.E = a1
+        _.t = a2
+        _.a2 = a3
+        _.M = a4
+        _.N = a5
+        _.Y = a6
+        _.H = a7
+        _.l = a8
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklMarioGet: function hr(a, b) {
+        var _ = this
+        _.fr = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    SklMarioReraise: function ea(a, b) {
+        var _ = this
+        _.Q = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossMosquito: function f9(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBossSaitama: function fa(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklSaitama: function hA(a, b, c, d, e) {
+        var _ = this
+        _.fr = a
+        _.fx = b
+        _.fy = c
+        _.go = d
+        _.id = null
+        _.e = false
+        _.f = e
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrSeed_: function PlrSeed_() { },
+    PlrSeed: function PlrSeed(name, clan_name, fgt, weapon, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = name
+        _.b = clan_name
+        _.c = fgt
+        _.d = weapon
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBossSlime: function PlrBossSlime(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8) {
+        var _ = this
+        _.aC = a
+        _.a = b
+        _.b = c
+        _.c = d
+        _.d = e
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = f
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = g
+        _.k1 = h
+        _.k3 = _.k2 = null
+        _.k4 = i
+        _.r1 = null
+        _.r2 = j
+        _.rx = k
+        _.ry = l
+        _.x1 = m
+        _.x2 = n
+        _.y1 = o
+        _.y2 = p
+        _.G = q
+        _.L = r
+        _.S = s
+        _.A = false
+        _.q = a0
+        _.X = null
+        _.E = a1
+        _.t = a2
+        _.a2 = a3
+        _.M = a4
+        _.N = a5
+        _.Y = a6
+        _.H = a7
+        _.l = a8
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    BossSlime2: function BossSlime2(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+        var _ = this
+        _.dk = a
+        _.aC = b
+        _.a = c
+        _.b = d
+        _.c = e
+        _.d = f
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = g
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = h
+        _.k1 = i
+        _.k3 = _.k2 = null
+        _.k4 = j
+        _.r1 = null
+        _.r2 = k
+        _.rx = l
+        _.ry = m
+        _.x1 = n
+        _.x2 = o
+        _.y1 = p
+        _.y2 = q
+        _.G = r
+        _.L = s
+        _.S = a0
+        _.A = false
+        _.q = a1
+        _.X = null
+        _.E = a2
+        _.t = a3
+        _.a2 = a4
+        _.M = a5
+        _.N = a6
+        _.Y = a7
+        _.H = a8
+        _.l = a9
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklSlimeSpawnState: function hF() { },
+    SklSlimeSpawn: function ef(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrBossSonic: function fc(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    PlrBossYuri: function fd(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    SklYuriControl: function eg(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    Engine: function Engine(a, b, c, d, e, f, g, h, i, j, k) {
+        var _ = this
+        _.a = a
+        _.b = null
+        _.c = b
+        _.d = c
+        _.e = d
+        _.f = null
+        // 可从 this.gbu 获取
+
+        _.r = e
+        _.x = f
+        _.z = g
+        _.Q = h
+        _.ch = i
+        _.cx = false
+        _.cy = null
+        _.db = j
+        _.dx = k
+    },
+    jk: function jk() { },
+    jj: function jj() { },
+    jl: function jl(a) {
+        this.a = a
+    },
+    ji: function ji(a) {
+        this.a = a
+    },
+    Grp: function b7(a, b, c, d, e) {
+        var _ = this
+        _.a = a
+        _.b = null
+        _.c = b
+        _.d = c
+        _.e = d
+        _.f = e
+    },
+    IPlr: function fr() { },
+    NPlr: function bF() {
+        this.a = null
+    },
+    HPlr: function V(a) {
+        var _ = this
+        _.b = null
+        _.c = a
+        _.a = _.d = null
+    },
+    MPlr: function dF() {
+        this.a = this.c = this.b = null
+    },
+    DPlr: function dp() {
+        this.a = null
+    },
+    HDamage: function bB(a) {
+        this.a = a
+    },
+    HRecover: function bm(a) {
+        this.a = a
+    },
+    RunUpdate: function aX(a, b, c, d, e, f, g, h) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.e = e
+        _.f = f
+        _.r = g
+        _.x = h
+    },
+    RunUpdateCancel: function h2(a, b, c, d, e, f, g, h) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.e = e
+        _.f = f
+        _.r = g
+        _.x = h
+    },
+    RunUpdateWin: function dX(a, b, c, d, e, f, g, h) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.e = e
+        _.f = f
+        _.r = g
+        _.x = h
+    },
+    aq: function aq(a, b) {
+        this.a = a
+        this.b = b
+    },
+    lD: function lD(a, b) {
+        this.a = a
+        this.b = b
+    },
+    Minion: function aM() { },
+    Plr: function u(name, clan_name, fgt, weapon, e, f, skills, actions, i, j, k, l, m, n, o, p, q, r, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        /*skl.f -> skl.level
+        action.e -> action.boosted
+
+        Plr的属性
+        this.k1 -> skills 打乱前的技能，固定顺序，是createSkills操作的属性
+        this.k2 -> sortedSkills 打乱后的技能，顺序不固定，initSkills操作的属性
+        this.k4 -> 主动技能actions 
+        this.q -> 八围，前七围要+36才是显示的数字
+
+        k1,k2,k4数组应该是引用技能对象（地址）的，所以更改一个后，在其他会随时同步
+        */
+        var _ = this
+        _.a = name
+        _.b = clan_name
+        _.c = fgt
+        _.d = weapon
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = skills
+        _.k3 = _.k2 = null
+        _.k4 = actions
+        _.weapon = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = q
+        _.S = r
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    jX: function jX() { },
+    BoostPassive: function BoostPassive() { }, // boostPassive
+    jY: function jY() { },
+    IMeta: function x() { },
+    UpdateStateEntry: function aZ() { },
+    PreStepEntry: function cB() { },
+    PreDefendEntry: function bH() { },
+    PostDefendEntry: function aB() { },
+    PostDamageEntry: function ah() { },
+    PreActionEntry: function aV() { },
+    PostActionEntry: function bq() { },
+    aF: function aF() { },
+    UpdateStateImpl: function UpdateStateImpl(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    PreStepImpl: function fY(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    PostDefendImpl: function PostDefendImpl(a, b) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.c = _.b = _.a = null
+    },
+    PostDamageImpl: function cA(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    PreActionImpl: function ca(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    PostActionImpl: function b8(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    cp: function cp(a) {
+        var _ = this
+        _.x = a
+        _.c = _.b = _.a = null
+    },
+    bG: function bG(a, b) {
+        this.a = a
+        this.b = b
+    },
+    Skill: function Skill() { },
+    ActionSkill: function b5() { },
+    SklAttack: function h8(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklSimpleAttack: function hD(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklCounter: function SklCounter(a) {
+        var _ = this
+        _.Q = false
+        _.cx = _.ch = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklDefend: function SklDefend(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklHide: function SklHide(a) {
+        var _ = this
+        _.ch = _.Q = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    MergeState: function fC() { },
+    SklMerge: function SklMerge(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    ProtectStat: function dV(a, b) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.c = _.b = _.a = null
+    },
+    SklProtect: function SklProtect(a) {
+        var _ = this
+        _.Q = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklReflect: function SklReflect(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklReraise: function SklReraise(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    ShieldStat_: function e0(a, b) {
+        var _ = this
+        _.r = a
+        _.x = b
+        _.c = _.b = _.a = null
+    },
+    SklShield: function SklShield(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SklUpgrade: function SklUpgrade(a) {
+        var _ = this
+        _.Q = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    SkillVoid: function SkillVoid(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    PlrZombie: function fX(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, dies, kills, s, a0, a1, a2, a3, a4, a5, a6, a7) {
+        var _ = this
+        _.a6 = _.aj = null
+        _.a = a
+        _.b = b
+        _.c = c
+        _.d = d
+        _.z = _.y = _.x = _.r = _.f = _.e = null
+        _.Q = e
+        _.go = _.fy = _.fx = _.fr = _.dy = _.dx = _.db = _.cy = _.cx = _.ch = null
+        _.id = f
+        _.k1 = g
+        _.k3 = _.k2 = null
+        _.k4 = h
+        _.r1 = null
+        _.r2 = i
+        _.rx = j
+        _.ry = k
+        _.x1 = l
+        _.x2 = m
+        _.y1 = n
+        _.y2 = o
+        _.G = p
+        _.L = dies
+        _.S = kills
+        _.A = false
+        _.q = s
+        _.X = null
+        _.E = a0
+        _.t = a1
+        _.a2 = a2
+        _.M = a3
+        _.N = a4
+        _.Y = a5
+        _.H = a6
+        _.l = a7
+        _.a_ = _.Z = false
+        _.I = null
+    },
+    ZombieState: function hY() { },
+    SklZombie: function SklZombie(a) {
+        var _ = this
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    BossWeapon: function j2(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    SklDeathNote: function hg(a) {
+        var _ = this
+        _.fx = _.fr = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    WeaponDeathNote: function eo(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    DummyChargeMeta: function fl() { },
+    GuiYue: function jq(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    NoWeapon: function jN(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    RinickModifier: function k1(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    k3: function k3() { },
+    RinickModifierPreAction: function h0(a) {
+        var _ = this
+        _.r = a
+        _.c = _.b = _.a = null
+    },
+    k2: function k2(a) {
+        this.a = a
+    },
+    RinickModifierUpdateState: function RinickModifierUpdateState() {
+        this.c = this.b = this.a = null
+    },
+    SklRinickModifierClone: function SklRinickModifierClone(a, b) {
+        var _ = this
+        _.fr = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    hy: function hy(a, b) {
+        var _ = this
+        _.Q = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    SklS11: function hz(a, b) {
+        var _ = this
+        _.fr = a
+        _.e = false
+        _.f = b
+        _.c = _.b = _.a = _.r = null
+    },
+    kb: function kb() { },
+    WeaponS11: function ep(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    Weapon: function Weapon(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    kq: function kq() { },
+    kr: function kr() { },
+    ks: function ks() { },
+    kt: function kt() { },
+    ku: function ku() { },
+    ko: function ko() { },
+    kp: function kp() { },
+    hc: function hc(a) {
+        var _ = this
+        _.Q = false
+        _.cx = _.ch = null
+        _.e = false
+        _.f = a
+        _.c = _.b = _.a = _.r = null
+    },
+    kv: function kv(a, b, c) {
+        var _ = this
+        _.a = null
+        _.b = a
+        _.c = b
+        _.f = _.e = _.d = null
+        _.r = c
+    },
+    ij: function ij() { },
+    ShieldStat: function ik() { }
+}
+var V = {
+    // 评分
+    // 普评/强评
+    ProfileMain: function iV(a, b, c, d, e, f, g) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = false
+        _.d = 1000
+        _.e = 33554431
+        _.f = c
+        _.r = d
+        _.x = null
+        _.y = e
+        _.z = f
+        _.ch = _.Q = 0
+        _.cx = null
+        _.cy = g
+    },
+    j_: function j_(a, b) {
+        this.a = a
+        this.b = b
+    },
+    j0: function j0() { },
+    j1: function j1(a) {
+        this.a = a
     }
+}
+var W = {
+    j4() {
+        var s = document.createElement("canvas")
+        return s
+    },
+    rP(a, b, c) {
+        var s, doc_body = document.body
+        doc_body.toString
+        s = C.BodyElement.aA(doc_body, a, b, c)
+        s.toString
+        doc_body = new H.cf(new W.az(s), new W.jf(), t.ac.i("cf<z.E>"))
+        return t.R.a(doc_body.gba(doc_body))
+    },
+    ds(a) {
+        var s, r, q = "element tag unavailable"
+        try {
+            s = J.bv(a)
+            if (typeof s.gdD(a) == "string") q = s.gdD(a)
+        } catch (r) {
+            H.unwrap_Exception(r)
+        }
+        return q
+    },
+    nK() {
+        var s = document.createElement("img")
+        return s
+    },
+    es(a, b, c, d) {
+        // 设置 event listener
+        var s = W.uJ(new W.kF(c), t.aD)
+        if (s != null) {
+            J.rs(a, b, s, false)
+        }
+        return new W.ia(a, b, s, false)
+    },
+    oc(a) {
+        var s = document.createElement("a"),
+            r = new W.l_(s, window.location)
+        r = new W.cP(r)
+        r.e6(a)
+        return r
+    },
+    tT(a, b, c, d) {
+        return true
+    },
+    tU(a, b, c, d) {
+        var s, r = d.a,
+            q = r.a
+        q.href = c
+        s = q.hostname
+        r = r.b
+        if (!(s == r.hostname && q.port == r.port && q.protocol == r.protocol))
+            if (s === "")
+                if (q.port === "") {
+                    r = q.protocol
+                    r = r === ":" || r === ""
+                } else r = false
+            else r = false
+        else r = true
+        return r
+    },
+    oh() {
+        var s = t.N,
+            r = P.nQ(C.r, s),
+            q = H.b(["TEMPLATE"], t.s)
+        s = new W.it(r, P.c5(s), P.c5(s), P.c5(s), null)
+        s.e7(null, new H.y(C.r, new W.l7(), t.fj), q, null)
+        return s
+    },
+    ll(a) {
+        return W.oa(a)
+    },
+    oa(a) {
+        if (a === window) return a
+        else return new W.kE(a)
+    },
+    uJ(a, b) {
+        var s = $.P
+        if (s === C.f) return a
+        return s.eI(a, b)
+    },
+    HtmlElement: function HtmlElement() { },
+    AnchorElement: function AnchorElement() { },
+    AreaElement: function AreaElement() { },
+    BaseElement: function BaseElement() { },
+    Blob: function Blob() { },
+    BodyElement: function BodyElement() { },
+    CanvasElement: function CanvasElement() { },
+    CanvasRenderingContext2D: function CanvasRenderingContext2D() { },
+    b6: function b6() { },
+    co: function co() { },
+    j8: function j8() { },
+    dm: function dm() { },
+    c0: function c0() { },
+    ja: function ja() { },
+    jb: function jb() { },
+    Element: function Element() { },
+    jf: function jf() { },
+    o: function o() { },
+    fn: function fn() { },
+    File: function cq() { },
+    fp: function fp() { },
+    c4: function c4() { },
+    jL: function jL() { },
+    c8: function c8() { },
+    dH: function dH() { },
+    bp: function bp() { },
+    az: function az(a) {
+        this.a = a
+    },
+    v: function v() { },
+    dM: function dM() { },
+    dQ: function dQ() { },
+    h4: function h4() { },
+    ek: function ek() { },
+    hN: function hN() { },
+    kd: function kd(a) {
+        this.a = a
+    },
+    bb: function bb() { },
+    ce: function ce() { },
+    en: function en() { },
+    hQ: function hQ() { },
+    hR: function hR() { },
+    cI: function cI() { },
+    aY: function aY() { },
+    eq: function eq() { },
+    cL: function cL() { },
+    ex: function ex() { },
+    eH: function eH() { },
+    i2: function i2() { },
+    i8: function i8(a) {
+        this.a = a
+    },
+    m5: function m5(a, b) {
+        this.a = a
+        this.$ti = b
+    },
+    ia: function ia(a, b, c, d) {
+        var _ = this
+        _.b = a
+        _.c = b
+        _.d = c
+        _.e = d
+    },
+    kF: function kF(a) {
+        this.a = a
+    },
+    cP: function cP(a) {
+        this.a = a
+    },
+    cr: function cr() { },
+    dN: function dN(a) {
+        this.a = a
+    },
+    jP: function jP(a) {
+        this.a = a
+    },
+    jO: function jO(a, b, c) {
+        this.a = a
+        this.b = b
+        this.c = c
+    },
+    eD: function eD() { },
+    l0: function l0() { },
+    l1: function l1() { },
+    it: function it(a, b, c, d, e) {
+        var _ = this
+        _.e = a
+        _.a = b
+        _.b = c
+        _.c = d
+        _.d = e
+    },
+    l7: function l7() { },
+    is: function is() { },
+    dv: function dv(a, b) {
+        var _ = this
+        _.a = a
+        _.b = b
+        _.c = -1
+        _.d = null
+    },
+    kE: function kE(a) {
+        this.a = a
+    },
+    l_: function l_(a, b) {
+        this.a = a
+        this.b = b
+    },
+    ix: function ix(a) {
+        this.a = a
+        this.b = 0
+    },
+    le: function le(a) {
+        this.a = a
+    },
+    i6: function i6() { },
+    ig: function ig() { },
+    ih: function ih() { },
+    il: function il() { },
+    iy: function iy() { },
+    iz: function iz() { },
+    iA: function iA() { },
+    iB: function iB() { }
+}
+var X = {
+    dc(a) {
+        // 似乎是什么算号方法?
+        var s, r, q, p, o, n, m = a.length,
+            l = P.aL(C.d.R(m * 8 / 6.5), 0, true, t.B)
+        for (s = 0, r = 0, q = 0, p = 0, o = 0; o < m; ++o) {
+            s = (s | C.JsInt.bX(a[o] & 255 ^ 0, r)) >>> 0
+            r += 8
+            if (r > 13) {
+                q = s & 8191
+                if (q > 456) {
+                    s = s >>> 13
+                    r -= 13
+                } else {
+                    q = s & 16383
+                    s = s >>> 14
+                    r -= 14
+                }
+                n = p + 1
+                // l[p] = J.J($.iM(), C.JsInt.V(q, 93))
+                l[p] = $.iM()[C.JsInt.V(q, 93)]
+                p = n + 1
+                // l[n] = J.J($.iM(), q / 93 | 0)
+                l[n] = $.iM()[q / 93 | 0]
+            }
+        }
+        if (r > 0) {
+            n = p + 1
+            // l[p] = J.J($.iM(), C.JsInt.V(s, 93))
+            l[p] = $.iM()[C.JsInt.V(s, 93)]
+            if (r > 7 || s > 92) {
+                p = n + 1
+                // l[n] = J.J($.iM(), s / 93 | 0)
+                l[n] = $.iM()[s / 93 | 0]
+            } else {
+                p = n
+            }
+        }
+        C.Array.sp(l, p)
+        return P.mh(l, 0, null)
+    },
+    f4(a, b) {
+        var s, r, q, p, o, n, m, l, k, j = a.length,
+            i = P.aL(C.d.R(j * 7 / 8), 0, true, t.B)
+        for (s = J.aQ(a), r = 0, q = 0, p = -1, o = 0, n = 0; n < j; ++n) {
+            m = s.a8(a, n)
+            if (m > 126) continue
+            // l = J.J($.oS(), m)
+            l = $.oS()[m]
+            if (l === 93) {
+                continue
+            }
+            if (p === -1) {
+                p = l
+            } else {
+                p += l * 93
+                r |= C.JsInt.bX(p, q)
+                q += (p & 8191) > 456 ? 13 : 14
+                do {
+                    k = o + 1
+                    i[o] = r & 255 ^ b
+                    r = r >>> 8
+                    q -= 8
+                    if (q > 7) {
+                        o = k
+                        continue
+                    } else break
+                } while (true)
+                o = k
+                p = -1
+            }
+        }
+        if (p !== -1) {
+            k = o + 1
+            i[o] = ((r | C.JsInt.bX(p, q)) ^ b) >>> 0
+            o = k
+        }
+        C.Array.sp(i, o)
+        return i
+    },
+    k(a, b) {
+        var s, r, q = new Uint8Array(H.on(X.f4(a, b))).buffer
+        H.mq(q, 0, null)
+        s = q.byteLength
+        r = C.JsInt.ag(s - 0, 4)
+        let result = new Uint32Array(q, 0, r)[1]
+        // if (run_env.from_code) {
+        //     console.log("X.k", a, b, result)
+        // }
+        // logger.info("X.k", a, b, result)
+        return result
+    },
+    D(a, b) {
+        var s, r, q = new Uint8Array(H.on(X.f4(a, b))).buffer
+        H.mq(q, 0, null)
+        s = q.byteLength
+        r = C.JsInt.ag(s - 0, 4)
+        let result = new Float32Array(q, 0, r)[1];
+        // if (run_env.from_code) {
+        //     console.log("X.D", a, b, result)
+        // }
+        // logger.info("X.D", a, b, result)
+        return result
+    },
+    je: function je() { },
+    j9: function j9() { },
+    ProfileFind: function iW(a, b) {
+        var _ = this
+        _.a = a
+        _.b = -1
+        _.c = 33554431
+        _.e = 0
+        _.f = null
+        _.r = b
+    },
+    iX: function iX() { },
+    iY: function iY(a) {
+        this.a = a
+    },
+    iZ: function iZ(a) {
+        this.a = a
+    }
+}
 var Y = {
     RC4: function dW() {
         this.b = this.a = 0
@@ -12863,7 +12867,7 @@ V.ProfileMain.prototype = {
                         outer_display.push(T.RunUpdate_init(benchmarking, null, null, C.JsInt.ag(this_.ch, 100), null, 0, 0, 0))
                         if (this_.ch >= this_.d) {
                             // 阶段目标场数达到
-                            logger.info("分数: " + (this_.Q * 10000 / this_.ch))
+                            logger.debug("分数: " + (this_.Q * 10000 / this_.ch))
                             this_.eS()
                         }
                         result = new T.aq(outer_display, update_list)
@@ -13455,7 +13459,7 @@ HtmlRenderer.inner_render.prototype = {
         if (this_.cx instanceof T.RunUpdateWin) {
             this_.fQ()
         } else if (run_env.from_code) {
-            logger.debug(fmt_RunUpdate(this_.cx))
+            // logger.debug(fmt_RunUpdate(this_.cx))
             this_.b4()
             return
         } else {
@@ -14485,43 +14489,43 @@ T.SklClone.prototype = {
         return H.b([], t.F)
     },
     v(a, b, c, d) {
-        var s, r, q, p, o, n, m, l, k = this,
+        var s, r, q, p, o, n, m, l, this_ = this,
             j = null
-        k.f = C.d.R(k.f * ((c.n() & 63) + $.au()) / $.cj())
-        if (!k.r.r2.J(0, $.a7())) {
-            s = k.r.q
+        this_.f = C.d.R(this_.f * ((c.n() & 63) + $.au()) / $.cj())
+        if (!this_.r.r2.J(0, $.a7())) {
+            s = this_.r.q
             for (r = 0; q = $.ap(), r < q; ++r) s[r] = C.d.R(s[r] * $.p1())
             s[q] = C.d.R(s[q] * $.b0())
-            q = k.r
+            q = this_.r
             q.fx = C.d.R(q.fx * $.b0())
-            k.r.ci()
-            k.r.F()
+            this_.r.ci()
+            this_.r.F()
         }
-        p = T.init_PlrClone(k.r)
-        p.y = k.r.y
+        p = T.init_PlrClone(this_.r)
+        p.y = this_.r.y
         p.az()
         p.l = c.n() * $.C() + $.eX()
-        q = k.r
+        q = this_.r
         p.fx = q.fx
         if (q.fx + q.dx < c.n()) {
-            q = k.f
+            q = this_.f
             o = 1
-            k.f = C.JsInt.am(q, o) + o
+            this_.f = C.JsInt.am(q, o) + o
         }
         q = C.Array.dl(p.k1, new T.SklCloneCallback())
-        if (q != null) q.f = C.d.R(Math.sqrt(H.ar(k.f)))
+        if (q != null) q.f = C.d.R(Math.sqrt(H.ar(this_.f)))
         // sklClone
         // [0]使用[分身]
         q = LangData.get_lang("yWWn")
         o = new T.MPlr()
-        o.cO(k.r)
+        o.cO(this_.r)
         n = d.a
-        n.push(T.RunUpdate_init(q, o, k.r, j, j, $.a6(), 1000, 100))
-        k.r.y.aZ(p)
+        n.push(T.RunUpdate_init(q, o, this_.r, j, j, $.a6(), 1000, 100))
+        this_.r.y.aZ(p)
         // sklCloned
         // 出现一个新的[1]
         o = LangData.get_lang("pKQn")
-        q = k.r
+        q = this_.r
         m = p.fx
         l = new T.HPlr(m)
         l.a = p.e
@@ -15773,7 +15777,8 @@ T.PlrEx.prototype = {
     },
     cA(a) { },
     bf() {
-        this.x = $.ao()
+        // this.x = $.ao()
+        this.x = 0
     }
 }
 T.PlrBoss.prototype = {
@@ -16876,7 +16881,6 @@ T.Engine.prototype = {
                     // win
                     // [2]获得胜利
                     j = LangData.get_lang("eTpN")
-                    logger.debug("getting win from T.fo.O")
                     i = 0
                     h = $.lJ()
                     g = new T.RunUpdateWin(i, h, 100, j, k, null, null, null)
@@ -17150,21 +17154,21 @@ T.RunUpdate.prototype = {
     },
     // to string
     k(a) {
-        var _this = this,
-            r = _this.d,
-            q = _this.e
+        var this_ = this,
+            r = this_.d,
+            q = this_.e
         if (q != null) {
             q = q.k(0)
             if (typeof q != "string") H.throw_expression(H.R(q))
             r = H.mF(r, "[Dn.n0]", q)
         }
-        q = _this.f
+        q = this_.f
         if (q != null) {
             q = q.k(0)
             if (typeof q != "string") H.throw_expression(H.R(q))
             r = H.mF(r, "[Dn.n1]", q)
         }
-        q = _this.x
+        q = this_.x
         if (q != null) {
             q = J.b4(q)
             if (typeof q != "string") H.throw_expression(H.R(q))
@@ -17197,14 +17201,14 @@ T.lD.prototype = {
 }
 T.Minion.prototype = {
     b1(a, b, c, d) {
-        var s = this,
-            r = s.fx,
+        var this_ = this,
+            r = this_.fx,
             q = 0
         if (r > q) {
-            s.fx = q
-            s.bm(r, null, c, d)
+            this_.fx = q
+            this_.bm(r, null, c, d)
         }
-        s.a6.D()
+        this_.a6.D()
         return false
     },
     cD() {
@@ -17213,7 +17217,8 @@ T.Minion.prototype = {
         return LangData.get_lang("Kcon")
     },
     bf() {
-        this.x = $.ao()
+        // this.x = $.ao()
+        this.x = 0
     },
     $ibC: 1
 }
@@ -17321,7 +17326,7 @@ T.Plr.prototype = {
         // rc4.next
     },
     bf() {
-        // 检查名字长度
+        // MARK: 名字长度系数计算
         var s, this_ = this,
             q = this_.a, // name
             p = q.length // name.length
@@ -17334,11 +17339,15 @@ T.Plr.prototype = {
         p = T.lC(this_.b) // team
         s = $.a4() // 6
         this_.x = Math.max(H.ar(q), p - s)
-        logger.debug("name", this.a, "team", this.b, "x(final)", this_.x, "p(team)", p, "q(name)", q)
+        // logger.info("name", this.a, "team", this.b, "x(final)", this_.x, "p(team)", p, "q(name)", q)
     },
     b0(a, b) {
         // 这又是啥
-        return C.d.aI(a * ($.T() - this.x / b))
+        const result = Math.round(a * (1 - this.x / b))
+        // if (a !== result) {
+        //     logger.info("getting a", a + 36, "b", b, "this.x", this.x, "result", result + 36, "Δ=", result - a, this.a)
+        // }
+        return result
     },
     cA(a) {
         //upgrade
@@ -17346,13 +17355,11 @@ T.Plr.prototype = {
         var s, this_ = this
         if (a.length === this_.t.length) {
             for (s = $.ap(); s < this_.t.length; ++s)
-                // if (J.Y(a[s - 1], r.E[s]) && a[s] > r.t[s]) {
                 if ((a[s - 1] === this_.E[s]) && a[s] > this_.t[s]) {
                     this_.t[s] = a[s]
                 }
             if (this_.a == this_.b)
                 for (s = $.X(); s < this_.t.length; ++s)
-                    // if (J.Y(a[s - $.t()], r.E[s]) && a[s] > r.t[s]) {
                     if ((a[s - $.t()] === this_.E[s]) && a[s] > this_.t[s]) {
                         this_.t[s] = a[s]
                     }
@@ -17393,24 +17400,29 @@ T.Plr.prototype = {
             try {
                 var tmparr = diy.split("]");
                 var attrs = JSON.parse(tmparr[0] + "]");
-                if (tmparr[1].startsWith("{")) var diyskills = JSON.parse(tmparr[1]);
+                if (tmparr[1].startsWith("{")) {
+                    {
+                        var diyskills = JSON.parse(tmparr[1]);
+                        this.isDiySkill = 1;
+                    }
+                    this_.isDiySkill = 1;
+                }
                 if (attrs.length != 8) throw new Error('八围要有八个元素')
             } catch (error) {
                 console.error(error)
                 alert("DIY捏人格式错误, 请检查");
             }
-            if (attrs) {
-                for (var i = 0; i < 7; i++) {
-                    attrs[i] -= 36; // 为当前项减去36
-                }
-                this_.q = attrs
-            }
-            if (diyskills) {
-                this_.diy_skills(diyskills)
-            } else this_.dm(C.Array.cL(this_.t, 64), C.Array.cL(this_.E, 64)) // initSkills
-        } else {
-            this_.dm(C.Array.cL(this_.t, $.au()), C.Array.cL(this_.E, $.au())) // initSkills
         }
+        if (attrs && this.cm == undefined) { //cm -> this.from, 如果是分身的初始化，那么不要更改八围
+            for (var i = 0; i < 7; i++) {
+                attrs[i] -= 36; // 为当前项减去36
+            }
+            this_.q = attrs
+        }
+        if (diyskills) {
+            this_.diy_skills(diyskills)
+        } else this_.dm(C.Array.cL(this_.t, 64), C.Array.cL(this_.E, 64)) // initSkills
+
 
         weapon = this_.weapon
         if (weapon != null) weapon.cs()
@@ -17531,12 +17543,12 @@ T.Plr.prototype = {
         skills.push(new T.SkillVoid(0))
     },
     diy_skills(diyskills) {
+        var this_ = this;
         try {
             // MARK: 自定义技能
-            var sortedSkills = this.k2
-            var this_ = this
+            var sortedSkills = this_.k2
             // 初始化技能
-            for (var n = 0; n < this.k2.length; n++) this.k2[n].ao(this, 0)
+            for (var n = 0; n < this_.k2.length; n++) this_.k2[n].ao(this_, 0)
             // 遍历diyskills字典的键
             var keys = Object.keys(diyskills);
             for (var k = 0; k < keys.length; k++) {
@@ -17544,8 +17556,8 @@ T.Plr.prototype = {
                 var key = keys[k]
                 for (var i = 0; i < sortedSkills.length; i++) {
                     if (sortedSkills[i].constructor.name.toLowerCase() == key.toLowerCase()) {
-                        sortedSkills[i].f = diyskills[key];
-                        // skills[i].ao(this, this.f)
+                        //sortedSkills[i].f = diyskills[key];
+                        sortedSkills[i].ao(this, diyskills[key])
 
                         if (i != k) { // 把技能的顺序排一下
                             [sortedSkills[i], sortedSkills[k]] = [sortedSkills[k], sortedSkills[i]]
@@ -17554,6 +17566,7 @@ T.Plr.prototype = {
                     }
                 }
             }
+
         } catch (error) {
             console.log("error diy")
             console.error(error)
@@ -17569,7 +17582,7 @@ T.Plr.prototype = {
             if (!(n < $.aR() && n < this_.k2.length)) break
             skill = this_.k2[n]
             sortedSkills = C.Array.al(list, m, m + $.C())
-            if (!!sortedSkills.immutable$list) H.throw_expression(P.UnsupportError("sort"))
+            // if (sortedSkills.immutable$list) H.throw_expression(P.UnsupportError("sort"))
             q = sortedSkills.length - 1
             if (q - 0 <= 32) H.ej(sortedSkills, 0, q, J.bO())
             else H.ei(sortedSkills, 0, q, J.bO())
@@ -17578,7 +17591,7 @@ T.Plr.prototype = {
             sortedSkills = 0
             if (p > sortedSkills) {
                 sortedSkills = C.Array.al(original, m, m + $.C())
-                if (!!sortedSkills.immutable$list) H.throw_expression(P.UnsupportError("sort"))
+                // if (sortedSkills.immutable$list) H.throw_expression(P.UnsupportError("sort"))
                 q = sortedSkills.length - 1
                 if (q - 0 <= 32) H.ej(sortedSkills, 0, q, J.bO())
                 else H.ei(sortedSkills, 0, q, J.bO())
@@ -17598,7 +17611,7 @@ T.Plr.prototype = {
             skl = sortedSkills[s]
             if (skl.f > 0 && skl instanceof T.ActionSkill) actions.push(skl)
         }
-        if (this.diy == undefined) {
+        if (!this_.isDiySkill) {
             if (actions.length > 0)
                 for (s = actions.length - 1; s >= 0; --s) {
                     act = actions[s]
@@ -17608,16 +17621,17 @@ T.Plr.prototype = {
                         break
                     }
                 }
-        }
-        boostPassive = new T.BoostPassive()
-        var skills = this_.k2
-        if (skills.length >= $.aR()) {
-            skills = skills[$.p7()]
-            sortedSkills = this_.t
-            boostPassive.boostPassive(skills, sortedSkills[$.a6()], sortedSkills[$.pR()])
-            sortedSkills = this_.k2[$.eT()]
-            skills = this_.t
-            boostPassive.boostPassive(sortedSkills, skills[$.n_()], skills[$.b2()])
+
+            boostPassive = new T.BoostPassive()
+            var skills = this_.k2
+            if (skills.length >= $.aR()) {
+                skills = skills[$.p7()]
+                sortedSkills = this_.t
+                boostPassive.boostPassive(skills, sortedSkills[$.a6()], sortedSkills[$.pR()])
+                sortedSkills = this_.k2[$.eT()]
+                skills = this_.t
+                boostPassive.boostPassive(sortedSkills, skills[$.n_()], skills[$.b2()])
+            }
         }
         for (s = 0, skills = this_.k1; s < skills.length; ++s) {
             skl = skills[s]
@@ -17625,10 +17639,10 @@ T.Plr.prototype = {
         }
     },
     cn() { // initValues
-        var s = this
-        s.F()
-        s.fx = s.fy
-        s.go = C.JsInt.P(s.fr, $.t())
+        var this_ = this
+        this_.F()
+        this_.fx = this_.fy
+        this_.go = C.JsInt.P(this_.fr, $.t())
     },
     F() {
         /*  void updateStates() {
@@ -17654,6 +17668,8 @@ T.Plr.prototype = {
         }
         */
         var s, this_ = this
+        // $.cj() => 128
+        // $.n1() => 80
         this_.ch = this_.b0(this_.q[0], $.cj())
         this_.cx = this_.b0(this_.q[1], $.cj())
         this_.cy = this_.b0(this_.q[2], $.cj()) + 160
@@ -17673,9 +17689,8 @@ T.Plr.prototype = {
     },
     ci() {
         // calcAttrSum
-        var attr_sum, r, q, p, o, n, m, l, k, j, i = this,
-            this_ = this,
-            h = i.M = 0
+        var attr_sum, r, q, p, o, n, m, l, k, j, this_ = this,
+            h = this_.M = 0
         for (attr_sum = h; h < 7; ++h) {
             attr_sum += this_.q[h]
             this_.M = attr_sum
@@ -17688,9 +17703,9 @@ T.Plr.prototype = {
         l = q[$.C()]
         k = q[$.X()]
         j = $.B()
-        i.N = (p - o + m + l - k) * n + q[j] + q[$.a4()]
-        i.Y = attr_sum * j + q[r]
-        i.H = $.W()
+        this_.N = (p - o + m + l - k) * n + q[j] + q[$.a4()]
+        this_.Y = attr_sum * j + q[r]
+        this_.H = $.W()
     },
     dN(a, b, c) {
         // void step(R r, RunUpdates updates) {
@@ -20513,10 +20528,12 @@ var t = (function rtii() {
         return 64
     })
     lazy_old($, "w1", "cj", function () {
-        return X.D("`H)#qK]@HN", 15)
+        // return X.D("`H)#qK]@HN", 15)
+        return 128
     })
     lazy_old($, "xG", "ap", function () {
-        return X.k("j1 6(jNX~I", 52)
+        // return X.k("j1 6(jNX~I", 52)
+        return 7
     })
     lazy_old($, "vO", "p1", function () {
         // return X.D("%>;B.O6'DA", 63)
@@ -20845,7 +20862,8 @@ var t = (function rtii() {
         return 32
     })
     lazy_old($, "xB", "pS", function () {
-        return X.D("'%s.<Y.W9R", 36)
+        // return X.D("'%s.<Y.W9R", 36)
+        return 64
     })
     lazy_old($, "wI", "ps", function () {
         // return X.D("Ot`&?l'nHU", 55)
@@ -20860,7 +20878,8 @@ var t = (function rtii() {
         return 32768
     })
     lazy_old($, "xO", "n1", function () {
-        return X.D("Jn|940%'0C", 76)
+        // return X.D("Jn|940%'0C", 76)
+        return 80
     })
     lazy_old($, "x3", "pD", function () {
         return X.k("AQI,4l~@gF", 31)
@@ -21773,10 +21792,9 @@ function main(input_name) {
     return P._asyncStartSync($async$iE, async_completer)
 }
 
-// logger.info("反混淆", LangData.j("HOa,^Auk1x84LRKOnLivoA,^CvRYpI$Y&JxtF7P", 33));
-
 /**
  * 主接口
+ * Note: 不提供 main() 的直接调用, 请使用 run_any 作为替代
  */
 const runner = {
     fight: (names) => {
@@ -21805,6 +21823,7 @@ const runner = {
     win_rate_callback: (names, callback) => {
         return new Promise((resolve, reject) => {
             let win_datas = [];
+            finish_trigger.removeAllListeners('win_rate');
             finish_trigger.on("win_rate", (run_round, win_count) => {
                 win_datas.push({ round: run_round, win_count: win_count });
                 // 调用 callback
@@ -21820,6 +21839,7 @@ const runner = {
     score: (names, target_round) => {
         return new Promise((resolve, reject) => {
             let score_datas = [];
+            finish_trigger.removeAllListeners('score_report');
             finish_trigger.on("score_report", (run_round, score) => {
                 score_datas.push({ round: run_round, score: score });
                 // 如果数据长度等于 round，说明数据已经全部返回
@@ -21834,6 +21854,7 @@ const runner = {
     score_callback: (names, callback) => {
         return new Promise((resolve, reject) => {
             let score_datas = [];
+            finish_trigger.removeAllListeners('score_report');
             finish_trigger.on("score_report", (run_round, score) => {
                 score_datas.push({ round: run_round, score: score });
                 // 调用 callback
@@ -21843,15 +21864,18 @@ const runner = {
                     resolve({ score: score, raw_data: score_datas });
                 }
             });
+            main(names);
         });
     },
     run_any: (names, round) => {
         return new Promise((resolve, reject) => {
             let data = [];
             // 三种情况都带上
+            finish_trigger.removeAllListeners('done_fight');
             finish_trigger.on("done_fight", (data) => {
                 resolve(fmt_RunUpdate(data));
             });
+            finish_trigger.removeAllListeners('win_rate');
             finish_trigger.on("win_rate", (run_round, win_count) => {
                 data.push({ round: run_round, win_count: win_count });
                 if (run_round >= round) {
@@ -21859,6 +21883,7 @@ const runner = {
                     resolve({ win_count: win_count, raw_data: data });
                 }
             });
+            finish_trigger.removeAllListeners('score_report');
             finish_trigger.on("score_report", (run_round, score) => {
                 data.push({ round: run_round, score: score });
                 if (run_round >= round) {
