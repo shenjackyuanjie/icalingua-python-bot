@@ -1,14 +1,12 @@
 import io
-import re
 import time
-import base64
 import requests
 import traceback
 import urllib.parse
 
 # import PIL
 
-from typing import TYPE_CHECKING, TypeVar, Optional, Tuple
+from typing import TYPE_CHECKING, TypeVar, Optional, Tuple, List
 
 if TYPE_CHECKING:
     from ica_typing import IcaNewMessage, IcaClient, ConfigData
@@ -18,7 +16,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.4.0-rs"
+_version_ = "2.5.0-rs"
 backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
@@ -226,13 +224,8 @@ def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
     for i, r in enumerate(rank_data):
         r['index'] = i
     # 搜索是否有这个名字的节点
-    names = [r["name"].lower() for r in rank_data]
-    try:
-        finds = [re.search(name.lower(), n) for n in names]
-    except re.error as e:
-        reply = msg.reply_with(f"正则表达式错误: {e}, 请检查输入")
-        client.send_message(reply)
-        return
+    names: List[str] = [r["name"].lower() for r in rank_data]
+    finds = [n.find(name) != -1 for n in names]
     if not any(finds):
         reply = msg.reply_with(f"未找到名为{name}的节点")
         client.send_message(reply)
