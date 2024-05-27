@@ -225,7 +225,7 @@ def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
         r['index'] = i
     # 搜索是否有这个名字的节点
     names: List[str] = [r["name"].lower() for r in rank_data]
-    finds = [n.find(name) != -1 for n in names]
+    finds = [name in n for n in names]
     if not any(finds):
         reply = msg.reply_with(f"未找到名为{name}的节点")
         client.send_message(reply)
