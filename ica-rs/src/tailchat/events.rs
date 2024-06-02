@@ -1,16 +1,21 @@
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
+use serde_json::json;
 use tracing::info;
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client) {
-    let handled = vec![
+    let handled = [
         // 真正处理过的
-        "chat.message.sendMessage", // 也许以后会用到
+        "chat.message.sendMessage",
+        // "notify:chat.message.add",
+        // 也许以后会用到
 
-                                    // 忽略的
+        // 忽略的
     ];
+    println!("event: {:?}", event);
+    println!("payload: {:?}", payload);
     match &event {
         Event::Custom(event_name) => {
             if handled.contains(&event_name.as_str()) {
@@ -27,7 +32,9 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
                         info!("收到消息 {}", value.to_string().yellow());
                     }
                 }
-                _ => (),
+                _ => {
+                    return;
+                }
             }
             return;
         }
@@ -56,4 +63,9 @@ pub async fn on_message(payload: Payload, client: Client) {
         }
         _ => (),
     }
+}
+
+pub async fn on_connect(payload: Payload, client: Client) {
+    let _ = client.emit("chat.converse.findAndJoinRoom", json! {[]}).await;
+    info!("连接成功 {:?}", payload);
 }
