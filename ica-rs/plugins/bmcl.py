@@ -4,14 +4,6 @@ import requests
 import traceback
 import urllib.parse
 
-have_regexrs = False
-try:
-    import regexrs
-    have_regexrs = True
-except ImportError:
-    print("未找到 regexrs 模块, 将回退到字符串 in 操作")
-    have_regexrs = False
-
 # import PIL
 
 from typing import TYPE_CHECKING, TypeVar, Optional, Tuple, List
@@ -24,7 +16,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.6.0-rs"
+_version_ = "2.7.0-rs"
 backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
@@ -233,12 +225,12 @@ def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
         r['index'] = i
     # 搜索是否有这个名字的节点
     names: List[str] = [r["name"].lower() for r in rank_data]
-    try:
-        import regexrs
-        pattern = regexrs.compile(name)
-        finds = [pattern.match(n) for n in names]
-    except Exception as e:
-        finds = [name.lower() in n for n in names]
+    # try:
+    #     import regexrs
+    #     pattern = regexrs.compile(name)
+    #     finds = [pattern.match(n) for n in names]
+    # except Exception as e:
+    finds = [name.lower() in n for n in names]
     if not any(finds):
         reply = msg.reply_with(f"未找到名为{name}的节点")
         client.send_message(reply)
