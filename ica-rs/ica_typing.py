@@ -87,7 +87,7 @@ class IcaSendMessage:
 
 
 class IcaDeleteMessage:
-    def __str__(self):
+    def __str__(self) -> str:
         ...
 
 
@@ -153,7 +153,7 @@ class IcaClient:
         return self.send_message(message)
     def delete_message(self, message: IcaDeleteMessage) -> bool:
         ...
-    
+
     @property
     def status(self) -> IcaStatus:
         ...
@@ -200,7 +200,7 @@ class TailchatReciveMessage:
     @property
     def converse_id(self) -> TailchatType.ConverseId:
         ...
-    
+
 
 
 class TailchatClient:

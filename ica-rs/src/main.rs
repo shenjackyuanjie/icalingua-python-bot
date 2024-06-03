@@ -48,8 +48,11 @@ async fn main() {
     // none -> info
     let level = {
         let args = std::env::args();
-        if args.collect::<Vec<String>>().contains(&"-d".to_string()) {
+        let args = args.collect::<Vec<String>>();
+        if args.contains(&"-d".to_string()) {
             Level::DEBUG
+        } else if args.contains(&"-t".to_string()) {
+            Level::TRACE
         } else {
             Level::INFO
         }
