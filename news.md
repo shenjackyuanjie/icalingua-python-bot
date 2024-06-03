@@ -1,5 +1,17 @@
 # 更新日志
 
+## 0.6.5
+
+怎么就突然 0.6.5 了
+我也不造啊
+
+- 反正支持了 tailchat 的信息接受
+- 但是需要你在对面服务端打开 `DISABLE_MESSAGEPACK` 环境变量
+- 能用就行
+
+- 现在 `update_online_data` 不会再以 INFO 级别显示了
+- `update_all_room` 同上
+
 ## 0.6.2
 
 - 添加 API

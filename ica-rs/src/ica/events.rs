@@ -14,7 +14,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let online_data = OnlineData::new_from_json(value);
-            info!("update_online_data {}", format!("{:?}", online_data).cyan());
+            event!(Level::DEBUG, "update_online_data {}", format!("{:?}", online_data).cyan());
             MainStatus::global_ica_status_mut().update_online_status(online_data);
         }
     }
@@ -80,7 +80,7 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
         if let Some(value) = values.first() {
             if let Some(raw_rooms) = value.as_array() {
                 let rooms: Vec<Room> = raw_rooms.iter().map(Room::new_from_json).collect();
-                info!("update_all_room {}", rooms.len());
+                event!(Level::DEBUG, "update_all_room {}", rooms.len());
                 MainStatus::global_ica_status_mut().update_rooms(rooms);
             }
         }
