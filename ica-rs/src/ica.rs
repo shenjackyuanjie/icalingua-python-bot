@@ -77,7 +77,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
                 rust_socketio::Error::IncompleteResponseFromEngineIo(inner_e) => {
                     if inner_e.to_string().contains("AlreadyClosed") {
                         event!(Level::INFO, "socketio client stopped");
-                        return Ok(());
+                        Ok(())
                     } else {
                         event!(Level::ERROR, "socketio client stopped with error: {:?}", inner_e);
                         Err(IcaError::SocketIoError(

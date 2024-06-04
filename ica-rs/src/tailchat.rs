@@ -6,7 +6,7 @@ use md5::{Digest, Md5};
 use reqwest::ClientBuilder as reqwest_ClientBuilder;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{Event, Payload, TransportType};
-use serde_json::{from_str, from_value, json, Value};
+use serde_json::{json, Value};
 use tracing::{event, span, Level};
 
 use crate::config::TailchatConfig;

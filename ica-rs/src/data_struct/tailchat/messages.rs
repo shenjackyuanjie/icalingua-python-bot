@@ -54,9 +54,9 @@ impl ReciveMessage {
     }
 
     /// 回复这条消息
-    pub fn reply_with(&self, content: &String) -> SendingMessage {
+    pub fn reply_with(&self, content: &str) -> SendingMessage {
         SendingMessage::new(
-            content.clone(),
+            content.to_string(),
             self.converse_id.clone(),
             self.group_id.clone(),
             Some(ReplyMeta::from_recive_message(self)),

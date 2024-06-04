@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
 use crate::data_struct::{ica, tailchat};
 use crate::error::PyPluginError;
@@ -174,7 +174,7 @@ pub async fn tailchat_new_message_py(message: &tailchat::messages::ReciveMessage
 
     let plugins = PyStatus::get_files();
     for (path, plugin) in plugins.iter() {
-        let msg = class::tailchat::TailchatReciveMessagePy::from_recive_message(&message);
+        let msg = class::tailchat::TailchatReciveMessagePy::from_recive_message(message);
         let client = class::tailchat::TailchatClientPy::new(client);
         let args = (msg, client);
         call_py_func!(args, plugin, path, TAILCHAT_NEW_MESSAGE_FUNC, client);

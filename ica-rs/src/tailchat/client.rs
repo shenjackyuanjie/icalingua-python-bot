@@ -5,7 +5,7 @@ use rust_socketio::asynchronous::Client;
 
 use colored::Colorize;
 use serde_json::Value;
-use tracing::{debug, info, span, warn, Level};
+use tracing::{debug, warn};
 
 pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
     let value: Value = message.as_value();

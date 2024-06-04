@@ -1,5 +1,24 @@
 # 更新日志
 
+## 0.6.6
+
+游学之前最后一次更新
+其实也就五天
+
+正式支持了 tailchat 端
+好耶！
+
+[!note]
+```text
+notice_room = []
+notice_start = true
+
+admin_list = []
+filter_list = []
+```
+
+的功能暂时不支持
+
 ## 0.6.5
 
 怎么就突然 0.6.5 了
