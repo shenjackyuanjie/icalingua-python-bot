@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
-use crate::data_struct::tailchat::messages::{ReciveMessage, ReplyMeta, SendingMessage};
+use crate::data_struct::tailchat::messages::{ReciveMessage, SendingMessage};
 use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
 use crate::tailchat::client::send_message;
 
@@ -60,7 +60,10 @@ impl TailchatClientPy {
         warn!("{}", message.message.content);
         self.send_message(message)
     }
-
+    #[getter]
+    pub fn get_version(&self) -> String { crate::VERSION.to_string() }
+    #[getter]
+    pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     pub fn debug(&self, content: String) {
         debug!("{}", content);
     }
@@ -94,7 +97,7 @@ impl TailchatReciveMessagePy {
     }
     pub fn reply_with(&self, content: String) -> TailchatSendingMessagePy {
         TailchatSendingMessagePy {
-            message: self.message.reply_with(content),
+            message: self.message.reply_with(&content),
         }
     }
 }

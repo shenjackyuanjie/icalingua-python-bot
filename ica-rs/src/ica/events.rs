@@ -133,16 +133,13 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
             }
         }
         Event::Message => {
-            match payload {
-                Payload::Text(values) => {
-                    if let Some(value) = values.first() {
-                        if handled.contains(&value.as_str().unwrap()) {
-                            return;
-                        }
-                        info!("收到消息 {}", value.to_string().yellow());
+            if let Payload::Text(values) = payload {
+                if let Some(value) = values.first() {
+                    if handled.contains(&value.as_str().unwrap()) {
+                        return;
                     }
+                    info!("收到消息 {}", value.to_string().yellow());
                 }
-                _ => (),
             }
             return;
         }
@@ -165,27 +162,24 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
 pub async fn connect_callback(payload: Payload, _client: Client) {
     let span = span!(Level::INFO, "ica connect_callback");
     let _enter = span.enter();
-    match payload {
-        Payload::Text(values) => {
-            if let Some(value) = values.first() {
-                match value.as_str() {
-                    Some("authSucceed") => {
-                        event!(Level::INFO, "{}", "已经登录到 icalingua!".green())
-                    }
-                    Some("authFailed") => {
-                        event!(Level::ERROR, "{}", "登录到 icalingua 失败!".red());
-                        panic!("登录失败")
-                    }
-                    Some("authRequired") => {
-                        event!(Level::INFO, "{}", "需要登录到 icalingua!".yellow())
-                    }
-                    Some(msg) => {
-                        event!(Level::INFO, "{}{}", "未知消息".yellow(), msg);
-                    }
-                    None => (),
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            match value.as_str() {
+                Some("authSucceed") => {
+                    event!(Level::INFO, "{}", "已经登录到 icalingua!".green())
                 }
+                Some("authFailed") => {
+                    event!(Level::ERROR, "{}", "登录到 icalingua 失败!".red());
+                    panic!("登录失败")
+                }
+                Some("authRequired") => {
+                    event!(Level::INFO, "{}", "需要登录到 icalingua!".yellow())
+                }
+                Some(msg) => {
+                    event!(Level::INFO, "{}{}", "未知消息".yellow(), msg);
+                }
+                None => (),
             }
         }
-        _ => (),
     }
 }

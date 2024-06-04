@@ -99,7 +99,7 @@ impl NewMessagePy {
     #[getter]
     pub fn get_is_chat_msg(&self) -> bool { self.msg.room_id.is_chat() }
     #[getter]
-    pub fn get_room_id(&self) -> RoomId { self.msg.room_id.clone() }
+    pub fn get_room_id(&self) -> RoomId { self.msg.room_id }
 }
 
 impl NewMessagePy {

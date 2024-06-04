@@ -200,6 +200,12 @@ class TailchatReciveMessage:
     @property
     def converse_id(self) -> TailchatType.ConverseId:
         ...
+    def reply_with(self, message: str) -> "TailchatSendingMessage":
+        """回复这条消息"""
+        ...
+    def as_reply(self, message: str) -> "TailchatSendingMessage":
+        """回复这条消息"""
+        ...
 
 
 class TailchatSendingMessage:
@@ -237,7 +243,13 @@ class TailchatClient:
         """发送消息, 并在日志中输出警告信息"""
         self.warn(message.content)
         return self.send_message(message)
-
+    @property
+    def version(self) -> str:
+        ...
+    @property
+    def tailchat_version(self) -> str:
+        """tailchat 的版本号"""
+        ...
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
     def info(self, message: str) -> None:

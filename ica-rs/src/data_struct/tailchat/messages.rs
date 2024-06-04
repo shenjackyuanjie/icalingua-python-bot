@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
 
@@ -52,12 +54,23 @@ impl ReciveMessage {
     }
 
     /// 回复这条消息
-    pub fn reply_with(&self, content: String) -> SendingMessage {
+    pub fn reply_with(&self, content: &String) -> SendingMessage {
         SendingMessage::new(
-            content,
+            content.clone(),
             self.converse_id.clone(),
             self.group_id.clone(),
             Some(ReplyMeta::from_recive_message(self)),
+        )
+    }
+}
+
+impl Display for ReciveMessage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // msgid|groupid-converseid|senderid|content
+        write!(
+            f,
+            "{}|{}-{}|{}|{}",
+            self.msg_id, self.group_id, self.converse_id, self.sender_id, self.content
         )
     }
 }
