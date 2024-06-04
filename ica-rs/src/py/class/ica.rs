@@ -185,10 +185,7 @@ impl IcaClientPy {
 
     pub fn send_and_warn(&self, message: SendMessagePy) -> bool {
         warn!(message.msg.content);
-        tokio::task::block_in_place(|| {
-            let rt = Runtime::new().unwrap();
-            rt.block_on(send_message(&self.client, &message.msg))
-        })
+        self.send_message(message)
     }
 
     pub fn delete_message(&self, message: DeleteMessagePy) -> bool {
@@ -222,11 +219,9 @@ impl IcaClientPy {
     pub fn debug(&self, content: String) {
         debug!("{}", content);
     }
-
     pub fn info(&self, content: String) {
         info!("{}", content);
     }
-
     pub fn warn(&self, content: String) {
         warn!("{}", content);
     }

@@ -1,4 +1,5 @@
 pub mod ica;
+pub mod tailchat;
 
 use pyo3::prelude::*;
 use toml::Value as TomlValue;

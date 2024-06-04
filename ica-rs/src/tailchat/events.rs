@@ -56,24 +56,19 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
     }
 }
 
-pub async fn on_message(payload: Payload, _client: Client) {
-    match payload {
-        Payload::Text(values) => {
-            if let Some(value) = values.first() {
-                let message: ReciveMessage = serde_json::from_value(value.clone()).unwrap();
-                info!("收到消息 {:?}", message);
-            }
+pub async fn on_message(payload: Payload, client: Client) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            let message: ReciveMessage = serde_json::from_value(value.clone()).unwrap();
+            info!("收到消息 {:?}", message);
+            crate::py::call::tailchat_new_message_py(&message, &client).await;
         }
-        _ => (),
     }
 }
 pub async fn on_msg_delete(payload: Payload, _client: Client) {
-    match payload {
-        Payload::Text(values) => {
-            if let Some(value) = values.first() {
-                info!("删除消息 {}", value.to_string().red());
-            }
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            info!("删除消息 {}", value.to_string().red());
         }
-        _ => (),
     }
 }

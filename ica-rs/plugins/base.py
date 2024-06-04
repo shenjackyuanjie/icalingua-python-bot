@@ -11,3 +11,5 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         if msg.content == "/bot":
             reply = msg.reply_with(f"ica-async-rs({client.version})-sync-py {client.ica_version}")
             client.send_message(reply)
+
+

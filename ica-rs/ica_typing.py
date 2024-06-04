@@ -188,9 +188,9 @@ class TailchatReciveMessage:
     @property
     def sender_id(self) -> TailchatType.UserId:
         ...
-    @property
-    def is_from_self(self) -> bool:
-        ...
+    # @property
+    # def is_from_self(self) -> bool:
+    #     ...
     @property
     def is_reply(self) -> bool:
         ...
@@ -202,11 +202,41 @@ class TailchatReciveMessage:
         ...
 
 
+class TailchatSendingMessage:
+    """
+    Tailchat 将要发送的信息
+    """
+    @property
+    def content(self) -> str:
+        ...
+    @content.setter
+    def content(self, value: str) -> None:
+        ...
+    def with_content(self, content: str) -> "TailchatSendingMessage":
+        """
+        为了链式调用, 返回自身
+        """
+        self.content = content
+        return self
+    # def set_img(self, file: bytes, file_type: str, as_sticker: bool):
+    #     """
+    #     设置消息的图片
+    #     @param file: 图片文件 (实际上是 vec<u8>)
+    #     @param file_type: 图片类型 (MIME) (image/png; image/jpeg)
+    #     @param as_sticker: 是否作为贴纸发送
+    #     """
+
 
 class TailchatClient:
     """
     Tailchat 的客户端
     """
+    def send_message(self, message: TailchatSendingMessage) -> bool:
+        ...
+    def send_and_warn(self, message: TailchatSendingMessage) -> bool:
+        """发送消息, 并在日志中输出警告信息"""
+        self.warn(message.content)
+        return self.send_message(message)
 
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""
@@ -235,8 +265,9 @@ on_ica_delete_message = Callable[[IcaType.MessageId, IcaClient], None]
 # def on_delete_message(msg_id: MessageId, client: IcaClient) -> None:
 #     ...
 
-# TODO: Tailchat adapter
-on_tailchat_message = Callable[[], None]
+on_tailchat_message = Callable[[TailchatClient, TailchatReciveMessage], None]
+# def on_tailchat_message(client: TailchatClient, msg: TailchatReciveMessage) -> None:
+#     ...
 
 on_config = Callable[[None], Tuple[str, str]]
 
