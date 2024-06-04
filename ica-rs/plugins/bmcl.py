@@ -16,7 +16,7 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "2.7.0-rs"
+_version_ = "2.8.0-rs"
 backend_version = "unknown"
 
 def format_data_size(data_bytes: float) -> str:
@@ -113,7 +113,7 @@ def bmcl_dashboard(msg: IcaNewMessage, client: IcaClient) -> None:
         f"请求时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(req_time))}\n"
          "数据源: https://bd.bangbang93.com/pages/dashboard"
     )
-    client.info(report_msg)
+    client.debug(report_msg)
     reply = msg.reply_with(report_msg)
     client.send_message(reply)
 
@@ -208,7 +208,7 @@ def bmcl_rank_general(msg, client):
     # img_cache.close()
 
     report_msg = display_rank_full(ranks, req_time)
-    client.info(report_msg)
+    client.debug(report_msg)
     reply = msg.reply_with(display_rank_full(ranks, req_time))
     # reply.set_img(raw_img, "image/jpeg", False)
     client.send_message(reply)
@@ -249,7 +249,7 @@ def bmcl_rank(msg: IcaNewMessage, client: IcaClient, name: str) -> None:
         return
     # 如果找到 <= 3 个节点, 则显示全部信息
     report_msg = display_rank_full(ranks, req_time)
-    client.info(report_msg)
+    client.debug(report_msg)
     reply = msg.reply_with(report_msg)
     client.send_message(reply)
 
@@ -324,6 +324,44 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
             reply = msg.reply_with(report_msg)
             client.send_and_warn(reply)
 
+
+def on_tailchat_message(msg, client) -> None:
+    if not msg.is_reply:
+        if '\n' in msg.content:
+            return
+        try:
+            global backend_version
+            if backend_version == "unknown":
+                dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
+                if dashboard_status is None:
+                    return
+                backend_version = dashboard_status["version"]
+            if msg.content.startswith("/bmcl"):
+                if msg.content == "/bmcl":
+                    bmcl_dashboard(msg, client)
+                elif msg.content == "/bmcl rank":
+                    bmcl_rank_general(msg, client)
+                elif msg.content.startswith("/bmcl rank") and len(msg.content) > 11:
+                    name = msg.content[11:]
+                    bmcl_rank(msg, client, name)
+                else:
+                    reply = msg.reply_with(help)
+                    client.send_message(reply)
+            elif msg.content.startswith("/brrs"):
+                if msg.content == "/brrs":
+                    reply = msg.reply_with(help)
+                    client.send_message(reply)
+                else:
+                    name = msg.content.split(" ")
+                    if len(name) > 1:
+                        name = name[1]
+                        bmcl_rank(msg, client, name)
+            elif msg.content == "/bm93":
+                bangbang_img(msg, client)
+        except:  # noqa
+            report_msg = f"bmcl插件发生错误,请呼叫shenjack\n{traceback.format_exc()}"
+            reply = msg.reply_with(report_msg)
+            client.send_and_warn(reply)
 
 def on_config() -> Tuple[str, str]:
     return (
