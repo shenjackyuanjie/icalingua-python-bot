@@ -274,8 +274,8 @@ impl NewMessage {
     pub fn new(room_id: RoomId, msg: Message) -> Self { Self { room_id, msg } }
 
     /// 创建一条对这条消息的回复
-    pub fn reply_with(&self, content: &String) -> SendMessage {
-        SendMessage::new(content.clone(), self.room_id, Some(self.msg.as_reply()))
+    pub fn reply_with(&self, content: &str) -> SendMessage {
+        SendMessage::new(content.to_string(), self.room_id, Some(self.msg.as_reply()))
     }
 
     /// 作为被删除的消息
