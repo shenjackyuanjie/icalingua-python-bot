@@ -20,5 +20,5 @@ def on_tailchat_message(msg: TailchatReciveMessage, client: TailchatClient) -> N
     # if not (msg.is_from_self or msg.is_reply):
     if not (msg.is_reply):
         if msg.content == "/bot":
-            reply = msg.reply_with(f"ica-async-rs({client.version})-sync-py {client.tailchat_version}")
+            reply = msg.reply_with(f"tailchat-async-rs({client.version})-sync-py {client.tailchat_version}")
             client.send_message(reply)
