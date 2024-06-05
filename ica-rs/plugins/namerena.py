@@ -15,12 +15,12 @@ else:
     IcaNewMessage = TypeVar("NewMessage")
     IcaClient = TypeVar("IcaClient")
 
-_version_ = "0.4.1"
+_version_ = "0.4.2"
 
 COMMAND = "/namerena"
 
 def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
-    if not msg.content.startswith("/namerena"):
+    if not msg.content.startswith("/namerena") or msg.is_reply:
         return
     if msg.content.find("\n") == -1:
         client.send_message(
@@ -63,3 +63,7 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         # 发送错误
         reply = msg.reply_with(f"发生错误：{e}\n{traceback.format_exc()}")
         client.send_message(reply)
+
+
+def on_tailchat_message(msg, client) -> None:
+    on_ica_message(msg, client)
