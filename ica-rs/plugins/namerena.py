@@ -4,16 +4,9 @@ import subprocess
 
 from pathlib import Path
 
-from typing import TYPE_CHECKING, TypeVar
+from ica_typing import IcaNewMessage, IcaClient, ConfigData
 
-if TYPE_CHECKING:
-    from ica_typing import IcaNewMessage, IcaClient, ConfigData
-
-    CONFIG_DATA: ConfigData
-else:
-    CONFIG_DATA = None  # type: ignore
-    IcaNewMessage = TypeVar("NewMessage")
-    IcaClient = TypeVar("IcaClient")
+CONFIG_DATA: ConfigData
 
 _version_ = "0.4.2"
 
