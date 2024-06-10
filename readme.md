@@ -49,6 +49,9 @@ cargo run --release -- -c config.toml
 
 ## 使用方法 ( Python 版 )
 
+[!warning]
+> 请注意 Python 的 bot 已经不再维护
+
 - 安装依赖
 
 ```powershell
