@@ -16,7 +16,7 @@ python -m pip install -r requirement.txt
 > 如果你想使用虚拟环境 \
 > 可以使用 `python -m venv venv` 创建虚拟环境 \
 > 然后使用 `venv\Scripts\activate` 激活虚拟环境 \
-> 最后使用 `python -m pip install -r requirement.txt` 安装依赖
+> 最后使用 `python -m pip install -r requirements.txt` 安装依赖
 
 - 修改配置文件
 
