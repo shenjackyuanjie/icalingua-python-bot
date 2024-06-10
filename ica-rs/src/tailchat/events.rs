@@ -12,6 +12,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         // 真正处理过的
         "notify:chat.message.add",
         "notify:chat.message.delete",
+        "notify:chat.converse.updateDMConverse",
         // 也许以后会用到
         "notify:chat.message.update",
         "notify:chat.message.addReaction",
@@ -60,7 +61,14 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
 pub async fn on_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let message: ReciveMessage = serde_json::from_value(value.clone()).unwrap();
+            let message: ReciveMessage = match serde_json::from_value(value.clone()) {
+                Ok(v) => v,
+                Err(e) => {
+                    info!("tailchat_msg {}", value.to_string().red());
+                    info!("tailchat_msg {}", format!("{:?}", e).red());
+                    return;
+                }
+            };
             info!("tailchat_msg {}", message.to_string().cyan());
 
             if !message.is_reply() {
@@ -81,6 +89,14 @@ pub async fn on_msg_delete(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             info!("删除消息 {}", value.to_string().red());
+        }
+    }
+}
+
+pub async fn on_converse_update(payload: Payload, _client: Client) {
+    if let Payload::Text(values) = payload {
+        if let Some(value) = values.first() {
+            info!("更新会话 {}", value.to_string().green());
         }
     }
 }

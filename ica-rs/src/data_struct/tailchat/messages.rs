@@ -16,8 +16,9 @@ pub struct ReciveMessage {
     #[serde(rename = "author")]
     pub sender_id: UserId,
     /// 服务器ID
+    /// 在私聊中不存在
     #[serde(rename = "groupId")]
-    pub group_id: GroupId,
+    pub group_id: Option<GroupId>,
     /// 会话ID
     #[serde(rename = "converseId")]
     pub converse_id: ConverseId,
@@ -31,13 +32,10 @@ pub struct ReciveMessage {
     pub reactions: Vec<JsonValue>,
     /// 创建时间
     #[serde(rename = "createdAt")]
-    pub created_at: JsonValue,
+    pub created_at: String,
     /// 更新时间
     #[serde(rename = "updatedAt")]
-    pub updated_at: JsonValue,
-    /// 未知
-    #[serde(rename = "__v")]
-    pub v: JsonValue,
+    pub updated_at: String,
 }
 
 impl ReciveMessage {
@@ -69,7 +67,7 @@ impl Display for ReciveMessage {
         // msgid|groupid-converseid|senderid|content
         write!(
             f,
-            "{}|{}-{}|{}|{}",
+            "{}|{:?}-{}|{}|{}",
             self.msg_id, self.group_id, self.converse_id, self.sender_id, self.content
         )
     }
@@ -98,7 +96,7 @@ pub struct SendingMessage {
     pub converse_id: ConverseId,
     /// 服务器ID
     #[serde(rename = "groupId")]
-    pub group_id: GroupId,
+    pub group_id: Option<GroupId>,
     /// 消息的元数据
     pub meta: Option<ReplyMeta>,
 }
@@ -107,7 +105,7 @@ impl SendingMessage {
     pub fn new(
         content: String,
         converse_id: ConverseId,
-        group_id: GroupId,
+        group_id: Option<GroupId>,
         meta: Option<ReplyMeta>,
     ) -> Self {
         Self {
@@ -117,7 +115,11 @@ impl SendingMessage {
             meta,
         }
     }
-    pub fn new_without_meta(content: String, converse_id: ConverseId, group_id: GroupId) -> Self {
+    pub fn new_without_meta(
+        content: String,
+        converse_id: ConverseId,
+        group_id: Option<GroupId>,
+    ) -> Self {
         Self {
             content,
             converse_id,

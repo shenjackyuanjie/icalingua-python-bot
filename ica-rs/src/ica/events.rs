@@ -123,6 +123,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         // 忽略的
         "notify",
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
+        "renewMessage", // 我也不确定到底是啥事件
         "updateRoom",
         "syncRead", // 同步已读
     ];

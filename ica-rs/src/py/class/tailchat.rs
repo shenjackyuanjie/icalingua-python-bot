@@ -86,7 +86,7 @@ impl TailchatReciveMessagePy {
     #[getter]
     pub fn get_sender_id(&self) -> UserId { self.message.sender_id.clone() }
     #[getter]
-    pub fn get_group_id(&self) -> GroupId { self.message.group_id.clone() }
+    pub fn get_group_id(&self) -> Option<GroupId> { self.message.group_id.clone() }
     #[getter]
     pub fn get_converse_id(&self) -> ConverseId { self.message.converse_id.clone() }
     /// 作为回复
@@ -110,8 +110,14 @@ impl TailchatSendingMessagePy {
     pub fn set_content(&mut self, content: String) { self.message.content = content; }
     #[getter]
     pub fn get_converse_id(&self) -> ConverseId { self.message.converse_id.clone() }
+    #[setter]
+    pub fn set_converse_id(&mut self, converse_id: ConverseId) {
+        self.message.converse_id = converse_id;
+    }
     #[getter]
-    pub fn get_group_id(&self) -> GroupId { self.message.group_id.clone() }
+    pub fn get_group_id(&self) -> Option<GroupId> { self.message.group_id.clone() }
+    #[setter]
+    pub fn set_group_id(&mut self, group_id: Option<GroupId>) { self.message.group_id = group_id; }
     pub fn with_content(&mut self, content: String) -> Self {
         self.message.content = content;
         self.clone()

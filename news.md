@@ -1,5 +1,20 @@
 # 更新日志
 
+## 0.6.7
+
+游学回来啦
+
+- 处理了一些 tailchat 的特殊情况
+  - 比如 message 里面的 `GroupId` 实际上是可选的, 在私聊中没有这一项
+  - 忽略了所有的 `__v` (用于数据库记录信息的, bot不需要管)
+    - 作者原话 `不用管。数据库记录版本`
+  - 修复了如果没法解析新的信息, 会 panic 的问题
+- `ica_typing.py`
+  - 补充了 `TailchatSendingMessage` 的 `group_id` 和 `converse_id` 字段
+  - 把 `group_id` 的设置和返回都改成了 `Optional[GroupId]`
+- tailchat 的 API 也差点意思就是了(逃)
+- 处理了 icalingua 的 `renewMessage` 事件 (其实就是直接忽略掉了)
+
 ## 0.6.6
 
 游学之前最后一次更新

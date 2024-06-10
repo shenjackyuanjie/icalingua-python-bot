@@ -1,6 +1,7 @@
 pub mod client;
 pub mod events;
 
+use colored::Colorize;
 use futures_util::FutureExt;
 use md5::{Digest, Md5};
 use reqwest::ClientBuilder as reqwest_ClientBuilder;
@@ -42,6 +43,7 @@ pub async fn start_tailchat(
         Ok(resp) => {
             if resp.status().is_success() {
                 let raw_data = resp.text().await?;
+
                 let json_data = serde_json::from_str::<Value>(&raw_data).unwrap();
                 let login_data = serde_json::from_value::<LoginData>(json_data["data"].clone());
                 match login_data {
@@ -64,20 +66,24 @@ pub async fn start_tailchat(
         .on_any(wrap_any_callback!(events::any_event))
         .on("notify:chat.message.add", wrap_callback!(events::on_message))
         .on("notify:chat.message.delete", wrap_callback!(events::on_msg_delete))
+        .on(
+            "notify:chat.converse.updateDMConverse",
+            wrap_callback!(events::on_converse_update),
+        )
         // .on("notify:chat.message.update", wrap_callback!(events::on_message))
         // .on("notify:chat.message.addReaction", wrap_callback!(events::on_msg_update))
         .connect()
         .await
         .unwrap();
 
-    event!(Level::INFO, "tailchat connected");
+    event!(Level::INFO, "{}", "已经连接到 tailchat!".green());
 
     // sleep for 500ms to wait for the connection to be established
     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
     socket.emit("chat.converse.findAndJoinRoom", json!([])).await.unwrap();
 
-    event!(Level::INFO, "tailchat joined room");
+    event!(Level::INFO, "{}", "tailchat 已经加入房间".green());
 
     stop_reciver.await.ok();
     event!(Level::INFO, "socketio client stopping");
