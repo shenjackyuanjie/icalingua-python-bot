@@ -323,6 +323,8 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
                 bangbang_img(msg, client)
         except:  # noqa
             report_msg = f"bmcl插件发生错误,请呼叫shenjack\n{traceback.format_exc()}"
+            if len(report_msg) > 200:
+                report_msg = report_msg[:200] + "..."   # 防止消息过长
             reply = msg.reply_with(report_msg)
             client.send_and_warn(reply)
 
@@ -364,6 +366,8 @@ def on_tailchat_message(msg, client) -> None:
                 bangbang_img(msg, client)
         except:  # noqa
             report_msg = f"bmcl插件发生错误,请呼叫shenjack\n{traceback.format_exc()}"
+            if len(report_msg) > 200:
+                report_msg = report_msg[:200] + "..."   # 防止消息过长
             reply = msg.reply_with(report_msg)
             client.send_and_warn(reply)
 
