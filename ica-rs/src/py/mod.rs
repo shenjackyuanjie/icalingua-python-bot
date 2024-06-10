@@ -5,6 +5,7 @@ use std::path::Path;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
 
+use colored::Colorize;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{debug, info, span, warn, Level};
@@ -18,6 +19,18 @@ pub struct PyStatus {
 
 pub type PyPluginData = HashMap<PathBuf, PyPlugin>;
 pub type RawPyPlugin = (PathBuf, Option<SystemTime>, String);
+
+pub fn get_py_err_traceback(py_err: &PyErr) -> String {
+    Python::with_gil(|py| match py_err.traceback_bound(py) {
+        Some(traceback) => match traceback.format() {
+            Ok(trace) => trace,
+            Err(e) => format!("{:?}", e),
+        },
+        None => "".to_string(),
+    })
+    .red()
+    .to_string()
+}
 
 #[derive(Debug, Clone)]
 pub struct PyPlugin {
@@ -33,7 +46,12 @@ impl PyPlugin {
             Ok(raw_file) => match Self::try_from(raw_file) {
                 Ok(plugin) => Some(plugin),
                 Err(e) => {
-                    warn!("加载 Python 插件文件{:?}: {:?} 失败", path, e);
+                    warn!(
+                        "加载 Python 插件文件{:?}: {:?} 失败\n{}",
+                        path,
+                        e,
+                        get_py_err_traceback(&e)
+                    );
                     None
                 }
             },

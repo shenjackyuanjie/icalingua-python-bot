@@ -13,9 +13,6 @@ pub struct LoginData {
     pub avatar: String,
 }
 
-/*
-{"__v":0,"_id":"66045ddb5163504389a6f5b1","createdAt":"2024-03-27T17:56:43.528Z","members":["6602e20d7b8d10675758e36b","6604482b5163504389a6f481"],"type":"DM","updatedAt":"2024-03-27T17:56:43.528Z"}
-*/
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpdateDMConverse {
     /// 会话ID

@@ -1,7 +1,6 @@
 # Python 兼容版本 3.8+
 
-from typing import Callable, Tuple
-from typing_extensions import Optional
+from typing import Callable, Tuple, NewType, TYPE_CHECKING, TypeVar, Optional
 
 """
 ica.rs
@@ -10,9 +9,9 @@ pub type UserId = i64;
 pub type MessageId = String;
 """
 class IcaType:
-    RoomId = int
-    UserId = int
-    MessageId = str
+    RoomId = NewType('RoomId', int)
+    UserId = NewType('UserId', int)
+    MessageId = NewType('MessageId', str)
 
 """
 tailchat.rs
@@ -22,10 +21,10 @@ pub type UserId = String;
 pub type MessageId = String;
 """
 class TailchatType:
-    GroupId = str
-    ConverseId = str
-    UserId = str
-    MessageId = str
+    GroupId = NewType('GroupId', str)
+    ConverseId = NewType('ConverseId', str)
+    UserId = NewType('UserId', str)
+    MessageId = NewType('MessageId', str)
 
 class IcaStatus:
     """
