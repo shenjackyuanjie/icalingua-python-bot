@@ -4,7 +4,8 @@ use rust_socketio::{Event, Payload};
 use tracing::info;
 
 use crate::data_struct::tailchat::messages::ReciveMessage;
-use crate::tailchat::client::send_message;
+use crate::data_struct::tailchat::status::UpdateDMConverse;
+use crate::tailchat::client::{emit_join_room, send_message};
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client) {
@@ -93,10 +94,19 @@ pub async fn on_msg_delete(payload: Payload, _client: Client) {
     }
 }
 
-pub async fn on_converse_update(payload: Payload, _client: Client) {
+pub async fn on_converse_update(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            info!("更新会话 {}", value.to_string().green());
+            emit_join_room(&client).await;
+            let update_info: UpdateDMConverse = match serde_json::from_value(value.clone()) {
+                Ok(value) => value,
+                Err(e) => {
+                    info!("tailchat updateDMConverse {}", value.to_string().red());
+                    info!("tailchat updateDMConverse {}", format!("{:?}", e).red());
+                    return;
+                }
+            };
+            info!("更新会话 {}", format!("{:?}", update_info).cyan());
         }
     }
 }

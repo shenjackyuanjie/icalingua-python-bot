@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
 
 use crate::data_struct::tailchat::UserId;
 
