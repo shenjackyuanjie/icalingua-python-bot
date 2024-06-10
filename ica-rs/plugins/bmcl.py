@@ -291,6 +291,8 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
         if '\n' in msg.content:
             return
         try:
+            if not msg.content.startswith("/b"):
+                return
             global backend_version
             if backend_version == "unknown":
                 dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
@@ -330,6 +332,8 @@ def on_tailchat_message(msg, client) -> None:
         if '\n' in msg.content:
             return
         try:
+            if not msg.content.startswith("/b"):
+                return
             global backend_version
             if backend_version == "unknown":
                 dashboard_status = wrap_request("https://bd.bangbang93.com/openbmclapi/metric/version", msg, client)
