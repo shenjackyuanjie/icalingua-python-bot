@@ -55,7 +55,7 @@ cargo run --release -- -c config.toml
 - 安装依赖
 
 ```powershell
-python -m pip install -r requirement.txt
+python -m pip install -r requirements.txt
 ```
 
 > 如果你想使用虚拟环境 \
