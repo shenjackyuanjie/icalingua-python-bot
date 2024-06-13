@@ -59,6 +59,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
     }
 }
 
+#[allow(clippy::collapsible_if)]
 pub async fn on_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {

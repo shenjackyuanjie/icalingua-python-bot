@@ -20,6 +20,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
     }
 }
 
+#[allow(clippy::collapsible_if)]
 /// 接收消息
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {

@@ -28,19 +28,16 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.0";
 pub const TAILCHAT_VERSION: &str = "1.1.0";
 
-#[macro_export]
-macro_rules! wrap_callback {
-    ($f:expr) => {
-        |payload: Payload, client: Client| $f(payload, client).boxed()
-    };
-}
-
-#[macro_export]
-macro_rules! wrap_any_callback {
-    ($f:expr) => {
-        |event: Event, payload: Payload, client: Client| $f(event, payload, client).boxed()
-    };
-}
+/// usage:
+/// #[derive(Clone)]
+/// struct BotState(String);
+///
+/// async fn some_event_with_state(payload: Payload, client: Client, state: Arc<BotState>) {
+///    // do something
+///
+// macro_rules! wrap_callback_with_state {
+//     ($f:expr, $state:tt) => {};
+// }
 
 #[tokio::main]
 async fn main() {

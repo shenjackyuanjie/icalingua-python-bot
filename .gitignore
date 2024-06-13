@@ -6,8 +6,7 @@ config.toml
 *.pyc
 *__pycache__/
 
-
+make.ps1
 
 # Added by cargo
-
 /target

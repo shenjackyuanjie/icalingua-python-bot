@@ -2,10 +2,10 @@ pub mod client;
 pub mod events;
 
 use colored::Colorize;
-use futures_util::FutureExt;
 use md5::{Digest, Md5};
 use reqwest::ClientBuilder as reqwest_ClientBuilder;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
+use rust_socketio::{async_any_callback, async_callback};
 use rust_socketio::{Event, Payload, TransportType};
 use serde_json::{json, Value};
 use tracing::{event, span, Level};
@@ -13,7 +13,7 @@ use tracing::{event, span, Level};
 use crate::config::TailchatConfig;
 use crate::data_struct::tailchat::status::LoginData;
 use crate::error::{ClientResult, TailchatError};
-use crate::{wrap_any_callback, wrap_callback, StopGetter};
+use crate::StopGetter;
 
 pub async fn start_tailchat(
     config: TailchatConfig,
@@ -63,12 +63,12 @@ pub async fn start_tailchat(
     let socket = ClientBuilder::new(config.host)
         .auth(json!({"token": status.jwt.clone()}))
         .transport_type(TransportType::Websocket)
-        .on_any(wrap_any_callback!(events::any_event))
-        .on("notify:chat.message.add", wrap_callback!(events::on_message))
-        .on("notify:chat.message.delete", wrap_callback!(events::on_msg_delete))
+        .on_any(async_any_callback!(events::any_event))
+        .on("notify:chat.message.add", async_callback!(events::on_message))
+        .on("notify:chat.message.delete", async_callback!(events::on_msg_delete))
         .on(
             "notify:chat.converse.updateDMConverse",
-            wrap_callback!(events::on_converse_update),
+            async_callback!(events::on_converse_update),
         )
         // .on("notify:chat.message.update", wrap_callback!(events::on_message))
         // .on("notify:chat.message.addReaction", wrap_callback!(events::on_msg_update))

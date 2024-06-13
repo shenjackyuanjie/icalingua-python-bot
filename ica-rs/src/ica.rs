@@ -1,14 +1,14 @@
 pub mod client;
 pub mod events;
 
-use futures_util::FutureExt;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
+use rust_socketio::{async_any_callback, async_callback};
 use rust_socketio::{Event, Payload, TransportType};
 use tracing::{event, span, Level};
 
 use crate::config::IcaConfig;
 use crate::error::{ClientResult, IcaError};
-use crate::{wrap_any_callback, wrap_callback, StopGetter};
+use crate::StopGetter;
 
 const ICA_PROTOCOL_VERSION: &str = "2.12.6";
 
@@ -20,18 +20,18 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
 
     let socket = match ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
-        .on_any(wrap_any_callback!(events::any_event))
-        .on("requireAuth", wrap_callback!(client::sign_callback))
-        .on("message", wrap_callback!(events::connect_callback))
-        .on("authSucceed", wrap_callback!(events::connect_callback))
-        .on("authFailed", wrap_callback!(events::connect_callback))
-        .on("messageSuccess", wrap_callback!(events::succes_message))
-        .on("messageFailed", wrap_callback!(events::failed_message))
-        .on("onlineData", wrap_callback!(events::get_online_data))
-        .on("setAllRooms", wrap_callback!(events::update_all_room))
-        .on("setMessages", wrap_callback!(events::set_messages))
-        .on("addMessage", wrap_callback!(events::add_message))
-        .on("deleteMessage", wrap_callback!(events::delete_message))
+        .on_any(async_any_callback!(events::any_event))
+        .on("requireAuth", async_callback!(client::sign_callback))
+        .on("message", async_callback!(events::connect_callback))
+        .on("authSucceed", async_callback!(events::connect_callback))
+        .on("authFailed", async_callback!(events::connect_callback))
+        .on("messageSuccess", async_callback!(events::succes_message))
+        .on("messageFailed", async_callback!(events::failed_message))
+        .on("onlineData", async_callback!(events::get_online_data))
+        .on("setAllRooms", async_callback!(events::update_all_room))
+        .on("setMessages", async_callback!(events::set_messages))
+        .on("addMessage", async_callback!(events::add_message))
+        .on("deleteMessage", async_callback!(events::delete_message))
         .connect()
         .await
     {
