@@ -60,3 +60,8 @@ impl BotStatus {
         self.user_id.write().await.clone_from(&user_id);
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct BotStatusSnapshot {
+    user_id: UserId,
+}
