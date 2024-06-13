@@ -28,16 +28,13 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.0";
 pub const TAILCHAT_VERSION: &str = "1.1.0";
 
-/// usage:
-/// #[derive(Clone)]
-/// struct BotState(String);
-///
-/// async fn some_event_with_state(payload: Payload, client: Client, state: Arc<BotState>) {
-///    // do something
-///
-// macro_rules! wrap_callback_with_state {
-//     ($f:expr, $state:tt) => {};
-// }
+macro_rules! async_callback_with_state {
+    ($f:expr, $state:expr) => {{
+        use futures_util::FutureExt;
+        let state = $state.clone();
+        move |payload: Payload, client: Client| $f(payload, client, state.clone()).boxed()
+    }};
+}
 
 #[tokio::main]
 async fn main() {
@@ -103,4 +100,51 @@ async fn main() {
     tailchat_send.send(()).ok();
 
     info!("Disconnected");
+}
+
+#[allow(dead_code, unused_variables)]
+#[tokio::test]
+async fn test_macro() {
+    use std::sync::Arc;
+    use tokio::sync::RwLock;
+
+    use rust_socketio::asynchronous::{Client, ClientBuilder};
+    use rust_socketio::Payload;
+
+    /// 一个简单的例子
+    #[derive(Clone)]
+    struct BotState(String);
+
+    /// 一个复杂一些的例子
+    #[derive(Clone)]
+    struct BotState2 {
+        pub name: Arc<RwLock<String>>,
+    }
+
+    async fn some_event_with_state(payload: Payload, client: Client, state: Arc<BotState>) {
+        // do something with your state
+    }
+
+    async fn some_state_change_event(payload: Payload, client: Client, state: Arc<BotState2>) {
+        if let Payload::Text(text) = payload {
+            if let Some(first_one) = text.first() {
+                let new_name = first_one.as_str().unwrap_or_default();
+                let old_name = state.name.read().await;
+                if new_name != *old_name {
+                    // update your name here
+                    *state.name.write().await = new_name.to_string();
+                }
+            }
+        }
+    }
+
+    let state = Arc::new(BotState("hello".to_string()));
+    let state2 = Arc::new(BotState2 {
+        name: Arc::new(RwLock::new("hello".to_string())),
+    });
+    let socket = ClientBuilder::new("http://example.com")
+        .on("message", async_callback_with_state!(some_event_with_state, state))
+        .on("update_status", async_callback_with_state!(some_state_change_event, state2))
+        .connect()
+        .await;
 }
