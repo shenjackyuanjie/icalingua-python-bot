@@ -53,7 +53,7 @@ impl ReceiveMessage {
             "".to_string(),
             self.converse_id.clone(),
             self.group_id.clone(),
-            Some(ReplyMeta::from_recive_message(self)),
+            Some(ReplyMeta::from_receive_message(self)),
         )
     }
 
@@ -63,7 +63,7 @@ impl ReceiveMessage {
             content.to_string(),
             self.converse_id.clone(),
             self.group_id.clone(),
-            Some(ReplyMeta::from_recive_message(self)),
+            Some(ReplyMeta::from_receive_message(self)),
         )
     }
 }
@@ -77,6 +77,47 @@ impl Display for ReceiveMessage {
             self.msg_id, self.group_id, self.converse_id, self.sender_id, self.content
         )
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub enum SendingFile {
+    #[default]
+    None,
+    /// 需要生成
+    /// [img height=1329 width=1918]{BACKEND}/static/files/6602e20d7b8d10675758e36b/8db505b87bdf9fb309467abcec4d8e2a.png[/img]
+    Image {
+        file: Vec<u8>,
+        width: u32,
+        height: u32,
+    },
+    /// [card type=file url={BACKEND}/static/files/6602e20d7b8d10675758e36b/9df28943d17b9713cb0ea9625f37d015.wav]Engine.wav[/card]
+    File { file: Vec<u8>, name: String },
+}
+
+impl SendingFile {
+    pub fn is_some(&self) -> bool { !matches!(self, Self::None) }
+    pub fn is_image(&self) -> bool { matches!(self, Self::Image { .. }) }
+    pub fn is_file(&self) -> bool { matches!(self, Self::File { .. }) }
+    // pub fn gen_msg(&self, file_path: &str) -> String {
+    //     match self {
+    //         Self::Image { _file, width, height } => {
+    //             format!(
+    //                 "[img height={} width={}]{{BACKEND}}/static/files/{}[/img]",
+    //                 height,
+    //                 width,
+    //                 file_path
+    //             )
+    //         }
+    //         Self::File { _file, name } => {
+    //             format!(
+    //                 "[file name={}]{{BACKEND}}/static/files/{}[/file]",
+    //                 name,
+    //                 file_path
+    //             )
+    //         }
+    //         _ => "".to_string(),
+    //     }
+    // }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -96,8 +137,6 @@ pub struct SendingMessage {
     /// 消息内容
     ///
     /// 其实还有个 plain, 就是不知道干啥的
-    ///
-    /// [img height=1329 width=1918]{BACKEND}/static/files/6602e20d7b8d10675758e36b/8db505b87bdf9fb309467abcec4d8e2a.png[/img]
     pub content: String,
     /// 会话ID
     #[serde(rename = "converseId")]
@@ -109,7 +148,7 @@ pub struct SendingMessage {
     pub meta: Option<ReplyMeta>,
     /// 额外携带的文件
     #[serde(skip)]
-    pub file: Option<Vec<u8>>,
+    pub file: SendingFile,
 }
 
 impl SendingMessage {
@@ -124,7 +163,7 @@ impl SendingMessage {
             converse_id,
             group_id,
             meta,
-            file: None,
+            file: SendingFile::None,
         }
     }
     pub fn new_without_meta(
@@ -137,12 +176,12 @@ impl SendingMessage {
             converse_id,
             group_id,
             meta: None,
-            file: None,
+            file: SendingFile::None,
         }
     }
     pub fn contain_file(&self) -> bool { self.file.is_some() }
 
-    pub fn add_img(&mut self, file: Vec<u8>) { self.file = Some(file); }
+    pub fn add_img(&mut self, file: SendingFile) { self.file = file; }
 
     pub fn as_value(&self) -> JsonValue { serde_json::to_value(self).unwrap() }
 }
@@ -160,7 +199,7 @@ pub struct ReplyMeta {
 }
 
 impl ReplyMeta {
-    pub fn from_recive_message(msg: &ReceiveMessage) -> Self {
+    pub fn from_receive_message(msg: &ReceiveMessage) -> Self {
         Self {
             mentions: vec![msg.sender_id.clone()],
             reply_id: msg.msg_id.clone(),

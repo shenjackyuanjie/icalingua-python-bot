@@ -25,6 +25,8 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
+            let span = span!(Level::INFO, "ica add_message");
+            let _enter = span.enter();
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
             if MainStatus::global_config().ica().filter_list.contains(&message.msg.sender_id) {
@@ -88,7 +90,7 @@ pub async fn update_all_room(payload: Payload, _client: Client) {
     }
 }
 
-pub async fn succes_message(payload: Payload, _client: Client) {
+pub async fn success_message(payload: Payload, _client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             info!("messageSuccess {}", value.to_string().green());

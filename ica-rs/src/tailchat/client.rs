@@ -18,7 +18,7 @@ pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
             true
         }
         Err(e) => {
-            warn!("send_message faild:{}", format!("{:#?}", e).red());
+            warn!("send_message failed:{}", format!("{:#?}", e).red());
             false
         }
     }

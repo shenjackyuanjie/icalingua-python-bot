@@ -12,7 +12,7 @@ mod ica;
 mod tailchat;
 
 use config::BotConfig;
-use tracing::{event, info, span, Level};
+use tracing::{event, span, Level};
 
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
@@ -104,14 +104,14 @@ async fn main() {
 
     tokio::time::sleep(Duration::from_secs(2)).await;
     // 等待一个输入
-    info!("Press any key to exit");
+    event!(Level::INFO, "Press any key to exit");
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).unwrap();
 
     ica_send.send(()).ok();
     tailchat_send.send(()).ok();
 
-    info!("Disconnected");
+    event!(Level::INFO, "Disconnected");
 }
 
 #[allow(dead_code, unused_variables)]

@@ -25,7 +25,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
         .on("message", async_callback!(events::connect_callback))
         .on("authSucceed", async_callback!(events::connect_callback))
         .on("authFailed", async_callback!(events::connect_callback))
-        .on("messageSuccess", async_callback!(events::succes_message))
+        .on("messageSuccess", async_callback!(events::success_message))
         .on("messageFailed", async_callback!(events::failed_message))
         .on("onlineData", async_callback!(events::get_online_data))
         .on("setAllRooms", async_callback!(events::update_all_room))

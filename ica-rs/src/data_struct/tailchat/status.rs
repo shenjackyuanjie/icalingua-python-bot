@@ -15,6 +15,21 @@ pub struct LoginData {
     pub avatar: String,
 }
 
+impl LoginData {
+    pub fn update_to_global(&self) {
+        let status = crate::status::tailchat::MainStatus {
+            enable: true,
+            login: true,
+            user_id: self.user_id.clone(),
+            nick_name: self.nickname.clone(),
+            email: self.email.clone(),
+            jwt_token: self.jwt.clone(),
+            avatar: self.avatar.clone(),
+        };
+        crate::MainStatus::update_tailchat_status(status);
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpdateDMConverse {
     /// 会话ID

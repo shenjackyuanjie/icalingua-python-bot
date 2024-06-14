@@ -62,6 +62,8 @@ pub async fn start_tailchat(
         Err(e) => return Err(TailchatError::LoginFailed(e.to_string())),
     };
 
+    status.update_to_global();
+
     let sharded_status = BotStatus::new(status.user_id.clone());
     let sharded_status = Arc::new(sharded_status);
 
