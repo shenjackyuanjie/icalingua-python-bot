@@ -80,6 +80,8 @@ impl TailchatReceiveMessagePy {
     #[getter]
     pub fn get_is_reply(&self) -> bool { self.message.is_reply() }
     #[getter]
+    pub fn get_is_from_self(&self) -> bool { self.message.is_from_self() }
+    #[getter]
     pub fn get_msg_id(&self) -> MessageId { self.message.msg_id.clone() }
     #[getter]
     pub fn get_content(&self) -> String { self.message.content.clone() }

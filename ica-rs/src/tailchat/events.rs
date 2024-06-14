@@ -104,8 +104,8 @@ pub async fn on_converse_update(payload: Payload, client: Client) {
             let update_info: UpdateDMConverse = match serde_json::from_value(value.clone()) {
                 Ok(value) => value,
                 Err(e) => {
-                    info!("tailchat updateDMConverse {}", value.to_string().red());
-                    info!("tailchat updateDMConverse {}", format!("{:?}", e).red());
+                    event!(Level::WARN, "tailchat updateDMConverse {}", value.to_string().red());
+                    event!(Level::WARN, "tailchat updateDMConverse {}", format!("{:?}", e).red());
                     return;
                 }
             };

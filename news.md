@@ -14,6 +14,8 @@
   - 因为现在他俩已经进到 `rust_socketio` 里啦
 - 添加了新的 macro
   - ``
+- 支持了 `TailchatReceiveMessagePy` 的 `is_from_self` 方法
+  - 用于判断是否是自己发的消息
 
 ## 0.6.7
 

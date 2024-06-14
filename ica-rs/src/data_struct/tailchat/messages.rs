@@ -47,6 +47,10 @@ impl ReceiveMessage {
         }
     }
 
+    pub fn is_from_self(&self) -> bool {
+        crate::MainStatus::global_tailchat_status().user_id == self.sender_id
+    }
+
     /// 创建一个对这条消息的回复
     pub fn as_reply(&self) -> SendingMessage {
         SendingMessage::new(
