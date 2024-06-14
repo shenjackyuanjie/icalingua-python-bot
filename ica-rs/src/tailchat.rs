@@ -6,8 +6,8 @@ use std::sync::Arc;
 use colored::Colorize;
 use md5::{Digest, Md5};
 use reqwest::ClientBuilder as reqwest_ClientBuilder;
+use rust_socketio::async_callback;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
-use rust_socketio::{async_any_callback, async_callback};
 use rust_socketio::{Event, Payload, TransportType};
 use serde_json::{json, Value};
 use tracing::{event, span, Level};
@@ -15,7 +15,7 @@ use tracing::{event, span, Level};
 use crate::config::TailchatConfig;
 use crate::data_struct::tailchat::status::{BotStatus, LoginData};
 use crate::error::{ClientResult, TailchatError};
-use crate::{async_callback_with_state, StopGetter};
+use crate::{async_any_callback_with_state, async_callback_with_state, StopGetter};
 
 pub async fn start_tailchat(
     config: TailchatConfig,
@@ -68,7 +68,7 @@ pub async fn start_tailchat(
     let socket = ClientBuilder::new(config.host)
         .auth(json!({"token": status.jwt.clone()}))
         .transport_type(TransportType::Websocket)
-        .on_any(async_any_callback!(events::any_event))
+        .on_any(async_any_callback_with_state!(events::any_event, sharded_status.clone()))
         .on(
             "notify:chat.message.add",
             async_callback_with_state!(events::on_message, sharded_status.clone()),

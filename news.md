@@ -9,7 +9,11 @@
 - `ReceiveMessage::meta`
   - 从 `JsonValue` 改成 `Option<JsonValue>`
   - 用来解决发图片的时候没有 `meta` 字段的问题
-- 去除了
+- 去除了自带的两个 macro
+  - `wrap_callback` 和 `wrap_any_callback`
+  - 因为现在他俩已经进到 `rust_socketio` 里啦
+- 添加了新的 macro
+  - ``
 
 ## 0.6.7
 

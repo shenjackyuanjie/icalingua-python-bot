@@ -37,6 +37,17 @@ macro_rules! async_callback_with_state {
     }};
 }
 
+#[macro_export]
+macro_rules! async_any_callback_with_state {
+    ($f:expr, $state:expr) => {{
+        use futures_util::FutureExt;
+        let state = $state.clone();
+        move |event: Event, payload: Payload, client: Client| {
+            $f(event, payload, client, state.clone()).boxed()
+        }
+    }};
+}
+
 #[tokio::main]
 async fn main() {
     // -d -> debug

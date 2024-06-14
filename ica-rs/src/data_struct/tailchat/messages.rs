@@ -141,9 +141,9 @@ impl SendingMessage {
         }
     }
     pub fn contain_file(&self) -> bool { self.file.is_some() }
-    
-    pub fn add_img(&mut self, file: Vec<u8>, ) { self.file = Some(file); }
-    
+
+    pub fn add_img(&mut self, file: Vec<u8>) { self.file = Some(file); }
+
     pub fn as_value(&self) -> JsonValue { serde_json::to_value(self).unwrap() }
 }
 

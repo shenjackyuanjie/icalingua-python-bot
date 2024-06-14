@@ -10,7 +10,7 @@ use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
 use crate::tailchat::client::{emit_join_room, send_message};
 
 /// 所有
-pub async fn any_event(event: Event, payload: Payload, _client: Client) {
+pub async fn any_event(event: Event, payload: Payload, _client: Client, _status: Arc<BotStatus>) {
     let handled = [
         // 真正处理过的
         "notify:chat.message.add",
