@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
 use tracing::info;
 
-use crate::data_struct::tailchat::messages::ReciveMessage;
-use crate::data_struct::tailchat::status::UpdateDMConverse;
+use crate::data_struct::tailchat::messages::ReceiveMessage;
+use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
 use crate::tailchat::client::{emit_join_room, send_message};
 
 /// 所有
@@ -60,10 +62,10 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
 }
 
 #[allow(clippy::collapsible_if)]
-pub async fn on_message(payload: Payload, client: Client) {
+pub async fn on_message(payload: Payload, client: Client, status: Arc<BotStatus>) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let message: ReciveMessage = match serde_json::from_value(value.clone()) {
+            let message: ReceiveMessage = match serde_json::from_value(value.clone()) {
                 Ok(v) => v,
                 Err(e) => {
                     info!("tailchat_msg {}", value.to_string().red());
@@ -83,7 +85,7 @@ pub async fn on_message(payload: Payload, client: Client) {
                     send_message(&client, &reply).await;
                 }
             }
-            crate::py::call::tailchat_new_message_py(&message, &client).await;
+            crate::py::call::tailchat_new_message_py(&message, &client, status.clone()).await;
         }
     }
 }

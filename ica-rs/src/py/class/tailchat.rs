@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
-use crate::data_struct::tailchat::messages::{ReciveMessage, SendingMessage};
+use crate::data_struct::tailchat::messages::{ReceiveMessage, SendingMessage};
 use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
 use crate::tailchat::client::send_message;
 
@@ -27,13 +27,13 @@ impl TailchatClientPy {
 pub struct TailchatStatusPy {}
 
 #[pyclass]
-#[pyo3(name = "TailchatReciveMessage")]
-pub struct TailchatReciveMessagePy {
-    pub message: ReciveMessage,
+#[pyo3(name = "TailchatReceiveMessage")]
+pub struct TailchatReceiveMessagePy {
+    pub message: ReceiveMessage,
 }
 
-impl TailchatReciveMessagePy {
-    pub fn from_recive_message(msg: &ReciveMessage) -> Self {
+impl TailchatReceiveMessagePy {
+    pub fn from_recive_message(msg: &ReceiveMessage) -> Self {
         Self {
             message: msg.clone(),
         }
@@ -76,7 +76,7 @@ impl TailchatClientPy {
 }
 
 #[pymethods]
-impl TailchatReciveMessagePy {
+impl TailchatReceiveMessagePy {
     #[getter]
     pub fn get_is_reply(&self) -> bool { self.message.is_reply() }
     #[getter]

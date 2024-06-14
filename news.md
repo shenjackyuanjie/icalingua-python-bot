@@ -1,5 +1,16 @@
 # 更新日志
 
+## 0.6.8
+
+- 修复了一堆拼写错误
+- 太难绷了
+  - `TailchatReciveMessagePy` -> `TailchatReceiveMessagePy`
+  - `ReciveMessage` -> `ReceiveMessage`
+- `ReceiveMessage::meta`
+  - 从 `JsonValue` 改成 `Option<JsonValue>`
+  - 用来解决发图片的时候没有 `meta` 字段的问题
+- 去除了
+
 ## 0.6.7
 
 游学回来啦

@@ -8,6 +8,10 @@ use serde_json::{json, Value};
 use tracing::{debug, info, warn};
 
 pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
+    if message.contain_file() {
+        // 处理文件
+        
+    }
     let value: Value = message.as_value();
     match client.emit("chat.message.sendMessage", value).await {
         Ok(_) => {

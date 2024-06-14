@@ -31,7 +31,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                 return;
             }
 
-            info!("add_message {}", message.to_string().cyan());
+            event!(Level::INFO, "add_message {}", message.to_string().cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if !message.is_from_self() && !message.is_reply() {
@@ -68,7 +68,7 @@ pub async fn delete_message(payload: Payload, client: Client) {
         // 消息 id
         if let Some(value) = values.first() {
             if let Some(msg_id) = value.as_str() {
-                info!("delete_message {}", msg_id.to_string().yellow());
+                event!(Level::INFO, "delete_message {}", msg_id.to_string().yellow());
 
                 py::call::ica_delete_message_py(msg_id.to_string(), &client).await;
             }

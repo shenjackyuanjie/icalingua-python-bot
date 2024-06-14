@@ -28,6 +28,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.0";
 pub const TAILCHAT_VERSION: &str = "1.1.0";
 
+#[macro_export]
 macro_rules! async_callback_with_state {
     ($f:expr, $state:expr) => {{
         use futures_util::FutureExt;

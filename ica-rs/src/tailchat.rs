@@ -1,6 +1,8 @@
 pub mod client;
 pub mod events;
 
+use std::sync::Arc;
+
 use colored::Colorize;
 use md5::{Digest, Md5};
 use reqwest::ClientBuilder as reqwest_ClientBuilder;
@@ -11,9 +13,9 @@ use serde_json::{json, Value};
 use tracing::{event, span, Level};
 
 use crate::config::TailchatConfig;
-use crate::data_struct::tailchat::status::LoginData;
+use crate::data_struct::tailchat::status::{BotStatus, LoginData};
 use crate::error::{ClientResult, TailchatError};
-use crate::StopGetter;
+use crate::{async_callback_with_state, StopGetter};
 
 pub async fn start_tailchat(
     config: TailchatConfig,
@@ -60,11 +62,17 @@ pub async fn start_tailchat(
         Err(e) => return Err(TailchatError::LoginFailed(e.to_string())),
     };
 
+    let sharded_status = BotStatus::new(status.user_id.clone());
+    let sharded_status = Arc::new(sharded_status);
+
     let socket = ClientBuilder::new(config.host)
         .auth(json!({"token": status.jwt.clone()}))
         .transport_type(TransportType::Websocket)
         .on_any(async_any_callback!(events::any_event))
-        .on("notify:chat.message.add", async_callback!(events::on_message))
+        .on(
+            "notify:chat.message.add",
+            async_callback_with_state!(events::on_message, sharded_status.clone()),
+        )
         .on("notify:chat.message.delete", async_callback!(events::on_msg_delete))
         .on(
             "notify:chat.converse.updateDMConverse",

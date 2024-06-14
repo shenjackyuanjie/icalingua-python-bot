@@ -6,7 +6,7 @@ use serde_json::{json, Value as JsonValue};
 use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ReciveMessage {
+pub struct ReceiveMessage {
     /// 消息ID
     #[serde(rename = "_id")]
     pub msg_id: MessageId,
@@ -27,7 +27,7 @@ pub struct ReciveMessage {
     pub has_recall: bool,
     /// 暂时懒得解析这玩意
     /// 准确来说是不确定内容, 毕竟没细看 API
-    pub meta: JsonValue,
+    pub meta: Option<JsonValue>,
     /// 也懒得解析这玩意
     pub reactions: Vec<JsonValue>,
     /// 创建时间
@@ -38,8 +38,14 @@ pub struct ReciveMessage {
     pub updated_at: String,
 }
 
-impl ReciveMessage {
-    pub fn is_reply(&self) -> bool { self.meta.get("reply").is_some() }
+impl ReceiveMessage {
+    pub fn is_reply(&self) -> bool {
+        if let Some(meta) = &self.meta {
+            meta.get("reply").is_some()
+        } else {
+            false
+        }
+    }
 
     /// 创建一个对这条消息的回复
     pub fn as_reply(&self) -> SendingMessage {
@@ -62,7 +68,7 @@ impl ReciveMessage {
     }
 }
 
-impl Display for ReciveMessage {
+impl Display for ReceiveMessage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // msgid|groupid-converseid|senderid|content
         write!(
@@ -90,6 +96,8 @@ pub struct SendingMessage {
     /// 消息内容
     ///
     /// 其实还有个 plain, 就是不知道干啥的
+    ///
+    /// [img height=1329 width=1918]{BACKEND}/static/files/6602e20d7b8d10675758e36b/8db505b87bdf9fb309467abcec4d8e2a.png[/img]
     pub content: String,
     /// 会话ID
     #[serde(rename = "converseId")]
@@ -99,6 +107,9 @@ pub struct SendingMessage {
     pub group_id: Option<GroupId>,
     /// 消息的元数据
     pub meta: Option<ReplyMeta>,
+    /// 额外携带的文件
+    #[serde(skip)]
+    pub file: Option<Vec<u8>>,
 }
 
 impl SendingMessage {
@@ -113,6 +124,7 @@ impl SendingMessage {
             converse_id,
             group_id,
             meta,
+            file: None,
         }
     }
     pub fn new_without_meta(
@@ -125,8 +137,13 @@ impl SendingMessage {
             converse_id,
             group_id,
             meta: None,
+            file: None,
         }
     }
+    pub fn contain_file(&self) -> bool { self.file.is_some() }
+    
+    pub fn add_img(&mut self, file: Vec<u8>, ) { self.file = Some(file); }
+    
     pub fn as_value(&self) -> JsonValue { serde_json::to_value(self).unwrap() }
 }
 
@@ -143,7 +160,7 @@ pub struct ReplyMeta {
 }
 
 impl ReplyMeta {
-    pub fn from_recive_message(msg: &ReciveMessage) -> Self {
+    pub fn from_recive_message(msg: &ReceiveMessage) -> Self {
         Self {
             mentions: vec![msg.sender_id.clone()],
             reply_id: msg.msg_id.clone(),
