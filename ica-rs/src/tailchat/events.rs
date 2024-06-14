@@ -3,7 +3,7 @@ use std::sync::Arc;
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
-use tracing::info;
+use tracing::{event, info, Level};
 
 use crate::data_struct::tailchat::messages::ReceiveMessage;
 use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
@@ -68,12 +68,12 @@ pub async fn on_message(payload: Payload, client: Client, status: Arc<BotStatus>
             let message: ReceiveMessage = match serde_json::from_value(value.clone()) {
                 Ok(v) => v,
                 Err(e) => {
-                    info!("tailchat_msg {}", value.to_string().red());
-                    info!("tailchat_msg {}", format!("{:?}", e).red());
+                    event!(Level::WARN, "tailchat_msg {}", value.to_string().red());
+                    event!(Level::WARN, "tailchat_msg {}", format!("{:?}", e).red());
                     return;
                 }
             };
-            info!("tailchat_msg {}", message.to_string().cyan());
+            event!(Level::INFO, "tailchat_msg {}", message.to_string().yellow());
 
             if !message.is_reply() {
                 if message.content == "/bot-rs" {
