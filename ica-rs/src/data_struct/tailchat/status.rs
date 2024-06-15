@@ -61,8 +61,3 @@ impl BotStatus {
 
     pub fn get_user_id(&self) -> UserId { self.user_id.clone() }
 }
-
-#[derive(Debug, Clone)]
-pub struct BotStatusSnapshot {
-    user_id: UserId,
-}

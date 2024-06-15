@@ -25,7 +25,7 @@ ed25519-dalek = { version = "2.1", optional = true }
 hex = { version = "0.4", optional = true }
 
 # tailchat
-reqwest = { version = "0.12.4", optional = true }
+reqwest = { version = "0.12.4", optional = true, features = ["multipart"] }
 md-5 = { version = "0.10.6", optional = true }
 
 # ica & tailchat (socketio)

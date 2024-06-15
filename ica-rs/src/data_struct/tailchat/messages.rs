@@ -91,6 +91,7 @@ pub enum SendingFile {
     /// [img height=1329 width=1918]{BACKEND}/static/files/6602e20d7b8d10675758e36b/8db505b87bdf9fb309467abcec4d8e2a.png[/img]
     Image {
         file: Vec<u8>,
+        name: String,
         width: u32,
         height: u32,
     },
@@ -102,26 +103,23 @@ impl SendingFile {
     pub fn is_some(&self) -> bool { !matches!(self, Self::None) }
     pub fn is_image(&self) -> bool { matches!(self, Self::Image { .. }) }
     pub fn is_file(&self) -> bool { matches!(self, Self::File { .. }) }
-    // pub fn gen_msg(&self, file_path: &str) -> String {
-    //     match self {
-    //         Self::Image { _file, width, height } => {
-    //             format!(
-    //                 "[img height={} width={}]{{BACKEND}}/static/files/{}[/img]",
-    //                 height,
-    //                 width,
-    //                 file_path
-    //             )
-    //         }
-    //         Self::File { _file, name } => {
-    //             format!(
-    //                 "[file name={}]{{BACKEND}}/static/files/{}[/file]",
-    //                 name,
-    //                 file_path
-    //             )
-    //         }
-    //         _ => "".to_string(),
-    //     }
-    // }
+
+    pub fn file_data(&self) -> Vec<u8> {
+        match self {
+            Self::Image { file, .. } => file.clone(),
+            Self::File { file, .. } => file.clone(),
+            _ => vec![],
+        }
+    }
+
+    pub fn file_name(&self) -> String {
+        match self {
+            Self::Image { name, .. } => name.clone(),
+            Self::File { name, .. } => name.clone(),
+            _ => "".to_string(),
+        }
+    }
+    pub fn gen_markdown(&self, response_data: JsonValue) {}
 }
 
 #[derive(Debug, Clone, Serialize)]

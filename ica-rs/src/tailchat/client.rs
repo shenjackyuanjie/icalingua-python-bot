@@ -1,37 +1,102 @@
 use crate::data_struct::tailchat::messages::SendingMessage;
 // use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
 
-use rust_socketio::asynchronous::Client;
-
 use colored::Colorize;
+use reqwest::multipart;
+use rust_socketio::asynchronous::Client;
 use serde_json::{json, Value};
-use tracing::{debug, info, warn};
+use tracing::{event, span, Level};
 
 pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
+    let span = span!(Level::INFO, "tailchat send message");
+    let _enter = span.enter();
     if message.contain_file() {
         // 处理文件
+        let mut header = reqwest::header::HeaderMap::new();
+        header
+            .insert(
+                "X-Token",
+                crate::MainStatus::global_tailchat_status().jwt_token.clone().parse().unwrap(),
+            )
+            .unwrap();
+        let file_client = match reqwest::ClientBuilder::new().default_headers(header).build() {
+            Ok(client) => client,
+            Err(e) => {
+                event!(Level::ERROR, "file_client build failed:{}", format!("{:#?}", e).red());
+                return false;
+            }
+        };
+        // 感谢 https://stackoverflow.com/questions/65814450/how-to-post-a-file-using-reqwest
+        let upload_url =
+            format!("{}/upload", crate::MainStatus::global_config().tailchat().host.clone());
+        let file_body =
+            multipart::Part::stream(message.file.file_data()).file_name(message.file.file_name());
+        let form_data = multipart::Form::new().part("file", file_body);
+
+        event!(Level::INFO, "sending file message");
+        let data = match file_client.post(&upload_url).multipart(form_data).send().await {
+            Ok(resp) => {
+                if resp.status().is_success() {
+                    match resp.text().await {
+                        Ok(text) => match serde_json::from_str::<Value>(&text) {
+                            Ok(json) => json,
+                            Err(e) => {
+                                event!(
+                                    Level::ERROR,
+                                    "file uploaded, but response parse failed:{}",
+                                    format!("{:#?}", e).red()
+                                );
+                                return false;
+                            }
+                        },
+                        Err(e) => {
+                            event!(
+                                Level::ERROR,
+                                "file uploaded, but failed to get response:{}",
+                                format!("{:#?}", e).red()
+                            );
+                            return false;
+                        }
+                    }
+                } else {
+                    event!(Level::ERROR, "file upload faild:{}", format!("{:#?}", resp).red());
+                    return false;
+                }
+            }
+            Err(e) => {
+                event!(
+                    Level::ERROR,
+                    "file upload failed while posting data:{}",
+                    format!("{:#?}", e).red()
+                );
+                return false;
+            }
+        };
+        event!(Level::INFO, "file upload success with data:{}", format!("{:#?}", data).cyan());
     }
     let value: Value = message.as_value();
     match client.emit("chat.message.sendMessage", value).await {
         Ok(_) => {
-            debug!("send_message {}", format!("{:#?}", message).cyan());
+            event!(Level::DEBUG, "send message {}", format!("{:#?}", message).cyan());
             true
         }
         Err(e) => {
-            warn!("send_message failed:{}", format!("{:#?}", e).red());
+            event!(Level::WARN, "send message failed:{}", format!("{:#?}", e).red());
             false
         }
     }
 }
 
 pub async fn emit_join_room(client: &Client) -> bool {
+    let span = span!(Level::INFO, "tailchat findAndJoinRoom");
+    let _enter = span.enter();
     match client.emit("chat.converse.findAndJoinRoom", json!([])).await {
         Ok(_) => {
-            info!("emiting join room");
+            event!(Level::INFO, "emiting join room");
             true
         }
         Err(e) => {
-            warn!("emit_join_room faild:{}", format!("{:#?}", e).red());
+            event!(Level::WARN, "emit_join_room faild:{}", format!("{:#?}", e).red());
             false
         }
     }

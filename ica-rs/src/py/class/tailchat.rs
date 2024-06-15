@@ -124,4 +124,7 @@ impl TailchatSendingMessagePy {
         self.message.content = content;
         self.clone()
     }
+    // pub fn set_img(&mut self, file: Vec<u8>, file_type: String) {
+    //     self.message.add_img(file, file_type, as_sticker);
+    // }
 }

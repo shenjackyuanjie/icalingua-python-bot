@@ -25,7 +25,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let span = span!(Level::INFO, "ica add_message");
+            let span = span!(Level::INFO, "ica new_msg");
             let _enter = span.enter();
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
@@ -33,7 +33,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                 return;
             }
 
-            event!(Level::INFO, "add_message {}", message.to_string().cyan());
+            event!(Level::INFO, "new_msg {}", message.to_string().cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if !message.is_from_self() && !message.is_reply() {
