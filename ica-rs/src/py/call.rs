@@ -146,7 +146,6 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
 pub async fn tailchat_new_message_py(
     message: &tailchat::messages::ReceiveMessage,
     client: &Client,
-    status: Arc<BotStatus>,
 ) {
     verify_plugins();
 

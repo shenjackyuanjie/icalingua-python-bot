@@ -62,7 +62,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client, _status:
 }
 
 #[allow(clippy::collapsible_if)]
-pub async fn on_message(payload: Payload, client: Client, status: Arc<BotStatus>) {
+pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus>) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
             let message: ReceiveMessage = match serde_json::from_value(value.clone()) {
@@ -85,7 +85,7 @@ pub async fn on_message(payload: Payload, client: Client, status: Arc<BotStatus>
                     send_message(&client, &reply).await;
                 }
             }
-            crate::py::call::tailchat_new_message_py(&message, &client, status.clone()).await;
+            crate::py::call::tailchat_new_message_py(&message, &client).await;
         }
     }
 }
