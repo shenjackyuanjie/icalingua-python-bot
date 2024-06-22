@@ -86,8 +86,8 @@ class Player:
                 name_lst[2] = name_lst[0]
         else:
             name_lst[0] = name_lst[2]
-        name_bytes = name_lst[0].encode()
-        team_bytes = name_lst[2].encode()
+        name_bytes = name_lst[0].encode(encoding="utf-8")
+        team_bytes = name_lst[2].encode(encoding="utf-8")
         self.name = name_lst[0]
         self.team = name_lst[2]
         self.name_len = len(name_lst[0])
@@ -187,17 +187,10 @@ class Player:
         cache = io.StringIO()
         cache.write(f"{self.name}@{self.team}|")
         full = sum(self.name_prop[0:7]) + round(self.name_prop[7] / 3)
-        datas = [
-            self.name_prop[7],
-            *self.name_prop[0:7],
-            full
-        ]
+        datas = [self.name_prop[7], *self.name_prop[0:7], full]
         cache.write(
             "|".join(
-                [
-                    f"{prop_names[index]}:{value}"
-                    for index, value in enumerate(datas)
-                ]
+                [f"{prop_names[index]}:{value}" for index, value in enumerate(datas)]
             )
         )
         cache.write("\n")
@@ -205,7 +198,9 @@ class Player:
             "|".join(
                 [
                     f"{sklname[self.skl_id[index]]}:{self.skl_freq[index]}"
-                    for index, value in enumerate(self.skl_freq)
+                    for index, value in sorted(
+                        enumerate(self.skl_freq), key=lambda x: x[1], reverse=True
+                    )
                     if value > 0
                 ]
             )

@@ -14,7 +14,13 @@ if str(Path(__file__).parent.absolute()) not in sys.path:
 import name_utils
 
 if TYPE_CHECKING:
-    from ica_typing import IcaNewMessage, IcaClient, ConfigData, ReciveMessage, TailchatReciveMessage
+    from ica_typing import (
+        IcaNewMessage,
+        IcaClient,
+        ConfigData,
+        ReciveMessage,
+        TailchatReciveMessage,
+    )
 
     CONFIG_DATA: ConfigData
 else:
@@ -29,6 +35,7 @@ _version_ = "0.5.0"
 
 EVAL_PREFIX = "/namerena"
 CONVERT_PREFIX = "/namer-peek"
+
 
 def convert_name(msg: ReciveMessage, client) -> None:
     # 也是多行
@@ -102,6 +109,7 @@ def eval_fight(msg: ReciveMessage, client) -> None:
         reply = msg.reply_with(f"发生错误：{e}\n{traceback.format_exc()}")
         client.send_message(reply)
 
+
 def dispatch_msg(msg: ReciveMessage, client) -> None:
     if msg.is_reply or msg.is_from_self:
         return
@@ -112,8 +120,8 @@ def dispatch_msg(msg: ReciveMessage, client) -> None:
 
 
 def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
-    dispatch_msg(msg, client) # type: ignore
+    dispatch_msg(msg, client)  # type: ignore
 
 
 def on_tailchat_message(msg: TailchatReciveMessage, client) -> None:
-    dispatch_msg(msg, client) # type: ignore
+    dispatch_msg(msg, client)  # type: ignore
