@@ -90,8 +90,8 @@ class Player:
         team_bytes = name_lst[2].encode(encoding="utf-8")
         self.name = name_lst[0]
         self.team = name_lst[2]
-        self.name_len = len(name_lst[0])
-        self.team_len = len(name_lst[2])
+        self.name_len = len(name_bytes)
+        self.team_len = len(team_bytes)
         for i in range(self.name_len):
             self.name_str[i + 1] = name_bytes[i]
         for i in range(self.team_len):
