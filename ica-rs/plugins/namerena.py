@@ -68,12 +68,14 @@ def convert_name(msg: ReciveMessage, client) -> None:
 
 def eval_fight(msg: ReciveMessage, client) -> None:
     if msg.content.find("\n") == -1:
-        client.send_message(
-            msg.reply_with(
-                f"请使用 {EVAL_PREFIX} 命令，然后换行输入名字，例如：\n{EVAL_PREFIX}\n张三\n李四\n王五\n"
+        # 在判断一下是不是 /xxx xxxx
+        if msg.content.find(" ") != -1:
+            client.send_message(
+                msg.reply_with(
+                    f"请使用 {EVAL_PREFIX} 命令，然后换行输入名字，例如：\n{EVAL_PREFIX}\n张三\n李四\n王五\n"
+                )
             )
-        )
-        return
+            return
     # 去掉 prefix
     names = msg.content[len(EVAL_PREFIX) :]
     # 去掉第一个 \n
