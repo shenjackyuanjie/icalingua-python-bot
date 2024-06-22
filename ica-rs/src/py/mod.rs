@@ -79,12 +79,13 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
     type Error = PyErr;
     fn try_from(value: RawPyPlugin) -> Result<Self, Self::Error> {
         let (path, changed_time, content) = value;
-        let py_module = py_module_from_code(&content, &path);
-        if let Err(e) = py_module {
-            warn!("加载 Python 插件: {:?} 失败", e);
-            return Err(e);
+        let py_module = match py_module_from_code(&content, &path) {
+            Ok(module) => module,
+            Err(e) => {
+                warn!("加载 Python 插件: {:?} 失败", e);
+                return Err(e);
+            }
         };
-        let py_module = py_module.unwrap();
         Python::with_gil(|py| {
             let module = py_module.bind(py);
             if let Ok(config_func) = call::get_func(module, "on_config") {

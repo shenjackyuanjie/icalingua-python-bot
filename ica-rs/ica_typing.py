@@ -1,6 +1,6 @@
 # Python 兼容版本 3.8+
 
-from typing import Callable, Tuple, NewType, TYPE_CHECKING, TypeVar, Optional
+from typing import Callable, Tuple, NewType, TYPE_CHECKING, TypeVar, Optional, Union
 
 """
 ica.rs
@@ -268,6 +268,15 @@ class TailchatClient:
         """向日志中输出信息"""
     def warn(self, message: str) -> None:
         """向日志中输出警告信息"""
+
+
+class ReciveMessage(TailchatReciveMessage, IcaNewMessage):
+    """
+    继承了两边的消息
+    只是用来类型标记, 不能实例化
+    """
+    def reply_with(self, message: str) -> Union["IcaReplyMessage", "TailchatSendingMessage"]:  # type: ignore
+        ...
 
 
 class ConfigData:

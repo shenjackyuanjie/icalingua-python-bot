@@ -1,11 +1,9 @@
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{event, info, warn, Level};
 
-use crate::data_struct::tailchat::status::BotStatus;
 use crate::data_struct::{ica, tailchat};
 use crate::error::PyPluginError;
 use crate::py::{class, PyPlugin, PyStatus};
