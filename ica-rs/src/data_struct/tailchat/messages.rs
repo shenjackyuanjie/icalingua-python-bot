@@ -89,12 +89,7 @@ pub enum SendingFile {
     None,
     /// 需要生成
     /// [img height=1329 width=1918]{BACKEND}/static/files/6602e20d7b8d10675758e36b/8db505b87bdf9fb309467abcec4d8e2a.png[/img]
-    Image {
-        file: Vec<u8>,
-        name: String,
-        width: u32,
-        height: u32,
-    },
+    Image { file: Vec<u8>, name: String },
     /// [card type=file url={BACKEND}/static/files/6602e20d7b8d10675758e36b/9df28943d17b9713cb0ea9625f37d015.wav]Engine.wav[/card]
     File { file: Vec<u8>, name: String },
 }

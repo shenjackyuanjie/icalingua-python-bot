@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
 use tracing::{debug, info, warn};
 
-use crate::data_struct::tailchat::messages::{ReceiveMessage, SendingMessage};
+use crate::data_struct::tailchat::messages::{ReceiveMessage, SendingFile, SendingMessage};
 use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
 use crate::tailchat::client::send_message;
 
@@ -124,7 +124,11 @@ impl TailchatSendingMessagePy {
         self.message.content = content;
         self.clone()
     }
-    // pub fn set_img(&mut self, file: Vec<u8>, file_type: String) {
-    //     self.message.add_img(file, file_type, as_sticker);
-    // }
+    pub fn set_img(&mut self, file: Vec<u8>, file_name: String) {
+        let file = SendingFile::Image {
+            file,
+            name: file_name,
+        };
+        self.message.add_img(file);
+    }
 }
