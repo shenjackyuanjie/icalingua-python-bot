@@ -1,6 +1,6 @@
 # Python 兼容版本 3.8+
 
-from typing import Callable, Tuple, NewType, TYPE_CHECKING, TypeVar, Optional, Union
+from typing import Callable, Tuple, NewType, Optional, Union
 
 """
 ica.rs
@@ -236,13 +236,12 @@ class TailchatSendingMessage:
         """
         self.content = content
         return self
-    # def set_img(self, file: bytes, file_type: str, as_sticker: bool):
-    #     """
-    #     设置消息的图片
-    #     @param file: 图片文件 (实际上是 vec<u8>)
-    #     @param file_type: 图片类型 (MIME) (image/png; image/jpeg)
-    #     @param as_sticker: 是否作为贴纸发送
-    #     """
+    def set_img(self, file: bytes, file_name: str):
+        """
+        设置消息的图片
+        @param file: 图片文件 (实际上是 vec<u8>)
+        @param file_name: 图片名称 (just_img.png)
+        """
 
 
 class TailchatClient:

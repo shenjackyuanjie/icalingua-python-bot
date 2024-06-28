@@ -10,15 +10,14 @@ use tracing::{event, span, Level};
 pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
     let span = span!(Level::INFO, "tailchat send message");
     let _enter = span.enter();
+    let mut value: Value = message.as_value();
     if message.contain_file() {
         // 处理文件
         let mut header = reqwest::header::HeaderMap::new();
-        header
-            .insert(
-                "X-Token",
-                crate::MainStatus::global_tailchat_status().jwt_token.clone().parse().unwrap(),
-            )
-            .unwrap();
+        header.append(
+            "X-Token",
+            crate::MainStatus::global_tailchat_status().jwt_token.clone().parse().unwrap(),
+        );
         let file_client = match reqwest::ClientBuilder::new().default_headers(header).build() {
             Ok(client) => client,
             Err(e) => {
@@ -73,8 +72,13 @@ pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
             }
         };
         event!(Level::INFO, "file upload success with data:{}", format!("{:#?}", data).cyan());
+        let content = format!(
+            "{}\n{}",
+            message.content,
+            message.file.gen_markdown(data["url"].as_str().unwrap())
+        );
+        value["content"] = json!(content);
     }
-    let value: Value = message.as_value();
     match client.emit("chat.message.sendMessage", value).await {
         Ok(_) => {
             event!(Level::DEBUG, "send message {}", format!("{:#?}", message).cyan());

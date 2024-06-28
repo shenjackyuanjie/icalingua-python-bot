@@ -114,7 +114,17 @@ impl SendingFile {
             _ => "".to_string(),
         }
     }
-    pub fn gen_markdown(&self, response_data: JsonValue) {}
+    pub fn gen_markdown(&self, backend_path: &str) -> String {
+        match self {
+            Self::Image { .. } => {
+                format!("[img]{}[/img]", backend_path)
+            }
+            Self::File { name, .. } => {
+                format!("[card type=file url={}]{}[/card]", backend_path, name)
+            }
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
