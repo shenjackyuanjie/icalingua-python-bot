@@ -25,8 +25,11 @@ def local_env_info() -> str:
     # Python 版本信息
     cache.write(f"{platform.python_implementation()}: {platform.python_version()}-{platform.python_branch()}({platform.python_compiler()})\n")
     # 内存信息
-    memory = psutil.virtual_memory()
-    cache.write(f"内存: {memory.free / 1024 / 1024 / 1024:.3f}GB/{memory.total / 1024 / 1024 / 1024:.3f}GB\n")
+    try:
+        memory = psutil.virtual_memory()
+        cache.write(f"内存: {memory.free / 1024 / 1024 / 1024:.3f}GB/{memory.total / 1024 / 1024 / 1024:.3f}GB\n")
+    except OSError:
+        cache.write("内存: 未知\n")
     return cache.getvalue()
 
 def local_env_image() -> bytes:
