@@ -20,8 +20,11 @@ def local_env_info() -> str:
     # 参考 DR 的 (crash report)
     cache.write(f"系统: {platform.platform()}\n")
     # 处理器
-    cache.write("|".join([f"{x}%" for x in psutil.cpu_percent(interval=1, percpu=True)]))
-    cache.write("\n")
+    try:
+        cache.write("|".join([f"{x}%" for x in psutil.cpu_percent(interval=1, percpu=True)]))
+        cache.write("\n")
+    except OSError:
+        cache.write("CPU: 未知\n")
     # Python 版本信息
     cache.write(f"{platform.python_implementation()}: {platform.python_version()}-{platform.python_branch()}({platform.python_compiler()})\n")
     # 内存信息
