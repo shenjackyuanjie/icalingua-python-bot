@@ -36,7 +36,7 @@ def local_env_info() -> str:
     return cache.getvalue()
 
 def local_env_image() -> bytes:
-    img = Image.new("RGB", (800, 120), (255, 255, 255))
+    img = Image.new("RGB", (800, 140), (255, 255, 255))
     # 往图片上写入一些信息
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype("./SMILEYSANS-OBLIQUE.TTF", size=25)
