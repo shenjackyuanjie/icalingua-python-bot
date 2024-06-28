@@ -100,13 +100,29 @@ macro_rules! call_py_func {
         tokio::spawn(async move {
             Python::with_gil(|py| {
                 if let Ok(py_func) = get_func($plugin.py_module.bind(py), $func_name) {
-                    if let Err(e) = py_func.call1($args) {
+                    if let Err(py_err) = py_func.call1($args) {
                         let e = PyPluginError::FuncCallError(
-                            e,
+                            py_err,
                             $func_name.to_string(),
                             $plugin_path.to_string_lossy().to_string(),
                         );
-                        event!(Level::WARN, "failed to call function<{}>: {:?}", $func_name, e);
+                        event!(
+                            Level::WARN,
+                            "failed to call function<{}>: {}\ntraceback: {}",
+                            $func_name,
+                            e,
+                            // 获取 traceback
+                            match &e {
+                                PyPluginError::FuncCallError(py_err, _, _) => match py_err.traceback_bound(py) {
+                                    Some(traceback) => match traceback.format() {
+                                        Ok(trace) => trace,
+                                        Err(trace_e) => format!("failed to format traceback: {:?}", trace_e),
+                                    },
+                                    None => "no traceback".to_string(),
+                                },
+                                _ => unreachable!(),
+                            }
+                        );
                     }
                 }
             })
