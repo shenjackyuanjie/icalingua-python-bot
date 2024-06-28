@@ -71,9 +71,8 @@ pub async fn send_message(client: &Client, message: &SendingMessage) -> bool {
                 return false;
             }
         };
-        event!(Level::INFO, "file upload success with data:{}", format!("{:#?}", data).cyan());
         let content = format!(
-            "{}\n{}",
+            "{}{}",
             message.content,
             message.file.gen_markdown(data["url"].as_str().unwrap())
         );
