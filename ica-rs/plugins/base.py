@@ -39,7 +39,7 @@ def local_env_image() -> bytes:
     img = Image.new("RGB", (800, 120), (255, 255, 255))
     # 往图片上写入一些信息
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("simkai.ttf", size=25)
+    font = ImageFont.truetype("SMILEYSANS-OBLIQUE.TTF", size=25)
     draw.text((10, 10), local_env_info(), fill=(0, 0, 0), font=font)
     img_cache = io.BytesIO()
     img.save(img_cache, format="PNG")
