@@ -18,6 +18,7 @@ pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
     tailchat_status: None,
+    startup_time: None,
 };
 
 pub type MainStatus = status::BotStatus;
@@ -25,8 +26,8 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.0";
-pub const TAILCHAT_VERSION: &str = "1.2.0";
+pub const ICA_VERSION: &str = "1.6.1";
+pub const TAILCHAT_VERSION: &str = "1.2.1";
 
 #[macro_export]
 macro_rules! async_callback_with_state {

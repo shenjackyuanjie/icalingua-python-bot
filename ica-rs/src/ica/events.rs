@@ -123,6 +123,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "messageSuccess",
         "messageFailed",
         "setAllChatGroups",
+        "handleRequest", // 处理验证消息 (加入请求之类的)
         // 忽略的
         "notify",
         "syncRead",     // 同步已读

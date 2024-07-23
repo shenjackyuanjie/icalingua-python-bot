@@ -6,6 +6,7 @@ pub struct BotStatus {
     pub config: Option<BotConfig>,
     pub ica_status: Option<ica::MainStatus>,
     pub tailchat_status: Option<tailchat::MainStatus>,
+    pub startup_time: Option<std::time::SystemTime>,
 }
 
 impl BotStatus {
@@ -35,7 +36,12 @@ impl BotStatus {
                 online_status: ica::OnlineData::default(),
             });
             MAIN_STATUS.config = Some(config);
+            MAIN_STATUS.startup_time = Some(std::time::SystemTime::now());
         }
+    }
+
+    pub fn get_startup_time() -> std::time::SystemTime {
+        unsafe { MAIN_STATUS.startup_time.unwrap() }
     }
 
     pub fn global_config() -> &'static BotConfig { unsafe { MAIN_STATUS.config.as_ref().unwrap() } }

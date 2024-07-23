@@ -1,6 +1,7 @@
 # Python 兼容版本 3.8+
 
 from typing import Callable, Tuple, NewType, Optional, Union
+from datetime import datetime
 
 """
 ica.rs
@@ -161,6 +162,10 @@ class IcaClient:
     def version(self) -> str:
         ...
     @property
+    def startup_time(self) -> datetime:
+        """请注意, 此时刻为 UTC 时刻"""
+        ...
+    @property
     def ica_version(self) -> str:
         """shenbot ica 的版本号"""
         ...
@@ -260,6 +265,10 @@ class TailchatClient:
     @property
     def tailchat_version(self) -> str:
         """tailchat 的版本号"""
+        ...
+    @property
+    def startup_time(self) -> datetime:
+        """请注意, 此时刻为 UTC 时刻"""
         ...
     def debug(self, message: str) -> None:
         """向日志中输出调试信息"""

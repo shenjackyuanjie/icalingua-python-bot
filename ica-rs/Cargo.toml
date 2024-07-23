@@ -41,7 +41,7 @@ colored = "2.1"
 # runtime
 tokio = { version = "1.37", features = ["full"] }
 futures-util = "0.3.30"
-pyo3 = { version = "0.21.2", features = ["experimental-async"] }
+pyo3 = { version = "0.22.2", features = ["experimental-async", "py-clone"] }
 anyhow = { version = "1.0", features = ["backtrace"] }
 # async 这玩意以后在搞
 # pyo3-async = "0.3.2"

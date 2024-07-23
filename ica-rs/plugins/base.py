@@ -1,6 +1,7 @@
 import io
 import psutil
 import platform
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, TypeVar
 from PIL import (Image, ImageDraw, ImageFont)
 
@@ -57,6 +58,11 @@ def on_ica_message(msg: IcaNewMessage, client: IcaClient) -> None:
             reply = msg.reply_with(datas)
             reply.set_img(local_env_image(), "image/png", False)
             client.send_message(reply)
+        elif msg.content == "/bot-uptime":
+            uptime = client.startup_time
+            up_delta = datetime.now(timezone.utc) - uptime
+            reply = msg.reply_with(f"Bot 运行时间: {up_delta}")
+            client.send_message(reply)
 
 
 def on_tailchat_message(msg: TailchatReciveMessage, client: TailchatClient) -> None:
@@ -68,4 +74,9 @@ def on_tailchat_message(msg: TailchatReciveMessage, client: TailchatClient) -> N
             datas = local_env_info()
             reply = msg.reply_with(datas)
             reply.set_img(local_env_image(), "just_img.png")
+            client.send_message(reply)
+        elif msg.content == "/bot-uptime":
+            uptime = client.startup_time
+            up_delta = datetime.now(timezone.utc) - uptime
+            reply = msg.reply_with(f"Bot 运行时间: {up_delta}")
             client.send_message(reply)

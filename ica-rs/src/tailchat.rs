@@ -37,7 +37,7 @@ pub async fn start_tailchat(
 
     let client = reqwest_ClientBuilder::new().default_headers(header_map.clone()).build()?;
     let status = match client
-        .post(&format!("{}/api/openapi/bot/login", config.host))
+        .post(format!("{}/api/openapi/bot/login", config.host))
         .body(json! {{"appId": config.app_id, "token": token}}.to_string())
         .send()
         .await

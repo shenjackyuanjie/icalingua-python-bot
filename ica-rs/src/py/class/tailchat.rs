@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use pyo3::prelude::*;
 
 use rust_socketio::asynchronous::Client;
@@ -64,6 +66,8 @@ impl TailchatClientPy {
     pub fn get_version(&self) -> String { crate::VERSION.to_string() }
     #[getter]
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
+    #[getter]
+    pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
     pub fn debug(&self, content: String) {
         debug!("{}", content);
     }
