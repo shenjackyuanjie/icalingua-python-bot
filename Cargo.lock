@@ -659,7 +659,7 @@ dependencies = [
 
 [[package]]
 name = "ica-rs"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
