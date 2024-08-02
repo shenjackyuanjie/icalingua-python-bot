@@ -99,7 +99,7 @@ pub async fn start_tailchat(
         for (group, room) in config.notice_room {
             let startup_msg =
                 crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
-                    "ica-rs 启动成功",
+                    "ica-rs 启动成功".to_string(),
                     group.clone(),
                     Some(room.clone()),
                 );
