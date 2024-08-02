@@ -76,8 +76,9 @@ impl BotConfig {
     pub fn new_from_path(config_file_path: String) -> Self {
         // try read config from file
         let config = fs::read_to_string(&config_file_path).expect("Failed to read config file");
-        let ret: Self = from_str(&config)
-            .unwrap_or_else(|_| panic!("Failed to parse config file {}", &config_file_path));
+        let ret: Self = from_str(&config).unwrap_or_else(|e| {
+            panic!("Failed to parse config file {}\ne:{:?}", &config_file_path, e)
+        });
         ret
     }
     pub fn new_from_cli() -> Self {

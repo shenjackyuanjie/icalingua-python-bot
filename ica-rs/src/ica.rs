@@ -52,6 +52,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
                 *room,
                 None,
             );
+            // 这可是 qq, 要保命
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
             event!(Level::INFO, "发送启动消息到房间: {}", room);

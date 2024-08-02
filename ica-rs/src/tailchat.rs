@@ -96,13 +96,19 @@ pub async fn start_tailchat(
     event!(Level::INFO, "{}", "tailchat 已经加入房间".green());
 
     if config.notice_start {
-        for (group, room) in config.notice_room {
+        event!(Level::INFO, "正在发送启动消息");
+        for (group, con) in config.notice_room {
+            event!(Level::INFO, "发送启动消息到: {}|{}", con, group);
             let startup_msg =
                 crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
                     "ica-rs 启动成功".to_string(),
-                    group.clone(),
-                    Some(room.clone()),
+                    con.clone(),
+                    Some(group.clone()),
                 );
+            // 反正是 tailchat, 不需要等, 直接发
+            if let Err(e) = socket.emit("chat.message.sendMessage", startup_msg.as_value()).await {
+                event!(Level::ERROR, "发送启动消息失败: {}", e);
+            }
         }
     }
 
