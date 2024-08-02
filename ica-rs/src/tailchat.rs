@@ -95,6 +95,17 @@ pub async fn start_tailchat(
 
     event!(Level::INFO, "{}", "tailchat 已经加入房间".green());
 
+    if config.notice_start {
+        for (group, room) in config.notice_room {
+            let startup_msg =
+                crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
+                    "ica-rs 启动成功",
+                    group.clone(),
+                    Some(room.clone()),
+                );
+        }
+    }
+
     stop_reciver.await.ok();
     event!(Level::INFO, "socketio client stopping");
     match socket.disconnect().await {

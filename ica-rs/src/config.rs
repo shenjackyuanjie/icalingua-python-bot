@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 
+use colored::Colorize;
 use serde::Deserialize;
 use toml::from_str;
 use tracing::warn;
@@ -86,7 +87,10 @@ impl BotConfig {
         let mut args = env::args();
         while let Some(arg) = args.next() {
             if arg == "-c" {
-                config_file_path = args.next().expect("No config path given");
+                config_file_path = args.next().expect(&format!(
+                    "{}",
+                    "No config path given\nUsage: -c <config_file_path>".red()
+                ));
                 break;
             }
         }
