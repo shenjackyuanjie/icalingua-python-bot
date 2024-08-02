@@ -1,7 +1,0 @@
-lib-not-dr >= 0.3.13
-colorama
-qtoml
-pynacl
-
-python-socketio
-aiohttp
