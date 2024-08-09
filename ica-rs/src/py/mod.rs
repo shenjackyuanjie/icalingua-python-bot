@@ -1,5 +1,6 @@
 pub mod call;
 pub mod class;
+pub mod config;
 
 use std::path::Path;
 use std::time::SystemTime;
@@ -37,6 +38,7 @@ pub struct PyPlugin {
     pub file_path: PathBuf,
     pub changed_time: Option<SystemTime>,
     pub py_module: Py<PyAny>,
+    pub enabled: bool,
 }
 
 impl PyPlugin {
@@ -74,6 +76,8 @@ impl PyPlugin {
         }
     }
 }
+
+pub const CONFIG_DATA_NAME: &str = "CONFIG_DATA";
 
 impl TryFrom<RawPyPlugin> for PyPlugin {
     type Error = PyErr;
@@ -116,13 +120,57 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                             match config_value {
                                 Ok(config) => {
                                     let py_config =
-                                        Bound::new(py, class::ConfigDataPy::new(config)).unwrap();
-                                    module.setattr("CONFIG_DATA", py_config).unwrap();
-                                    Ok(PyPlugin {
-                                        file_path: path,
-                                        changed_time,
-                                        py_module: module.into_py(py),
-                                    })
+                                        Bound::new(py, class::ConfigDataPy::new(config));
+                                    if let Err(e) = py_config {
+                                        warn!("添加配置文件信息失败: {:?}", e);
+                                        return Err(e);
+                                    }
+                                    let py_config = py_config.unwrap();
+                                    // 先判定一下原来有没有
+                                    match module.hasattr(CONFIG_DATA_NAME) {
+                                        Ok(true) => {
+                                            // get 过来, 后面直接覆盖, 这里用于发个警告
+                                            match module.getattr(CONFIG_DATA_NAME) {
+                                                Ok(old_config) => {
+                                                    // 先判断是不是 None, 直接忽略掉 None
+                                                    // 毕竟有可能有占位
+                                                    if !old_config.is_none() {
+                                                        warn!(
+                                                            "Python 插件 {:?} 的配置文件信息已经存在\n原始内容: {}",
+                                                            path, old_config
+                                                        );
+                                                    }
+                                                }
+                                                Err(e) => {
+                                                    warn!(
+                                                        "Python 插件 {:?} 的配置文件信息已经存在, 但获取失败:{:?}",
+                                                        path, e
+                                                    );
+                                                }
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                    match module.setattr(CONFIG_DATA_NAME, py_config) {
+                                        Ok(()) => Ok(PyPlugin {
+                                            file_path: path,
+                                            changed_time,
+                                            py_module: module.into_py(py),
+                                            enabled: true,
+                                        }),
+                                        Err(e) => {
+                                            warn!(
+                                                "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
+                                                path, e
+                                            );
+                                            Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+                                                format!(
+                                                    "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
+                                                    path, e
+                                                ),
+                                            ))
+                                        }
+                                    }
                                 }
                                 Err(e) => {
                                     warn!(
@@ -141,6 +189,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                                 file_path: path,
                                 changed_time,
                                 py_module: module.into_py(py),
+                                enabled: true,
                             })
                         } else {
                             warn!(
@@ -162,6 +211,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                     file_path: path,
                     changed_time,
                     py_module: module.into_py(py),
+                    enabled: true,
                 })
             }
         })
@@ -278,8 +328,8 @@ pub fn init_py() {
     debug!("initing python threads");
     pyo3::prepare_freethreaded_python();
 
-    let path = PathBuf::from(global_config.plugin_path);
-    load_py_plugins(&path);
+    let plugin_path = PathBuf::from(global_config.plugin_path);
+    load_py_plugins(&plugin_path);
     debug!("python 插件列表: {:#?}", PyStatus::get_files());
 
     info!("python inited")

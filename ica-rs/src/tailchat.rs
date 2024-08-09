@@ -101,7 +101,7 @@ pub async fn start_tailchat(
             event!(Level::INFO, "发送启动消息到: {}|{}", con, group);
             let startup_msg =
                 crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
-                    "ica-rs 启动成功".to_string(),
+                    format!("shenbot v{}-{} 启动成功", crate::VERSION, crate::TAILCHAT_VERSION),
                     con.clone(),
                     Some(group.clone()),
                 );

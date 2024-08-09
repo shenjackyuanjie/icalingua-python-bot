@@ -136,7 +136,7 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
     verify_plugins();
 
     let plugins = PyStatus::get_files();
-    for (path, plugin) in plugins.iter() {
+    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg = class::ica::NewMessagePy::new(message);
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
@@ -149,7 +149,7 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
     verify_plugins();
 
     let plugins = PyStatus::get_files();
-    for (path, plugin) in plugins.iter() {
+    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg_id = msg_id.clone();
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
@@ -164,7 +164,7 @@ pub async fn tailchat_new_message_py(
     verify_plugins();
 
     let plugins = PyStatus::get_files();
-    for (path, plugin) in plugins.iter() {
+    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg = class::tailchat::TailchatReceiveMessagePy::from_recive_message(message);
         let client = class::tailchat::TailchatClientPy::new(client);
         let args = (msg, client);
