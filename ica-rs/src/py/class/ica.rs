@@ -93,6 +93,8 @@ impl NewMessagePy {
     #[getter]
     pub fn get_sender_id(&self) -> i64 { self.msg.sender_id() }
     #[getter]
+    pub fn get_sender_name(&self) -> String { self.msg.sender_name().clone() }
+    #[getter]
     pub fn get_is_from_self(&self) -> bool { self.msg.is_from_self() }
     #[getter]
     pub fn get_is_reply(&self) -> bool { self.msg.is_reply() }

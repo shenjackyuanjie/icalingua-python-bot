@@ -4,6 +4,8 @@
 
 - 加入了 禁用/启用 插件功能
 - 现在会在插件加载时警告你的插件原来定义了 `CONFIG_DATA` 这一项
+- `IcaNewMessage` 添加了新的 api
+  - `get_sender_name` 获取发送人昵称
 
 ## 0.6.10
 
