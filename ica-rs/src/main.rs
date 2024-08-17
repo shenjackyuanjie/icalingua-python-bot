@@ -29,6 +29,16 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.1";
 pub const TAILCHAT_VERSION: &str = "1.2.1";
 
+pub fn version_str() -> String {
+    format!(
+        "shenbot-rs v{}-{} ica v{} tailchat v{}",
+        VERSION,
+        if STABLE { "" } else { "开发版" },
+        ICA_VERSION,
+        TAILCHAT_VERSION
+    )
+}
+
 /// 是否为稳定版本
 /// 会在 release 的时候设置为 true
 pub const STABLE: bool = false;
@@ -54,7 +64,9 @@ macro_rules! async_any_callback_with_state {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> { inner_main().await }
+
+async fn inner_main() -> anyhow::Result<()> {
     // -d -> debug
     // none -> info
     let level = {
@@ -82,7 +94,9 @@ async fn main() {
     MainStatus::static_init(bot_config);
     let bot_config = MainStatus::global_config();
 
-    py::init_py();
+    if bot_config.check_py() {
+        py::init_py();
+    }
 
     // 准备一个用于停止 socket 的变量
     event!(Level::INFO, "启动 ICA");
@@ -120,9 +134,14 @@ async fn main() {
     tailchat_send.send(()).ok();
 
     event!(Level::INFO, "Disconnected");
+
+    py::post_py()?;
+
+    Ok(())
 }
 
 #[allow(dead_code, unused_variables)]
+#[cfg(test)]
 #[tokio::test]
 async fn test_macro() {
     use std::sync::Arc;

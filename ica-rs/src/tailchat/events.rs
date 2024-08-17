@@ -8,6 +8,7 @@ use tracing::{event, info, Level};
 use crate::data_struct::tailchat::messages::ReceiveMessage;
 use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
 use crate::tailchat::client::{emit_join_room, send_message};
+use crate::{py, MainStatus, TAILCHAT_VERSION, VERSION};
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client, _status: Arc<BotStatus>) {
@@ -79,13 +80,23 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                 if message.content == "/bot-rs" {
                     let reply = message.reply_with(&format!(
                         "shenbot v{}\ntailchat-async-rs pong v{}",
-                        crate::VERSION,
-                        crate::TAILCHAT_VERSION
+                        VERSION, TAILCHAT_VERSION
+                    ));
+                    send_message(&client, &reply).await;
+                } else if message.content == "/bot-ls" {
+                    let reply = message.reply_with(&format!(
+                        "shenbot-py v{}\n{}",
+                        VERSION,
+                        if MainStatus::global_config().check_py() {
+                            py::PyStatus::display()
+                        } else {
+                            "未启用 Python 插件".to_string()
+                        }
                     ));
                     send_message(&client, &reply).await;
                 }
             }
-            crate::py::call::tailchat_new_message_py(&message, &client).await;
+            py::call::tailchat_new_message_py(&message, &client).await;
         }
     }
 }

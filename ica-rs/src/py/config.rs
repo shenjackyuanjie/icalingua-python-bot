@@ -1,6 +1,10 @@
-use std::{path::{Path, PathBuf}, str::FromStr};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use toml_edit::{value, DocumentMut, Key, Table, TomlError, Value};
+use tracing::{event, Level};
 
 use crate::py::PyStatus;
 
@@ -18,7 +22,7 @@ pub struct PluginConfigFile {
 }
 
 const CONFIG_KEY: &str = "plugins";
-pub const CONFIG_FILE_NAME: &str = "/plugins.toml";
+pub const CONFIG_FILE_NAME: &str = "plugins.toml";
 pub const DEFAULT_CONFIG: &str = r#"
 # 这个文件是由 shenbot 自动生成的, 请 **谨慎** 修改
 # 请不要修改这个文件, 除非你知道你在做什么
@@ -34,6 +38,7 @@ impl PluginConfigFile {
     pub fn from_config_path(path: &Path) -> anyhow::Result<Self> {
         let config_path = path.join(CONFIG_FILE_NAME);
         if !config_path.exists() {
+            event!(Level::INFO, "插件配置文件不存在, 正在创建");
             std::fs::write(&config_path, DEFAULT_CONFIG)?;
             Ok(Self::from_str(DEFAULT_CONFIG)?)
         } else {
@@ -44,6 +49,7 @@ impl PluginConfigFile {
 
     pub fn verify_and_init(&mut self) {
         if self.data.get(CONFIG_KEY).is_none() {
+            event!(Level::INFO, "插件配置文件缺少 plugins 字段, 正在初始化");
             self.data.insert_formatted(
                 &Key::from_str(CONFIG_KEY).unwrap(),
                 toml_edit::Item::Table(Table::new()),
@@ -88,7 +94,9 @@ impl PluginConfigFile {
         let plugins = PyStatus::get_map_mut();
         self.verify_and_init();
         plugins.iter_mut().for_each(|(path, status)| {
-            status.enabled = self.get_status(path);
+            let config_status = self.get_status(path);
+            event!(Level::INFO, "插件状态: {:?} {} -> {}", path, status.enabled, config_status);
+            status.enabled = config_status;
         });
     }
 
@@ -103,7 +111,8 @@ impl PluginConfigFile {
     }
 
     pub fn write_to_file(&self, path: &PathBuf) -> Result<(), std::io::Error> {
-        std::fs::write(path, self.data.to_string())?;
+        let config_path = path.join(CONFIG_FILE_NAME);
+        std::fs::write(config_path, self.data.to_string())?;
         Ok(())
     }
 }

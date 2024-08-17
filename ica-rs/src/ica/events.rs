@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
@@ -41,6 +43,63 @@ pub async fn add_message(payload: Payload, client: Client) {
                         VERSION, ICA_VERSION
                     ));
                     send_message(&client, &reply).await;
+                } else if message.content() == "/bot-ls" {
+                    let reply = message.reply_with(&format!(
+                        "shenbot-py v{}\n{}",
+                        VERSION,
+                        if MainStatus::global_config().check_py() {
+                            py::PyStatus::display()
+                        } else {
+                            "未启用 Python 插件".to_string()
+                        }
+                    ));
+                    send_message(&client, &reply).await;
+                }
+                if MainStatus::global_config().ica().admin_list.contains(&message.sender_id()) {
+                    // admin 区
+                    if message.content().starts_with("/bot-enable") {
+                        // 先判定是否为 admin
+                        // 尝试获取后面的信息
+                        let mut content = message.content().split_whitespace();
+                        content.next();
+                        if let Some(name) = content.next() {
+                            let path_name = PathBuf::from(name);
+                            if py::PyStatus::get_map().contains_key(&path_name) {
+                                if py::PyStatus::get_config().get_status(path_name.as_path()) {
+                                    let reply = message.reply_with("无变化, 插件已经启用");
+                                    send_message(&client, &reply).await;
+                                    return;
+                                }
+                                py::PyStatus::get_config_mut()
+                                    .set_status(path_name.as_path(), true);
+                                let reply = message.reply_with("启用插件完成");
+                                send_message(&client, &reply).await;
+                            } else {
+                                let reply = message.reply_with("未找到插件");
+                                send_message(&client, &reply).await;
+                            }
+                        }
+                    } else if message.content().starts_with("/bot-disable") {
+                        let mut content = message.content().split_whitespace();
+                        content.next();
+                        if let Some(name) = content.next() {
+                            let path_name = PathBuf::from(name);
+                            if py::PyStatus::get_map().contains_key(&path_name) {
+                                if !py::PyStatus::get_config().get_status(path_name.as_path()) {
+                                    let reply = message.reply_with("无变化, 插件已经禁用");
+                                    send_message(&client, &reply).await;
+                                    return;
+                                }
+                                py::PyStatus::get_config_mut()
+                                    .set_status(path_name.as_path(), false);
+                                let reply = message.reply_with("已经禁用插件");
+                                send_message(&client, &reply).await;
+                            } else {
+                                let reply = message.reply_with("未找到插件");
+                                send_message(&client, &reply).await;
+                            }
+                        }
+                    }
                 }
             }
             // python 插件

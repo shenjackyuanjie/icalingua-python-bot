@@ -29,7 +29,7 @@ impl PyStatus {
                 PYSTATUS.files = Some(HashMap::new());
             }
             if PYSTATUS.config.is_none() {
-                let plugin_path = MainStatus::global_config().py().plugin_path;
+                let plugin_path = MainStatus::global_config().py().config_path.clone();
                 let mut config =
                     config::PluginConfigFile::from_config_path(&PathBuf::from(plugin_path))
                         .unwrap();
@@ -93,18 +93,19 @@ impl PyStatus {
         }
     }
 
-    pub fn get_status(path: &Path) -> bool { Self::get_config().get_status(path) }
+    /// 获取某个插件的状态
+    /// 以 config 优先
+    pub fn get_status(path: &PathBuf) -> Option<bool> { 
+        let local_plugin = Self::get_map_mut().get_mut(path).map(|p| p.enabled)?;
+    }
 
-    // pub fn list_plugins() -> Vec<PathBuf> { Self::get_map().keys().cloned().collect() }
+    pub fn set_status(path: &Path, status: bool) { Self::get_config_mut().set_status(path, status); }
 
     pub fn display() -> String {
         let map = Self::get_map();
         format!(
             "Python 插件 {{ {} }}",
-            map.iter()
-                .map(|(k, v)| format!("{:?}: {:?}", k, v))
-                .collect::<Vec<String>>()
-                .join(", ")
+            map.iter().map(|(k, v)| format!("{:?}-{}", k, v.enabled)).collect::<Vec<String>>().join("\n")
         )
     }
 }
@@ -161,7 +162,7 @@ impl PyPlugin {
                 Ok(plugin) => {
                     self.py_module = plugin.py_module;
                     self.changed_time = plugin.changed_time;
-                    self.enabled = PyStatus::get_status(self.file_path.as_path());
+                    self.enabled = PyStatus::get_config().get_status(self.file_path.as_path());
                     event!(Level::INFO, "更新 Python 插件文件 {:?} 完成", self.file_path);
                 }
                 Err(e) => {
@@ -343,7 +344,7 @@ pub fn load_py_plugins(path: &PathBuf) {
         // 搜索所有的 py 文件 和 文件夹单层下面的 py 文件
         match path.read_dir() {
             Err(e) => {
-                event!(Level::WARN, "failed to read plugin path: {:?}", e);
+                event!(Level::WARN, "读取插件路径失败 {:?}", e);
             }
             Ok(dir) => {
                 for entry in dir {
@@ -412,4 +413,11 @@ pub fn init_py() {
     event!(Level::DEBUG, "python 插件列表: {}", PyStatus::display());
 
     info!("python inited")
+}
+
+pub fn post_py() -> anyhow::Result<()> {
+    PyStatus::get_config_mut().sync_status_to_config();
+    PyStatus::get_config()
+        .write_to_file(&PathBuf::from(MainStatus::global_config().py().config_path))?;
+    Ok(())
 }

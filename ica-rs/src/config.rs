@@ -4,7 +4,6 @@ use std::fs;
 use colored::Colorize;
 use serde::Deserialize;
 use toml::from_str;
-use tracing::warn;
 
 use crate::data_struct::{ica, tailchat};
 
@@ -18,12 +17,16 @@ pub struct IcaConfig {
     /// bot 的 qq
     pub self_id: ica::UserId,
     /// 提醒的房间
+    #[serde(default = "default_empty_i64_vec")]
     pub notice_room: Vec<ica::RoomId>,
     /// 是否提醒
+    #[serde(default = "default_false")]
     pub notice_start: bool,
     /// 管理员列表
+    #[serde(default = "default_empty_i64_vec")]
     pub admin_list: Vec<ica::UserId>,
     /// 过滤列表
+    #[serde(default = "default_empty_i64_vec")]
     pub filter_list: Vec<ica::UserId>,
 }
 
@@ -38,36 +41,51 @@ pub struct TailchatConfig {
     /// 提醒的房间
     pub notice_room: Vec<(tailchat::GroupId, tailchat::ConverseId)>,
     /// 是否提醒
+    #[serde(default = "default_false")]
     pub notice_start: bool,
     /// 管理员列表
+    #[serde(default = "default_empty_str_vec")]
     pub admin_list: Vec<tailchat::UserId>,
     /// 过滤列表
+    #[serde(default = "default_empty_str_vec")]
     pub filter_list: Vec<tailchat::UserId>,
 }
+
+fn default_plugin_path() -> String { "./plugins".to_string() }
+fn default_config_path() -> String { "./config".to_string() }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PyConfig {
     /// 插件路径
+    #[serde(default = "default_plugin_path")]
     pub plugin_path: String,
-    /// 配置文件路径
+    /// 配置文件夹路径
+    #[serde(default = "default_config_path")]
     pub config_path: String,
 }
+
+fn default_empty_i64_vec() -> Vec<i64> { Vec::new() }
+fn default_empty_str_vec() -> Vec<String> { Vec::new() }
+fn default_false() -> bool { false }
 
 /// 主配置
 #[derive(Debug, Clone, Deserialize)]
 pub struct BotConfig {
     /// 是否启用 icalingua
-    pub enable_ica: Option<bool>,
+    #[serde(default = "default_false")]
+    pub enable_ica: bool,
     /// Ica 配置
     pub ica: Option<IcaConfig>,
 
     /// 是否启用 Tailchat
-    pub enable_tailchat: Option<bool>,
+    #[serde(default = "default_false")]
+    pub enable_tailchat: bool,
     /// Tailchat 配置
     pub tailchat: Option<TailchatConfig>,
 
     /// 是否启用 Python 插件
-    pub enable_py: Option<bool>,
+    #[serde(default = "default_false")]
+    pub enable_py: bool,
     /// Python 插件配置
     pub py: Option<PyConfig>,
 }
@@ -88,10 +106,9 @@ impl BotConfig {
         let mut args = env::args();
         while let Some(arg) = args.next() {
             if arg == "-c" {
-                config_file_path = args.next().expect(&format!(
-                    "{}",
-                    "No config path given\nUsage: -c <config_file_path>".red()
-                ));
+                config_file_path = args.next().unwrap_or_else(|| {
+                    panic!("{}", "No config path given\nUsage: -c <config_file_path>".red())
+                });
                 break;
             }
         }
@@ -99,64 +116,13 @@ impl BotConfig {
     }
 
     /// 检查是否启用 ica
-    pub fn check_ica(&self) -> bool {
-        match self.enable_ica {
-            Some(enable) => {
-                if enable && self.ica.is_none() {
-                    warn!("enable_ica 为 true 但未填写 [ica] 配置\n将不启用 ica");
-                    false
-                } else {
-                    enable
-                }
-            }
-            None => {
-                if self.ica.is_some() {
-                    warn!("未填写 enable_ica 但填写了 [ica] 配置\n将不启用 ica");
-                }
-                false
-            }
-        }
-    }
+    pub fn check_ica(&self) -> bool { self.enable_ica }
 
     /// 检查是否启用 Tailchat
-    pub fn check_tailchat(&self) -> bool {
-        match self.enable_tailchat {
-            Some(enable) => {
-                if enable && self.tailchat.is_none() {
-                    warn!("enable_tailchat 为 true 但未填写 [tailchat] 配置\n将不启用 Tailchat");
-                    false
-                } else {
-                    enable
-                }
-            }
-            None => {
-                if self.tailchat.is_some() {
-                    warn!("未填写 enable_tailchat 但填写了 [tailchat] 配置\n将不启用 Tailchat");
-                }
-                false
-            }
-        }
-    }
+    pub fn check_tailchat(&self) -> bool { self.enable_tailchat }
 
     /// 检查是否启用 Python 插件
-    pub fn check_py(&self) -> bool {
-        match self.enable_py {
-            Some(enable) => {
-                if enable && self.py.is_none() {
-                    warn!("enable_py 为 true 但未填写 [py] 配置\n将不启用 Python 插件");
-                    false
-                } else {
-                    true
-                }
-            }
-            None => {
-                if self.py.is_some() {
-                    warn!("未填写 enable_py 但填写了 [py] 配置\n将不启用 Python 插件");
-                }
-                false
-            }
-        }
-    }
+    pub fn check_py(&self) -> bool { self.enable_py }
 
     pub fn ica(&self) -> IcaConfig { self.ica.clone().expect("No ica config found") }
     pub fn tailchat(&self) -> TailchatConfig {
