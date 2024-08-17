@@ -103,7 +103,10 @@ impl PyStatus {
     pub fn set_status(path: &Path, status: bool) {
         let cfg = Self::get_config_mut();
         cfg.set_status(path, status);
-        cfg.sync_status_from_config();
+        let map = Self::get_map_mut();
+        if let Some(plugin) = map.get_mut(path) {
+            plugin.enabled = status;
+        }
     }
 
     pub fn display() -> String {

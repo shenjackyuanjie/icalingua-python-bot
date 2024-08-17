@@ -15,7 +15,7 @@ use tracing::{event, span, Level};
 use crate::config::TailchatConfig;
 use crate::data_struct::tailchat::status::{BotStatus, LoginData};
 use crate::error::{ClientResult, TailchatError};
-use crate::{async_any_callback_with_state, async_callback_with_state, StopGetter};
+use crate::{async_any_callback_with_state, async_callback_with_state, version_str, StopGetter};
 
 pub async fn start_tailchat(
     config: TailchatConfig,
@@ -101,7 +101,7 @@ pub async fn start_tailchat(
             event!(Level::INFO, "发送启动消息到: {}|{}", con, group);
             let startup_msg =
                 crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
-                    format!("shenbot v{}-{} 启动成功", crate::VERSION, crate::TAILCHAT_VERSION),
+                    version_str(),
                     con.clone(),
                     Some(group.clone()),
                 );
