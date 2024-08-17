@@ -60,7 +60,7 @@ pub fn get_func<'py>(
     }
 }
 
-pub fn verify_plugins() {
+pub fn verify_and_reload_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
     let plugin_path = MainStatus::global_config().py().plugin_path.clone();
 
@@ -77,14 +77,20 @@ pub fn verify_plugins() {
         return;
     }
     info!("file change list: {:?}", need_reload_files);
+    let exist_plugins = PyStatus::get_map_mut();
     for reload_file in need_reload_files {
-        match PyPlugin::new_from_path(&reload_file) {
-            Some(plugin) => {
-                PyStatus::add_file(reload_file.clone(), plugin);
-                info!("重载 Python 插件: {:?}", reload_file);
-            }
-            None => {
-                warn!("重载 Python 插件: {:?} 失败", reload_file);
+        if let Some(plugin) = exist_plugins.get_mut(&reload_file) {
+            plugin.reload_from_file();
+            event!(Level::INFO, "重载 Python 插件: {:?} 完成", reload_file);
+        } else {
+            match PyPlugin::new_from_path(&reload_file) {
+                Some(plugin) => {
+                    PyStatus::add_file(reload_file.clone(), plugin);
+                    info!("加载 Python 插件: {:?} 完成", reload_file);
+                }
+                None => {
+                    warn!("加载 Python 插件: {:?} 失败", reload_file);
+                }
             }
         }
     }
@@ -133,7 +139,7 @@ macro_rules! call_py_func {
 /// 执行 new message 的 python 插件
 pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Client) {
     // 验证插件是否改变
-    verify_plugins();
+    verify_and_reload_plugins();
 
     let plugins = PyStatus::get_map();
     for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
@@ -146,7 +152,7 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
 }
 
 pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
-    verify_plugins();
+    verify_and_reload_plugins();
 
     let plugins = PyStatus::get_map();
     for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
@@ -161,7 +167,7 @@ pub async fn tailchat_new_message_py(
     message: &tailchat::messages::ReceiveMessage,
     client: &Client,
 ) {
-    verify_plugins();
+    verify_and_reload_plugins();
 
     let plugins = PyStatus::get_map();
     for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {

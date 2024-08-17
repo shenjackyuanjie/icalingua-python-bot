@@ -2,7 +2,6 @@ pub mod call;
 pub mod class;
 pub mod config;
 
-use std::fmt::Display;
 use std::path::Path;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
@@ -10,13 +9,14 @@ use std::{collections::HashMap, path::PathBuf};
 use colored::Colorize;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
-use tracing::{debug, event, info, span, warn, Level};
+use tracing::{event, info, span, warn, Level};
 
 use crate::MainStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
     pub files: Option<PyPlugins>,
+    pub config: Option<config::PluginConfigFile>,
 }
 
 pub type PyPlugins = HashMap<PathBuf, PyPlugin>;
@@ -28,16 +28,24 @@ impl PyStatus {
             if PYSTATUS.files.is_none() {
                 PYSTATUS.files = Some(HashMap::new());
             }
+            if PYSTATUS.config.is_none() {
+                let plugin_path = MainStatus::global_config().py().plugin_path;
+                let mut config =
+                    config::PluginConfigFile::from_config_path(&PathBuf::from(plugin_path))
+                        .unwrap();
+                config.verify_and_init();
+                PYSTATUS.config = Some(config);
+            }
         }
     }
 
-    pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_mut_map().insert(path, plugin); }
+    pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_map_mut().insert(path, plugin); }
 
     pub fn verify_file(path: &PathBuf) -> bool {
         Self::get_map().get(path).map_or(false, |plugin| plugin.verifiy())
     }
 
-    fn get_map() -> &'static PyPlugins {
+    pub fn get_map() -> &'static PyPlugins {
         unsafe {
             match PYSTATUS.files.as_ref() {
                 Some(files) => files,
@@ -49,7 +57,7 @@ impl PyStatus {
         }
     }
 
-    fn get_mut_map() -> &'static mut PyPlugins {
+    pub fn get_map_mut() -> &'static mut PyPlugins {
         unsafe {
             match PYSTATUS.files.as_mut() {
                 Some(files) => files,
@@ -61,11 +69,43 @@ impl PyStatus {
         }
     }
 
-    pub fn list_plugins() -> Vec<PathBuf> { Self::get_map().keys().cloned().collect() }
+    pub fn get_config() -> &'static config::PluginConfigFile {
+        unsafe {
+            match PYSTATUS.config.as_ref() {
+                Some(config) => config,
+                None => {
+                    Self::init();
+                    PYSTATUS.config.as_ref().unwrap()
+                }
+            }
+        }
+    }
+
+    pub fn get_config_mut() -> &'static mut config::PluginConfigFile {
+        unsafe {
+            match PYSTATUS.config.as_mut() {
+                Some(config) => config,
+                None => {
+                    Self::init();
+                    PYSTATUS.config.as_mut().unwrap()
+                }
+            }
+        }
+    }
+
+    pub fn get_status(path: &Path) -> bool { Self::get_config().get_status(path) }
+
+    // pub fn list_plugins() -> Vec<PathBuf> { Self::get_map().keys().cloned().collect() }
 
     pub fn display() -> String {
         let map = Self::get_map();
-        format!("Python 插件 {{ {} }}", (",".join(map.keys().map(|x| x.to_string()))))
+        format!(
+            "Python 插件 {{ {} }}",
+            map.iter()
+                .map(|(k, v)| format!("{:?}: {:?}", k, v))
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
     }
 }
 
@@ -90,6 +130,7 @@ pub struct PyPlugin {
 }
 
 impl PyPlugin {
+    /// 从文件创建一个新的
     pub fn new_from_path(path: &PathBuf) -> Option<Self> {
         let raw_file = load_py_file(path);
         match raw_file {
@@ -111,6 +152,34 @@ impl PyPlugin {
             }
         }
     }
+
+    /// 从文件更新
+    pub fn reload_from_file(&mut self) {
+        let raw_file = load_py_file(&self.file_path);
+        match raw_file {
+            Ok(raw_file) => match Self::try_from(raw_file) {
+                Ok(plugin) => {
+                    self.py_module = plugin.py_module;
+                    self.changed_time = plugin.changed_time;
+                    self.enabled = PyStatus::get_status(self.file_path.as_path());
+                    event!(Level::INFO, "更新 Python 插件文件 {:?} 完成", self.file_path);
+                }
+                Err(e) => {
+                    warn!(
+                        "更新 Python 插件文件{:?}: {:?} 失败\n{}",
+                        self.file_path,
+                        e,
+                        get_py_err_traceback(&e)
+                    );
+                }
+            },
+            Err(e) => {
+                warn!("更新插件 {:?}: {:?} 失败", self.file_path, e);
+            }
+        }
+    }
+
+    /// 检查文件是否被修改
     pub fn verifiy(&self) -> bool {
         match get_change_time(&self.file_path) {
             None => false,
@@ -175,29 +244,26 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                                     }
                                     let py_config = py_config.unwrap();
                                     // 先判定一下原来有没有
-                                    match module.hasattr(CONFIG_DATA_NAME) {
-                                        Ok(true) => {
-                                            // get 过来, 后面直接覆盖, 这里用于发个警告
-                                            match module.getattr(CONFIG_DATA_NAME) {
-                                                Ok(old_config) => {
-                                                    // 先判断是不是 None, 直接忽略掉 None
-                                                    // 毕竟有可能有占位
-                                                    if !old_config.is_none() {
-                                                        warn!(
-                                                            "Python 插件 {:?} 的配置文件信息已经存在\n原始内容: {}",
-                                                            path, old_config
-                                                        );
-                                                    }
-                                                }
-                                                Err(e) => {
+                                    if let Ok(true) = module.hasattr(CONFIG_DATA_NAME) {
+                                        // get 过来, 后面直接覆盖, 这里用于发个警告
+                                        match module.getattr(CONFIG_DATA_NAME) {
+                                            Ok(old_config) => {
+                                                // 先判断是不是 None, 直接忽略掉 None
+                                                // 毕竟有可能有占位
+                                                if !old_config.is_none() {
                                                     warn!(
-                                                        "Python 插件 {:?} 的配置文件信息已经存在, 但获取失败:{:?}",
-                                                        path, e
+                                                        "Python 插件 {:?} 的配置文件信息已经存在\n原始内容: {}",
+                                                        path, old_config
                                                     );
                                                 }
                                             }
+                                            Err(e) => {
+                                                warn!(
+                                                    "Python 插件 {:?} 的配置文件信息已经存在, 但获取失败:{:?}",
+                                                    path, e
+                                                );
+                                            }
                                         }
-                                        _ => {}
                                     }
                                     match module.setattr(CONFIG_DATA_NAME, py_config) {
                                         Ok(()) => Ok(PyPlugin {
@@ -266,11 +332,14 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
     }
 }
 
-pub static mut PYSTATUS: PyStatus = PyStatus { files: None };
+pub static mut PYSTATUS: PyStatus = PyStatus {
+    files: None,
+    config: None,
+};
 
 pub fn load_py_plugins(path: &PathBuf) {
     if path.exists() {
-        event!(Level::INFO, "finding plugins in: {:?}", path);
+        event!(Level::INFO, "找到位于 {:?} 的插件", path);
         // 搜索所有的 py 文件 和 文件夹单层下面的 py 文件
         match path.read_dir() {
             Err(e) => {
@@ -293,6 +362,7 @@ pub fn load_py_plugins(path: &PathBuf) {
     } else {
         event!(Level::WARN, "插件加载目录不存在: {:?}", path);
     }
+    PyStatus::get_config_mut().sync_status_from_config();
     event!(
         Level::INFO,
         "python 插件目录: {:?} 加载完成, 加载到 {} 个插件",
@@ -328,15 +398,16 @@ pub fn load_py_file(path: &PathBuf) -> std::io::Result<RawPyPlugin> {
 /// Python 侧初始化
 pub fn init_py() {
     // 从 全局配置中获取 python 插件路径
-    let span = span!(Level::INFO, "Init Python Plugin");
+    let span = span!(Level::INFO, "初始化 python 及其插件.ing");
     let _enter = span.enter();
 
-    let global_config = MainStatus::global_config().py();
+    let plugin_path = MainStatus::global_config().py().plugin_path;
 
     event!(Level::INFO, "正在初始化 python");
     pyo3::prepare_freethreaded_python();
 
-    let plugin_path = PathBuf::from(global_config.plugin_path);
+    PyStatus::init();
+    let plugin_path = PathBuf::from(plugin_path);
     load_py_plugins(&plugin_path);
     event!(Level::DEBUG, "python 插件列表: {}", PyStatus::display());
 
