@@ -29,6 +29,10 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.1";
 pub const TAILCHAT_VERSION: &str = "1.2.1";
 
+/// 是否为稳定版本
+/// 会在 release 的时候设置为 true
+pub const STABLE: bool = false;
+
 #[macro_export]
 macro_rules! async_callback_with_state {
     ($f:expr, $state:expr) => {{
@@ -69,7 +73,10 @@ async fn main() {
     let span = span!(Level::INFO, "Shenbot Main");
     let _enter = span.enter();
 
-    event!(Level::INFO, "shenbot-async-rs v{} starting", VERSION);
+    event!(Level::INFO, "shenbot-rs v{} starting", VERSION);
+    if !STABLE {
+        event!(Level::WARN, "这是一个开发版本, 有问题记得找 shenjack");
+    }
 
     let bot_config = BotConfig::new_from_cli();
     MainStatus::static_init(bot_config);

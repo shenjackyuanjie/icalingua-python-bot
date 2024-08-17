@@ -7,7 +7,7 @@ use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
 use serde_json::Value;
-use tracing::{debug, info, span, warn, Level};
+use tracing::{debug, info, span, warn, event, Level};
 
 /// "安全" 的 发送一条消息
 pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
@@ -56,7 +56,7 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
 
     let (auth_key, version) = (&require_data[0], &require_data[1]);
 
-    info!("auth_key: {:?}, server_version: {:?}", auth_key, version);
+    event!(Level::INFO, "服务器发过来的待签名key: {:?}, 服务端版本号: {:?}", auth_key, version);
     // 判定和自己的兼容版本号是否 一致
     let server_protocol_version = version
         .get("protocolVersion")
@@ -81,15 +81,15 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
     let private_key = MainStatus::global_config().ica().private_key.clone();
 
     let array_key: [u8; 32] = hex::decode(private_key)
-        .expect("Not a vaild pub key")
+        .expect("配置文件设置的私钥不是一个有效的私钥, 无法使用hex解析")
         .try_into()
-        .expect("Not a vaild pub key");
+        .expect("配置文件设置的私钥不是一个有效的私钥, 无法转换为[u8; 32]数组");
     let signing_key: SigningKey = SigningKey::from_bytes(&array_key);
     let signature: Signature = signing_key.sign(salt.as_slice());
 
     // 发送签名
     let sign = signature.to_bytes().to_vec();
-    client.emit("auth", sign).await.expect("Faild to send signin data");
+    client.emit("auth", sign).await.expect("发送签名信息失败");
     Ok(())
 }
 
