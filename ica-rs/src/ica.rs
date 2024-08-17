@@ -10,7 +10,8 @@ use crate::config::IcaConfig;
 use crate::error::{ClientResult, IcaError};
 use crate::StopGetter;
 
-const ICA_PROTOCOL_VERSION: &str = "2.12.12";
+/// icalingua 客户端的兼容版本号
+pub const ICA_PROTOCOL_VERSION: &str = "2.12.12";
 
 pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "Icalingua Client");
@@ -80,7 +81,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
                         event!(Level::INFO, "socketio client stopped");
                         Ok(())
                     } else {
-                        event!(Level::ERROR, "socketio client stopped with error: {:?}", inner_e);
+                        event!(Level::ERROR, "socketio 客户端出现了 Error: {:?}", inner_e);
                         Err(IcaError::SocketIoError(
                             rust_socketio::Error::IncompleteResponseFromEngineIo(inner_e),
                         ))

@@ -1,3 +1,5 @@
+// use thiserror::Error;
+
 pub type ClientResult<T, E> = Result<T, E>;
 
 #[derive(Debug)]

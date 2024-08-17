@@ -7,7 +7,7 @@ use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
 use serde_json::Value;
-use tracing::{debug, info, span, warn, event, Level};
+use tracing::{debug, event, span, warn, Level};
 
 /// "安全" 的 发送一条消息
 pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
@@ -56,7 +56,12 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
 
     let (auth_key, version) = (&require_data[0], &require_data[1]);
 
-    event!(Level::INFO, "服务器发过来的待签名key: {:?}, 服务端版本号: {:?}", auth_key, version);
+    event!(
+        Level::INFO,
+        "服务器发过来的待签名key: {:?}, 服务端版本号: {:?}",
+        auth_key,
+        version
+    );
     // 判定和自己的兼容版本号是否 一致
     let server_protocol_version = version
         .get("protocolVersion")

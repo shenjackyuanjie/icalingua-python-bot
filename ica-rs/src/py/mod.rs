@@ -2,6 +2,7 @@ pub mod call;
 pub mod class;
 pub mod config;
 
+use std::fmt::Display;
 use std::path::Path;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
@@ -9,17 +10,64 @@ use std::{collections::HashMap, path::PathBuf};
 use colored::Colorize;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
-use tracing::{debug, info, span, warn, Level};
+use tracing::{debug, event, info, span, warn, Level};
 
 use crate::MainStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
-    pub files: Option<HashMap<PathBuf, PyPlugin>>,
+    pub files: Option<PyPlugins>,
 }
 
-pub type PyPluginData = HashMap<PathBuf, PyPlugin>;
+pub type PyPlugins = HashMap<PathBuf, PyPlugin>;
 pub type RawPyPlugin = (PathBuf, Option<SystemTime>, String);
+
+impl PyStatus {
+    pub fn init() {
+        unsafe {
+            if PYSTATUS.files.is_none() {
+                PYSTATUS.files = Some(HashMap::new());
+            }
+        }
+    }
+
+    pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_mut_map().insert(path, plugin); }
+
+    pub fn verify_file(path: &PathBuf) -> bool {
+        Self::get_map().get(path).map_or(false, |plugin| plugin.verifiy())
+    }
+
+    fn get_map() -> &'static PyPlugins {
+        unsafe {
+            match PYSTATUS.files.as_ref() {
+                Some(files) => files,
+                None => {
+                    Self::init();
+                    PYSTATUS.files.as_ref().unwrap()
+                }
+            }
+        }
+    }
+
+    fn get_mut_map() -> &'static mut PyPlugins {
+        unsafe {
+            match PYSTATUS.files.as_mut() {
+                Some(files) => files,
+                None => {
+                    Self::init();
+                    PYSTATUS.files.as_mut().unwrap()
+                }
+            }
+        }
+    }
+
+    pub fn list_plugins() -> Vec<PathBuf> { Self::get_map().keys().cloned().collect() }
+
+    pub fn display() -> String {
+        let map = Self::get_map();
+        format!("Python 插件 {{ {} }}", (",".join(map.keys().map(|x| x.to_string()))))
+    }
+}
 
 pub fn get_py_err_traceback(py_err: &PyErr) -> String {
     Python::with_gil(|py| match py_err.traceback_bound(py) {
@@ -218,56 +266,15 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
     }
 }
 
-impl PyStatus {
-    pub fn get_files() -> &'static PyPluginData {
-        unsafe {
-            match PYSTATUS.files.as_ref() {
-                Some(files) => files,
-                None => {
-                    PYSTATUS.files = Some(HashMap::new());
-                    PYSTATUS.files.as_ref().unwrap()
-                }
-            }
-        }
-    }
-
-    pub fn add_file(path: PathBuf, plugin: PyPlugin) {
-        unsafe {
-            match PYSTATUS.files.as_mut() {
-                Some(files) => {
-                    files.insert(path, plugin);
-                }
-                None => {
-                    let mut files: PyPluginData = HashMap::new();
-                    files.insert(path, plugin);
-                    PYSTATUS.files = Some(files);
-                }
-            }
-        }
-    }
-
-    pub fn verify_file(path: &PathBuf) -> bool {
-        unsafe {
-            match PYSTATUS.files.as_ref() {
-                Some(files) => match files.get(path) {
-                    Some(plugin) => plugin.verifiy(),
-                    None => false,
-                },
-                None => false,
-            }
-        }
-    }
-}
-
 pub static mut PYSTATUS: PyStatus = PyStatus { files: None };
 
 pub fn load_py_plugins(path: &PathBuf) {
     if path.exists() {
-        info!("finding plugins in: {:?}", path);
+        event!(Level::INFO, "finding plugins in: {:?}", path);
         // 搜索所有的 py 文件 和 文件夹单层下面的 py 文件
         match path.read_dir() {
             Err(e) => {
-                warn!("failed to read plugin path: {:?}", e);
+                event!(Level::WARN, "failed to read plugin path: {:?}", e);
             }
             Ok(dir) => {
                 for entry in dir {
@@ -284,12 +291,13 @@ pub fn load_py_plugins(path: &PathBuf) {
             }
         }
     } else {
-        warn!("plugin path not exists: {:?}", path);
+        event!(Level::WARN, "插件加载目录不存在: {:?}", path);
     }
-    info!(
+    event!(
+        Level::INFO,
         "python 插件目录: {:?} 加载完成, 加载到 {} 个插件",
         path,
-        PyStatus::get_files().len()
+        PyStatus::get_map().len()
     );
 }
 
@@ -325,12 +333,12 @@ pub fn init_py() {
 
     let global_config = MainStatus::global_config().py();
 
-    debug!("initing python threads");
+    event!(Level::INFO, "正在初始化 python");
     pyo3::prepare_freethreaded_python();
 
     let plugin_path = PathBuf::from(global_config.plugin_path);
     load_py_plugins(&plugin_path);
-    debug!("python 插件列表: {:#?}", PyStatus::get_files());
+    event!(Level::DEBUG, "python 插件列表: {}", PyStatus::display());
 
     info!("python inited")
 }

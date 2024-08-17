@@ -25,8 +25,6 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
-            let span = span!(Level::INFO, "ica new_msg");
-            let _enter = span.enter();
             let message: NewMessage = serde_json::from_value(value.clone()).unwrap();
             // 检测是否在过滤列表内
             if MainStatus::global_config().ica().filter_list.contains(&message.msg.sender_id) {
@@ -184,7 +182,7 @@ pub async fn connect_callback(payload: Payload, _client: Client) {
                 Some(msg) => {
                     event!(Level::INFO, "{}{}", "未知消息".yellow(), msg);
                 }
-                None => (),
+                _ => (),
             }
         }
     }
