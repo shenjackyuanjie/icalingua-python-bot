@@ -31,11 +31,12 @@ pub const TAILCHAT_VERSION: &str = "1.2.1";
 
 pub fn version_str() -> String {
     format!(
-        "shenbot-rs v{}-{} ica v{} tailchat v{}",
+        "shenbot-rs v{}-{} ica v{}({}) tailchat v{}",
         VERSION,
         if STABLE { "" } else { "开发版" },
         ICA_VERSION,
-        TAILCHAT_VERSION
+        ica::ICA_PROTOCOL_VERSION,
+        TAILCHAT_VERSION,
     )
 }
 

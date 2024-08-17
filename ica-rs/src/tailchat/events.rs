@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use colored::Colorize;
@@ -62,7 +63,6 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client, _status:
     }
 }
 
-#[allow(clippy::collapsible_if)]
 pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus>) {
     if let Payload::Text(values) = payload {
         if let Some(value) = values.first() {
@@ -94,6 +94,54 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                         }
                     ));
                     send_message(&client, &reply).await;
+                }
+                if MainStatus::global_config().tailchat().admin_list.contains(&message.sender_id) {
+                    // admin 区
+                    if message.content.starts_with("/bot-enable") {
+                        // 先判定是否为 admin
+                        // 尝试获取后面的信息
+                        let mut content = message.content.split_whitespace();
+                        content.next();
+                        if let Some(name) = content.next() {
+                            let path_name = PathBuf::from(name);
+                            match py::PyStatus::get_status(&path_name) {
+                                None => {
+                                    let reply = message.reply_with("未找到插件");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(true) => {
+                                    let reply = message.reply_with("无变化, 插件已经启用");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(false) => {
+                                    py::PyStatus::set_status(&path_name, true);
+                                    let reply = message.reply_with("启用插件完成");
+                                    send_message(&client, &reply).await;
+                                }
+                            }
+                        }
+                    } else if message.content.starts_with("/bot-disable") {
+                        let mut content = message.content.split_whitespace();
+                        content.next();
+                        if let Some(name) = content.next() {
+                            let path_name = PathBuf::from(name);
+                            match py::PyStatus::get_status(&path_name) {
+                                None => {
+                                    let reply = message.reply_with("未找到插件");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(false) => {
+                                    let reply = message.reply_with("无变化, 插件已经禁用");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(true) => {
+                                    py::PyStatus::set_status(&path_name, false);
+                                    let reply = message.reply_with("禁用插件完成");
+                                    send_message(&client, &reply).await;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             py::call::tailchat_new_message_py(&message, &client).await;

@@ -95,17 +95,25 @@ impl PyStatus {
 
     /// 获取某个插件的状态
     /// 以 config 优先
-    pub fn get_status(path: &PathBuf) -> Option<bool> { 
-        let local_plugin = Self::get_map_mut().get_mut(path).map(|p| p.enabled)?;
+    pub fn get_status(path: &PathBuf) -> Option<bool> {
+        Self::get_config_mut().sync_status_from_config();
+        Self::get_map().get(path).map(|plugin| plugin.enabled)
     }
 
-    pub fn set_status(path: &Path, status: bool) { Self::get_config_mut().set_status(path, status); }
+    pub fn set_status(path: &Path, status: bool) {
+        let cfg = Self::get_config_mut();
+        cfg.set_status(path, status);
+        cfg.sync_status_from_config();
+    }
 
     pub fn display() -> String {
         let map = Self::get_map();
         format!(
             "Python 插件 {{ {} }}",
-            map.iter().map(|(k, v)| format!("{:?}-{}", k, v.enabled)).collect::<Vec<String>>().join("\n")
+            map.iter()
+                .map(|(k, v)| format!("{:?}-{}", k, v.enabled))
+                .collect::<Vec<String>>()
+                .join("\n")
         )
     }
 }

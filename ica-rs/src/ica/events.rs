@@ -9,7 +9,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{py, MainStatus, ICA_VERSION, VERSION};
+use crate::{py, version_str, MainStatus, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -22,7 +22,7 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
     }
 }
 
-#[allow(clippy::collapsible_if)]
+// #[allow(clippy::collapsible_if)]
 /// 接收消息
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
@@ -38,10 +38,7 @@ pub async fn add_message(payload: Payload, client: Client) {
             // 之后的处理交给插件
             if !message.is_from_self() && !message.is_reply() {
                 if message.content() == "/bot-rs" {
-                    let reply = message.reply_with(&format!(
-                        "shenbot v{}\nica-async-rs pong v{}",
-                        VERSION, ICA_VERSION
-                    ));
+                    let reply = message.reply_with(&version_str());
                     send_message(&client, &reply).await;
                 } else if message.content() == "/bot-ls" {
                     let reply = message.reply_with(&format!(
@@ -64,19 +61,20 @@ pub async fn add_message(payload: Payload, client: Client) {
                         content.next();
                         if let Some(name) = content.next() {
                             let path_name = PathBuf::from(name);
-                            if py::PyStatus::get_map().contains_key(&path_name) {
-                                if py::PyStatus::get_config().get_status(path_name.as_path()) {
+                            match py::PyStatus::get_status(&path_name) {
+                                None => {
+                                    let reply = message.reply_with("未找到插件");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(true) => {
                                     let reply = message.reply_with("无变化, 插件已经启用");
                                     send_message(&client, &reply).await;
-                                    return;
                                 }
-                                py::PyStatus::get_config_mut()
-                                    .set_status(path_name.as_path(), true);
-                                let reply = message.reply_with("启用插件完成");
-                                send_message(&client, &reply).await;
-                            } else {
-                                let reply = message.reply_with("未找到插件");
-                                send_message(&client, &reply).await;
+                                Some(false) => {
+                                    py::PyStatus::set_status(&path_name, true);
+                                    let reply = message.reply_with("启用插件完成");
+                                    send_message(&client, &reply).await;
+                                }
                             }
                         }
                     } else if message.content().starts_with("/bot-disable") {
@@ -84,19 +82,20 @@ pub async fn add_message(payload: Payload, client: Client) {
                         content.next();
                         if let Some(name) = content.next() {
                             let path_name = PathBuf::from(name);
-                            if py::PyStatus::get_map().contains_key(&path_name) {
-                                if !py::PyStatus::get_config().get_status(path_name.as_path()) {
+                            match py::PyStatus::get_status(&path_name) {
+                                None => {
+                                    let reply = message.reply_with("未找到插件");
+                                    send_message(&client, &reply).await;
+                                }
+                                Some(false) => {
                                     let reply = message.reply_with("无变化, 插件已经禁用");
                                     send_message(&client, &reply).await;
-                                    return;
                                 }
-                                py::PyStatus::get_config_mut()
-                                    .set_status(path_name.as_path(), false);
-                                let reply = message.reply_with("已经禁用插件");
-                                send_message(&client, &reply).await;
-                            } else {
-                                let reply = message.reply_with("未找到插件");
-                                send_message(&client, &reply).await;
+                                Some(true) => {
+                                    py::PyStatus::set_status(&path_name, false);
+                                    let reply = message.reply_with("禁用插件完成");
+                                    send_message(&client, &reply).await;
+                                }
                             }
                         }
                     }
