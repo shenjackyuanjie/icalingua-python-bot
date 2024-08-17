@@ -26,9 +26,23 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.1";
-pub const TAILCHAT_VERSION: &str = "1.2.1";
+pub const ICA_VERSION: &str = "1.6.2";
+pub const TAILCHAT_VERSION: &str = "1.2.2";
 
+const HELP_MSG: &str = r#"/bot-rs
+    展示 rust 侧信息
+/bot-py
+    展示 python 侧信息(如果python插件启用了的话)
+/bot-ls
+    显示所有插件信息
+/bot-enable <plugin>
+    启用某个插件
+/bot-disable <plugin>
+    禁用某个插件
+
+by shenjackyuanjie"#;
+
+pub fn help_msg() -> String { format!("{}\n{}", version_str(), HELP_MSG) }
 pub fn version_str() -> String {
     format!(
         "shenbot-rs v{}-{} ica v{}({}) tailchat v{}",

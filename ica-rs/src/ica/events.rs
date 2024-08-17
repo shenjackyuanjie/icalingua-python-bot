@@ -9,7 +9,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{py, version_str, MainStatus, VERSION};
+use crate::{help_msg, py, version_str, MainStatus, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -22,7 +22,6 @@ pub async fn get_online_data(payload: Payload, _client: Client) {
     }
 }
 
-// #[allow(clippy::collapsible_if)]
 /// 接收消息
 pub async fn add_message(payload: Payload, client: Client) {
     if let Payload::Text(values) = payload {
@@ -50,6 +49,9 @@ pub async fn add_message(payload: Payload, client: Client) {
                             "未启用 Python 插件".to_string()
                         }
                     ));
+                    send_message(&client, &reply).await;
+                } else if message.content() == "/bot-help" {
+                    let reply = message.reply_with(&help_msg());
                     send_message(&client, &reply).await;
                 }
                 if MainStatus::global_config().ica().admin_list.contains(&message.sender_id()) {
