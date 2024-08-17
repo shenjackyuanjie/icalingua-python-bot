@@ -101,7 +101,7 @@ pub async fn start_tailchat(
             event!(Level::INFO, "发送启动消息到: {}|{}", con, group);
             let startup_msg =
                 crate::data_struct::tailchat::messages::SendingMessage::new_without_meta(
-                    version_str(),
+                    format!("{}\n启动成功", version_str()),
                     con.clone(),
                     Some(group.clone()),
                 );
