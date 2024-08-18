@@ -2,6 +2,7 @@
 
 ## 0.7.1
 
+- 两个 api 版本号分别升级到 `1.6.3(ica)` 和 `1.2.3(tailchat)`
 - 加入了 `client_id`
   - 用的 startup time hash 一遍取后六位
   - 以及也有 python 侧的 `client_id` api
