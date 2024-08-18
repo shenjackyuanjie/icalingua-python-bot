@@ -1,4 +1,7 @@
-use std::{hash::{DefaultHasher, Hash, Hasher}, time::Duration};
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    time::Duration,
+};
 
 mod config;
 mod data_struct;
@@ -58,9 +61,9 @@ pub fn client_id() -> String {
 /// 获取版本信息
 pub fn version_str() -> String {
     format!(
-        "shenbot-rs v{}-{}-[{}] ica v{}({}) tailchat v{}",
+        "shenbot-rs v{}{}-[{}] ica v{}({}) tailchat v{}",
         VERSION,
-        if STABLE { "" } else { "开发版" },
+        if STABLE { "" } else { "-开发版" },
         client_id(),
         ICA_VERSION,
         ica::ICA_PROTOCOL_VERSION,

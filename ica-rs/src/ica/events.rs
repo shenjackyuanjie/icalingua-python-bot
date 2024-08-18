@@ -41,8 +41,9 @@ pub async fn add_message(payload: Payload, client: Client) {
                     send_message(&client, &reply).await;
                 } else if message.content() == "/bot-ls" {
                     let reply = message.reply_with(&format!(
-                        "shenbot-py v{}\n{}",
+                        "shenbot-py v{}-{}\n{}",
                         VERSION,
+                        client_id(),
                         if MainStatus::global_config().check_py() {
                             py::PyStatus::display()
                         } else {
@@ -78,7 +79,8 @@ pub async fn add_message(payload: Payload, client: Client) {
                                 }
                             }
                         }
-                    } else if message.content().starts_with(&format!("/bot-disable-{}", client_id)) {
+                    } else if message.content().starts_with(&format!("/bot-disable-{}", client_id))
+                    {
                         if let Some((_, name)) = message.content().split_once(" ") {
                             let path_name = PathBuf::from(name);
                             match py::PyStatus::get_status(&path_name) {
