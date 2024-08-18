@@ -1,5 +1,12 @@
 # 更新日志
 
+## 0.7.1
+
+- 加入了 `client_id`
+  - 用的 startup time hash 一遍取后六位
+  - 以及也有 python 侧的 `client_id` api
+- 修复了上个版本其实没有写 python 侧 `version_str` api 的问题
+
 ## 0.7.0
 
 > 我决定叫他 0.7.0
@@ -49,7 +56,6 @@
   - `wrap_callback` 和 `wrap_any_callback`
   - 因为现在他俩已经进到 `rust_socketio` 里啦
 - 添加了新的 macro
-  - ``
 - 支持了 `TailchatReceiveMessagePy` 的 `is_from_self` 方法
   - 用于判断是否是自己发的消息
 

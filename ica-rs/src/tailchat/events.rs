@@ -9,7 +9,7 @@ use tracing::{event, info, Level};
 use crate::data_struct::tailchat::messages::ReceiveMessage;
 use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
 use crate::tailchat::client::{emit_join_room, send_message};
-use crate::{help_msg, py, MainStatus, TAILCHAT_VERSION, VERSION};
+use crate::{client_id, help_msg, py, MainStatus, TAILCHAT_VERSION, VERSION};
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client, _status: Arc<BotStatus>) {
@@ -79,14 +79,15 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
             if !message.is_reply() {
                 if message.content == "/bot-rs" {
                     let reply = message.reply_with(&format!(
-                        "shenbot v{}\ntailchat-async-rs pong v{}",
-                        VERSION, TAILCHAT_VERSION
+                        "shenbot v{}-{}\ntailchat-rs pong v{}",
+                        VERSION, client_id(), TAILCHAT_VERSION
                     ));
                     send_message(&client, &reply).await;
                 } else if message.content == "/bot-ls" {
                     let reply = message.reply_with(&format!(
-                        "shenbot-py v{}\n{}",
+                        "shenbot-py v{}-{}\n{}",
                         VERSION,
+                        client_id(),
                         if MainStatus::global_config().check_py() {
                             py::PyStatus::display()
                         } else {
@@ -100,7 +101,8 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                 }
                 if MainStatus::global_config().tailchat().admin_list.contains(&message.sender_id) {
                     // admin 区
-                    if message.content.starts_with("/bot-enable") {
+                    let client_id = client_id();
+                    if message.content.starts_with(&format!("/bot-enable-{}", client_id)) {
                         // 先判定是否为 admin
                         // 尝试获取后面的信息
                         if let Some((_, name)) = message.content.split_once(" ") {
@@ -121,7 +123,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                                 }
                             }
                         }
-                    } else if message.content.starts_with("/bot-disable") {
+                    } else if message.content.starts_with(&format!("/bot-disable-{}", client_id)) {
                         if let Some((_, name)) = message.content.split_once(" ") {
                             let path_name = PathBuf::from(name);
                             match py::PyStatus::get_status(&path_name) {

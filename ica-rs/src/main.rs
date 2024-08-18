@@ -35,10 +35,10 @@ const HELP_MSG: &str = r#"/bot-rs
     展示 python 侧信息(如果python插件启用了的话)
 /bot-ls
     显示所有插件信息
-/bot-enable <plugin>
-    启用某个插件
-/bot-disable <plugin>
-    禁用某个插件
+/bot-enable-<client-id> <plugin>
+    启用某个插件(具体到客户端)
+/bot-disable-<client-id> <plugin>
+    禁用某个插件(具体到客户端)
 
 by shenjackyuanjie"#;
 
@@ -58,9 +58,10 @@ pub fn client_id() -> String {
 /// 获取版本信息
 pub fn version_str() -> String {
     format!(
-        "shenbot-rs v{}-{} ica v{}({}) tailchat v{}",
+        "shenbot-rs v{}-{}-[{}] ica v{}({}) tailchat v{}",
         VERSION,
         if STABLE { "" } else { "开发版" },
+        client_id(),
         ICA_VERSION,
         ica::ICA_PROTOCOL_VERSION,
         TAILCHAT_VERSION,

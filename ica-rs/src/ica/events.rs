@@ -9,7 +9,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{help_msg, py, version_str, MainStatus, VERSION};
+use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -57,7 +57,8 @@ pub async fn add_message(payload: Payload, client: Client) {
                 if MainStatus::global_config().ica().admin_list.contains(&message.sender_id()) {
                     // admin 区
                     // 先判定是否为 admin
-                    if message.content().starts_with("/bot-enable") {
+                    let client_id = client_id();
+                    if message.content().starts_with(&format!("/bot-enable-{}", client_id)) {
                         // 尝试获取后面的信息
                         if let Some((_, name)) = message.content().split_once(" ") {
                             let path_name = PathBuf::from(name);
@@ -77,7 +78,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                                 }
                             }
                         }
-                    } else if message.content().starts_with("/bot-disable") {
+                    } else if message.content().starts_with(&format!("/bot-disable-{}", client_id)) {
                         if let Some((_, name)) = message.content().split_once(" ") {
                             let path_name = PathBuf::from(name);
                             match py::PyStatus::get_status(&path_name) {

@@ -65,6 +65,10 @@ impl TailchatClientPy {
     #[getter]
     pub fn get_version(&self) -> String { crate::VERSION.to_string() }
     #[getter]
+    pub fn get_version_str(&self) -> String { crate::version_str() }
+    #[getter]
+    pub fn get_client_id(&self) -> String { crate::client_id() }
+    #[getter]
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
