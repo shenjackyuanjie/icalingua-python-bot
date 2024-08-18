@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{hash::{DefaultHasher, Hash, Hasher}, time::Duration};
 
 mod config;
 mod data_struct;
@@ -42,7 +42,20 @@ const HELP_MSG: &str = r#"/bot-rs
 
 by shenjackyuanjie"#;
 
+/// 获取帮助信息
 pub fn help_msg() -> String { format!("{}\n{}", version_str(), HELP_MSG) }
+
+/// 获得当前客户端的 id
+/// 防止串号
+pub fn client_id() -> String {
+    let mut hasher = DefaultHasher::new();
+    MainStatus::get_startup_time().hash(&mut hasher);
+    let data = hasher.finish();
+    // 取后6位
+    format!("{:06}", data % 1_000_000)
+}
+
+/// 获取版本信息
 pub fn version_str() -> String {
     format!(
         "shenbot-rs v{}-{} ica v{}({}) tailchat v{}",
@@ -56,7 +69,7 @@ pub fn version_str() -> String {
 
 /// 是否为稳定版本
 /// 会在 release 的时候设置为 true
-pub const STABLE: bool = true;
+pub const STABLE: bool = false;
 
 #[macro_export]
 macro_rules! async_callback_with_state {

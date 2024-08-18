@@ -103,9 +103,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                     if message.content.starts_with("/bot-enable") {
                         // 先判定是否为 admin
                         // 尝试获取后面的信息
-                        let mut content = message.content.split_whitespace();
-                        content.next();
-                        if let Some(name) = content.next() {
+                        if let Some((_, name)) = message.content.split_once(" ") {
                             let path_name = PathBuf::from(name);
                             match py::PyStatus::get_status(&path_name) {
                                 None => {
@@ -124,9 +122,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                             }
                         }
                     } else if message.content.starts_with("/bot-disable") {
-                        let mut content = message.content.split_whitespace();
-                        content.next();
-                        if let Some(name) = content.next() {
+                        if let Some((_, name)) = message.content.split_once(" ") {
                             let path_name = PathBuf::from(name);
                             match py::PyStatus::get_status(&path_name) {
                                 None => {
