@@ -57,6 +57,14 @@ impl PluginConfigFile {
         }
     }
 
+    fn get_table(&self) -> Option<&Table> {
+        self.data.get(CONFIG_KEY).and_then(|item| item.as_table())
+    }
+
+    fn get_table_mut(&mut self) -> Option<&mut Table> {
+        self.data.get_mut(CONFIG_KEY).and_then(|item| item.as_table_mut())
+    }
+
     /// 获取插件状态
     /// 默认为 true
     pub fn get_status(&self, path: &Path) -> bool {
@@ -71,6 +79,23 @@ impl PluginConfigFile {
             }
         }
         true
+    }
+
+    /// 删掉一个状态
+    pub fn remove_status(&mut self, path: &Path) -> Option<bool> {
+        let path_str = path.to_str().unwrap();
+        if let Some(table) = self.get_table_mut() {
+            if let Some(item) = table.get_mut(path_str) {
+                if let Some(bool) = item.as_bool() {
+                    table.remove(path_str);
+                    return Some(bool);
+                } else {
+                    table.remove(path_str);
+                    return Some(false);
+                }
+            }
+        }
+        None
     }
 
     /// 设置插件状态

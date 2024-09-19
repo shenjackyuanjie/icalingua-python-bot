@@ -11,7 +11,7 @@ use crate::error::{ClientResult, IcaError};
 use crate::{version_str, StopGetter};
 
 /// icalingua 客户端的兼容版本号
-pub const ICA_PROTOCOL_VERSION: &str = "2.12.12";
+pub const ICA_PROTOCOL_VERSION: &str = "2.12.20";
 
 pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "Icalingua Client");

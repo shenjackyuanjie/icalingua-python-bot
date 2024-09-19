@@ -41,6 +41,11 @@ impl PyStatus {
 
     pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_map_mut().insert(path, plugin); }
 
+    /// 删除一个插件
+    pub fn delete_file(path: &PathBuf) -> Option<PyPlugin> {
+        Self::get_map_mut().remove(path)
+    }
+
     pub fn verify_file(path: &PathBuf) -> bool {
         Self::get_map().get(path).map_or(false, |plugin| plugin.verifiy())
     }
