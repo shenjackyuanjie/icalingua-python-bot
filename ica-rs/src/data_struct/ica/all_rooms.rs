@@ -32,13 +32,19 @@ pub struct Room {
     // pub users: JsonValue,
     pub at: At,
     pub last_message: LastMessage,
-    pub auto_download: Option<String>,
-    pub download_path: Option<String>,
+    // 这俩都没啥用
+    // pub auto_download: Option<String>,
+    // pub download_path: Option<String>,
 }
 
 impl Room {
     pub fn new_from_json(json: &JsonValue) -> Self {
-        let inner = serde_json::from_value::<InnerRoom>(json.clone()).unwrap();
+        let inner = match serde_json::from_value::<InnerRoom>(json.clone()) {
+            Ok(data) => data,
+            Err(e) => {
+                panic!("Room::new_from_json error: {}, raw: {:?}", e, json);
+            }
+        };
         let at = At::new_from_json(&json["at"]);
         Self {
             room_id: inner.room_id,
@@ -50,8 +56,7 @@ impl Room {
             // users: inner.users,
             at,
             last_message: inner.last_message,
-            auto_download: inner.auto_download,
-            download_path: inner.download_path,
+            // download_path: inner.download_path,
         }
     }
 }
@@ -75,8 +80,9 @@ struct InnerRoom {
     // 忽略 at
     #[serde(rename = "lastMessage")]
     pub last_message: LastMessage,
-    #[serde(rename = "autoDownload")]
-    pub auto_download: Option<String>,
-    #[serde(rename = "downloadPath")]
-    pub download_path: Option<String>,
+    // 这俩都没啥用
+    // #[serde(rename = "autoDownload")]
+    // pub auto_download: Option<String>,
+    // #[serde(rename = "downloadPath")]
+    // pub download_path: Option<String>,
 }
