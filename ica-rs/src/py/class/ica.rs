@@ -149,6 +149,10 @@ impl SendMessagePy {
     pub fn set_img(&mut self, file: Vec<u8>, file_type: String, as_sticker: bool) {
         self.msg.set_img(&file, &file_type, as_sticker);
     }
+    pub fn remove_reply(&mut self) -> Self {
+        self.msg.reply_to = None;
+        self.clone()
+    }
 }
 
 impl SendMessagePy {

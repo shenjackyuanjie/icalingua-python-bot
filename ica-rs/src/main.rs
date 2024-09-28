@@ -29,8 +29,8 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.3";
-pub const TAILCHAT_VERSION: &str = "1.2.3";
+pub const ICA_VERSION: &str = "1.6.4";
+pub const TAILCHAT_VERSION: &str = "1.2.4";
 
 const HELP_MSG: &str = r#"/bot-rs
     展示 rust 侧信息
@@ -73,7 +73,7 @@ pub fn version_str() -> String {
 
 /// 是否为稳定版本
 /// 会在 release 的时候设置为 true
-pub const STABLE: bool = true;
+pub const STABLE: bool = false;
 
 #[macro_export]
 macro_rules! async_callback_with_state {

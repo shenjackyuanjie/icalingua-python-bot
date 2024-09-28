@@ -1,5 +1,27 @@
 # 更新日志
 
+## 0.7.3
+
+添加了一些新的 api
+
+### ica 1.6.4
+
+- 给 `SendMessagePy`
+  - 添加了 `remove_reply` 方法
+  - 用于取消回复状态
+- 删除了 `Room` 的 `auto_download` 和 `download_path` 字段
+  - 因为这两个字段也没啥用
+
+### tailcaht 1.2.4
+
+- 给 `TailchatClientPy`
+  - 添加了 `new_message` 方法
+  - 用于创建新的消息
+- 给 `TailchatSendingMessagePy`
+  - 添加了 `clear_meta` 功能
+  - 用于清除 `meta` 字段
+  - 可以用来取消回复状态
+
 ## 0.7.2
 
 - 修复了一些 ica 和 tailchat 表现不一致的问题(捂脸)

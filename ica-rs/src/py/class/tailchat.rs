@@ -72,6 +72,12 @@ impl TailchatClientPy {
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
+    #[pyo3(signature = (content, converse_id, group_id = None))]
+    pub fn new_message(&self, content: String, converse_id: ConverseId, group_id: Option<GroupId>) -> TailchatSendingMessagePy {
+        TailchatSendingMessagePy {
+            message: SendingMessage::new(content, converse_id, group_id, None),
+        }
+    }
     pub fn debug(&self, content: String) {
         debug!("{}", content);
     }
@@ -130,6 +136,10 @@ impl TailchatSendingMessagePy {
     pub fn set_group_id(&mut self, group_id: Option<GroupId>) { self.message.group_id = group_id; }
     pub fn with_content(&mut self, content: String) -> Self {
         self.message.content = content;
+        self.clone()
+    }
+    pub fn clear_meta(&mut self) -> Self {
+        self.message.meta = None;
         self.clone()
     }
     pub fn set_img(&mut self, file: Vec<u8>, file_name: String) {
