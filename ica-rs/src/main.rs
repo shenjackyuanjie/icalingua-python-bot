@@ -73,7 +73,7 @@ pub fn version_str() -> String {
 
 /// 是否为稳定版本
 /// 会在 release 的时候设置为 true
-pub const STABLE: bool = true;
+pub const STABLE: bool = false;
 
 #[macro_export]
 macro_rules! async_callback_with_state {
