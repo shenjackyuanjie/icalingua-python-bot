@@ -44,20 +44,37 @@ impl BotStatus {
         unsafe { MAIN_STATUS.startup_time.unwrap() }
     }
 
-    pub fn global_config() -> &'static BotConfig { unsafe { MAIN_STATUS.config.as_ref().unwrap() } }
+    pub fn global_config() -> &'static BotConfig {
+        unsafe {
+            let ptr = &raw const MAIN_STATUS.config;
+            (*ptr).as_ref().unwrap()
+        }
+    }
 
     pub fn global_ica_status() -> &'static ica::MainStatus {
-        unsafe { MAIN_STATUS.ica_status.as_ref().unwrap() }
+        unsafe {
+            let ptr = &raw const MAIN_STATUS.ica_status;
+            (*ptr).as_ref().unwrap()
+        }
     }
     pub fn global_tailchat_status() -> &'static tailchat::MainStatus {
-        unsafe { MAIN_STATUS.tailchat_status.as_ref().unwrap() }
+        unsafe {
+            let ptr = &raw const MAIN_STATUS.tailchat_status;
+            (*ptr).as_ref().unwrap()
+        }
     }
 
     pub fn global_ica_status_mut() -> &'static mut ica::MainStatus {
-        unsafe { MAIN_STATUS.ica_status.as_mut().unwrap() }
+        unsafe {
+            let ptr = &raw mut MAIN_STATUS.ica_status;
+            (*ptr).as_mut().unwrap()
+        }
     }
     pub fn global_tailchat_status_mut() -> &'static mut tailchat::MainStatus {
-        unsafe { MAIN_STATUS.tailchat_status.as_mut().unwrap() }
+        unsafe {
+            let ptr = &raw mut MAIN_STATUS.tailchat_status;
+            (*ptr).as_mut().unwrap()
+        }
     }
 }
 

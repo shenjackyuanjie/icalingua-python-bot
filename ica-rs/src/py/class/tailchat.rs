@@ -73,7 +73,12 @@ impl TailchatClientPy {
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
     #[pyo3(signature = (content, converse_id, group_id = None))]
-    pub fn new_message(&self, content: String, converse_id: ConverseId, group_id: Option<GroupId>) -> TailchatSendingMessagePy {
+    pub fn new_message(
+        &self,
+        content: String,
+        converse_id: ConverseId,
+        group_id: Option<GroupId>,
+    ) -> TailchatSendingMessagePy {
         TailchatSendingMessagePy {
             message: SendingMessage::new(content, converse_id, group_id, None),
         }

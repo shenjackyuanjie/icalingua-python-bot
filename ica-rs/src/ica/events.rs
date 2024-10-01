@@ -187,7 +187,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "renewMessage", // 我也不确定到底是啥事件
         "requestSetup", // 需要登录
-        "updateRoom",
+        "updateRoom",   // 更新房间
     ];
     match &event {
         Event::Custom(event_name) => {

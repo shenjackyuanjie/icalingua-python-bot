@@ -95,8 +95,15 @@ macro_rules! async_any_callback_with_state {
     }};
 }
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> { inner_main().await }
+fn main() -> anyhow::Result<()> {
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .thread_name("shenbot-rs")
+        .worker_threads(4)
+        .build()
+        .unwrap()
+        .block_on(inner_main())
+}
 
 async fn inner_main() -> anyhow::Result<()> {
     // -d -> debug

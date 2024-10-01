@@ -42,9 +42,7 @@ impl PyStatus {
     pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_map_mut().insert(path, plugin); }
 
     /// 删除一个插件
-    pub fn delete_file(path: &PathBuf) -> Option<PyPlugin> {
-        Self::get_map_mut().remove(path)
-    }
+    pub fn delete_file(path: &PathBuf) -> Option<PyPlugin> { Self::get_map_mut().remove(path) }
 
     pub fn verify_file(path: &PathBuf) -> bool {
         Self::get_map().get(path).map_or(false, |plugin| plugin.verifiy())
@@ -52,11 +50,13 @@ impl PyStatus {
 
     pub fn get_map() -> &'static PyPlugins {
         unsafe {
-            match PYSTATUS.files.as_ref() {
+            let ptr = &raw const PYSTATUS.files;
+            let ptr = &*ptr;
+            match ptr.as_ref() {
                 Some(files) => files,
                 None => {
                     Self::init();
-                    PYSTATUS.files.as_ref().unwrap()
+                    ptr.as_ref().unwrap()
                 }
             }
         }
@@ -64,11 +64,13 @@ impl PyStatus {
 
     pub fn get_map_mut() -> &'static mut PyPlugins {
         unsafe {
-            match PYSTATUS.files.as_mut() {
+            let ptr = &raw mut PYSTATUS.files;
+            let ptr = &mut *ptr;
+            match ptr {
                 Some(files) => files,
                 None => {
                     Self::init();
-                    PYSTATUS.files.as_mut().unwrap()
+                    ptr.as_mut().unwrap()
                 }
             }
         }
@@ -76,11 +78,13 @@ impl PyStatus {
 
     pub fn get_config() -> &'static config::PluginConfigFile {
         unsafe {
-            match PYSTATUS.config.as_ref() {
+            let ptr = &raw const PYSTATUS.config;
+            let ptr = &*ptr;
+            match ptr {
                 Some(config) => config,
                 None => {
                     Self::init();
-                    PYSTATUS.config.as_ref().unwrap()
+                    ptr.as_ref().unwrap()
                 }
             }
         }
@@ -88,11 +92,13 @@ impl PyStatus {
 
     pub fn get_config_mut() -> &'static mut config::PluginConfigFile {
         unsafe {
-            match PYSTATUS.config.as_mut() {
+            let ptr = &raw mut PYSTATUS.config;
+            let ptr = &mut *ptr;
+            match ptr {
                 Some(config) => config,
                 None => {
                     Self::init();
-                    PYSTATUS.config.as_mut().unwrap()
+                    ptr.as_mut().unwrap()
                 }
             }
         }

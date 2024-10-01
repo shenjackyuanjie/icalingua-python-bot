@@ -51,11 +51,13 @@ pub struct UpdateDMConverse {
 #[allow(unused)]
 pub type Writeable<T> = Arc<RwLock<T>>;
 
+#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct BotStatus {
     user_id: UserId,
 }
 
+#[allow(unused)]
 impl BotStatus {
     pub fn new(user_id: UserId) -> Self { Self { user_id } }
 

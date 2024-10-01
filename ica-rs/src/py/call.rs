@@ -64,6 +64,14 @@ pub fn verify_and_reload_plugins() {
     let mut need_reload_files: Vec<PathBuf> = Vec::new();
     let plugin_path = MainStatus::global_config().py().plugin_path.clone();
 
+    // 先检查是否有插件被删除
+    for path in PyStatus::get_map_mut().keys() {
+        if !path.exists() {
+            event!(Level::INFO, "Python 插件: {:?} 已被删除", path);
+            PyStatus::delete_file(path);
+        }
+    }
+
     for entry in std::fs::read_dir(plugin_path).unwrap().flatten() {
         let path = entry.path();
         if let Some(ext) = path.extension() {
@@ -76,7 +84,7 @@ pub fn verify_and_reload_plugins() {
     if need_reload_files.is_empty() {
         return;
     }
-    info!("file change list: {:?}", need_reload_files);
+    event!(Level::INFO, "更改列表: {:?}", need_reload_files);
     let exist_plugins = PyStatus::get_map_mut();
     for reload_file in need_reload_files {
         if let Some(plugin) = exist_plugins.get_mut(&reload_file) {

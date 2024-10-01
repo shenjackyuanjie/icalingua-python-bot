@@ -43,7 +43,6 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
 /// ```
 // #[allow(dead_code)]
 // pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
-
 async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "signing icalingua");
     let _guard = span.enter();
