@@ -41,8 +41,9 @@ pub struct LastMessage {
     pub content: Option<String>,
     pub timestamp: Option<String>,
     pub username: Option<String>,
-    #[serde(rename = "userId")]
-    pub user_id: Option<i64>,
+    // 因为这玩意可能返回 raw buffer, 所以先不解析了
+    // #[serde(rename = "userId")]
+    // pub user_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

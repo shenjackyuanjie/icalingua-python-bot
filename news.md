@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.7.4
+
+- ica 兼容版本号更新到 `2.12.23`
+- 通过一个手动 json patch 修复了因为 icalingua 的奇怪类型问题导致的 bug
+- [icalingua issue](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/issues/793)
+
 ## 0.7.3
 
 - 也许修复了删除插件不会立即生效的问题

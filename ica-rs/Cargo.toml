@@ -1,6 +1,6 @@
 [package]
 name = "ica-rs"
-version = "0.7.3"
+version = "0.7.4"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -25,8 +25,8 @@ ed25519-dalek = { version = "2.1", optional = true }
 hex = { version = "0.4", optional = true }
 
 # tailchat
-reqwest = { version = "0.12.4", optional = true, features = ["multipart"] }
-md-5 = { version = "0.10.6", optional = true }
+reqwest = { version = "0.12", optional = true, features = ["multipart"] }
+md-5 = { version = "0.10", optional = true }
 
 # ica & tailchat (socketio)
 rust_socketio = { version = "0.6.0", features = ["async"], optional = true }
@@ -36,12 +36,13 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4"
 toml = "0.8"
+toml_edit = "0.22.20"
 colored = "2.1"
 
 # runtime
 tokio = { version = "1.37", features = ["full"] }
 futures-util = "0.3.30"
-pyo3 = { version = "0.22.2", features = ["experimental-async", "py-clone"] }
+pyo3 = { version = "0.22", features = ["experimental-async", "py-clone"] }
 anyhow = { version = "1.0", features = ["backtrace"] }
 # async 这玩意以后在搞
 # pyo3-async = "0.3.2"
@@ -50,5 +51,4 @@ anyhow = { version = "1.0", features = ["backtrace"] }
 # log
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }
-thiserror = "1.0.63"
-toml_edit = "0.22.20"
+thiserror = "2.0"

@@ -2,7 +2,7 @@ use crate::data_struct::ica::messages::{At, LastMessage};
 use crate::data_struct::ica::RoomId;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
+use serde_json::{Number, Value as JsonValue};
 
 /// export default interface Room {
 ///     roomId: number
@@ -38,14 +38,20 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn new_from_json(json: &JsonValue) -> Self {
-        let inner = match serde_json::from_value::<InnerRoom>(json.clone()) {
+    pub fn new_from_json(raw_json: &JsonValue) -> Self {
+        let mut parse_json = raw_json.clone();
+        // 手动 patch 一下 roomId
+        // ica issue: https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/issues/793
+        if parse_json.get("roomId").is_none_or(|id| id.is_null()) {
+            parse_json["roomId"] = JsonValue::Number(Number::from(-1));
+        }
+        let inner = match serde_json::from_value::<InnerRoom>(parse_json) {
             Ok(data) => data,
             Err(e) => {
-                panic!("Room::new_from_json error: {}, raw: {:?}", e, json);
+                panic!("Room::new_from_json error: {}, raw: {:#?}", e, raw_json);
             }
         };
-        let at = At::new_from_json(&json["at"]);
+        let at = At::new_from_json(&raw_json["at"]);
         Self {
             room_id: inner.room_id,
             room_name: inner.room_name,
@@ -61,9 +67,13 @@ impl Room {
     }
 }
 
+fn room_id_default() -> RoomId {
+    -1
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct InnerRoom {
-    #[serde(rename = "roomId")]
+    #[serde(rename = "roomId", default = "room_id_default")]
     pub room_id: RoomId,
     #[serde(rename = "roomName")]
     pub room_name: String,
