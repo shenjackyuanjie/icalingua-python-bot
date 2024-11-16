@@ -43,6 +43,8 @@ impl Room {
         // 手动 patch 一下 roomId
         // ica issue: https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/issues/793
         if parse_json.get("roomId").is_none_or(|id| id.is_null()) {
+            use tracing::warn;
+            warn!("Room::new_from_json roomId is None, patching it to -1, raw: {:#?}", raw_json);
             parse_json["roomId"] = JsonValue::Number(Number::from(-1));
         }
         let inner = match serde_json::from_value::<InnerRoom>(parse_json) {
