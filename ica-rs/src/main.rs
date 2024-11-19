@@ -1,6 +1,7 @@
 use std::{
     hash::{DefaultHasher, Hash, Hasher},
-    time::Duration,
+    sync::OnceLock,
+    time::{Duration, SystemTime},
 };
 
 mod config;
@@ -21,7 +22,6 @@ pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
     tailchat_status: None,
-    startup_time: None,
 };
 
 pub type MainStatus = status::BotStatus;
@@ -48,11 +48,17 @@ by shenjackyuanjie"#;
 /// 获取帮助信息
 pub fn help_msg() -> String { format!("{}\n{}", version_str(), HELP_MSG) }
 
+static STARTUP_TIME: OnceLock<SystemTime> = OnceLock::new();
+
+pub fn start_up_time() -> SystemTime {
+    *STARTUP_TIME.get().expect("WTF, why did you panic?")
+}
+
 /// 获得当前客户端的 id
 /// 防止串号
 pub fn client_id() -> String {
     let mut hasher = DefaultHasher::new();
-    MainStatus::get_startup_time().hash(&mut hasher);
+    start_up_time().hash(&mut hasher);
     let data = hasher.finish();
     // 取后6位
     format!("{:06}", data % 1_000_000)
@@ -96,6 +102,9 @@ macro_rules! async_any_callback_with_state {
 }
 
 fn main() -> anyhow::Result<()> {
+    let start_up_time = SystemTime::now();
+    STARTUP_TIME.set(start_up_time).expect("WTF, why did you panic?");
+
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .thread_name("shenbot-rs")

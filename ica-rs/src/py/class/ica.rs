@@ -228,7 +228,7 @@ impl IcaClientPy {
     #[getter]
     pub fn get_ica_version(&self) -> String { crate::ICA_VERSION.to_string() }
     #[getter]
-    pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
+    pub fn get_startup_time(&self) -> SystemTime { crate::start_up_time() }
 
     pub fn debug(&self, content: String) {
         event!(Level::DEBUG, "{}", content);

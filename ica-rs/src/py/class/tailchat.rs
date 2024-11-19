@@ -71,7 +71,8 @@ impl TailchatClientPy {
     #[getter]
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     #[getter]
-    pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
+    pub fn get_startup_time(&self) -> SystemTime { crate::start_up_time() }
+    
     #[pyo3(signature = (content, converse_id, group_id = None))]
     pub fn new_message(
         &self,

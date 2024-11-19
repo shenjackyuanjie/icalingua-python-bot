@@ -45,7 +45,7 @@ impl PyStatus {
     pub fn delete_file(path: &PathBuf) -> Option<PyPlugin> { Self::get_map_mut().remove(path) }
 
     pub fn verify_file(path: &PathBuf) -> bool {
-        Self::get_map().get(path).map_or(false, |plugin| plugin.verifiy())
+        Self::get_map().get(path).is_some_and(|plugin| plugin.verifiy())
     }
 
     pub fn get_map() -> &'static PyPlugins {
