@@ -1,9 +1,9 @@
 use std::time::SystemTime;
 
-use pyo3::prelude::*;
+use pyo3::{pyclass, pymethods};
 use rust_socketio::asynchronous::Client;
 use tokio::runtime::Runtime;
-use tracing::{debug, info, warn};
+use tracing::{event, Level};
 
 use crate::data_struct::ica::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
@@ -192,7 +192,7 @@ impl IcaClientPy {
     }
 
     pub fn send_and_warn(&self, message: SendMessagePy) -> bool {
-        warn!(message.msg.content);
+        event!(Level::WARN, message.msg.content);
         self.send_message(message)
     }
 
@@ -231,13 +231,13 @@ impl IcaClientPy {
     pub fn get_startup_time(&self) -> SystemTime { crate::MainStatus::get_startup_time() }
 
     pub fn debug(&self, content: String) {
-        debug!("{}", content);
+        event!(Level::DEBUG, "{}", content);
     }
     pub fn info(&self, content: String) {
-        info!("{}", content);
+        event!(Level::INFO, "{}", content);
     }
     pub fn warn(&self, content: String) {
-        warn!("{}", content);
+        event!(Level::WARN, "{}", content);
     }
 }
 
