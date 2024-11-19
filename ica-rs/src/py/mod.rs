@@ -2,6 +2,7 @@ pub mod call;
 pub mod class;
 pub mod config;
 
+use std::ffi::CString;
 use std::path::Path;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
@@ -133,7 +134,7 @@ impl PyStatus {
 }
 
 pub fn get_py_err_traceback(py_err: &PyErr) -> String {
-    Python::with_gil(|py| match py_err.traceback_bound(py) {
+    Python::with_gil(|py| match py_err.traceback(py) {
         Some(traceback) => match traceback.format() {
             Ok(trace) => trace,
             Err(e) => format!("{:?}", e),
@@ -398,11 +399,11 @@ pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()
 
 pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
-        let module: PyResult<Py<PyAny>> = PyModule::from_code_bound(
+        let module: PyResult<Py<PyAny>> = PyModule::from_code(
             py,
-            content,
-            &path.to_string_lossy(),
-            &path.file_name().unwrap().to_string_lossy(),
+            CString::new(content).unwrap().as_c_str(),
+            CString::new(path.to_string_lossy().as_bytes()).unwrap().as_c_str(),
+            CString::new(path.file_name().unwrap().to_string_lossy().as_bytes()).unwrap().as_c_str(),
             // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
         )
         .map(|module| module.into());

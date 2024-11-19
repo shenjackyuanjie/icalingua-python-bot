@@ -127,7 +127,7 @@ macro_rules! call_py_func {
                             e,
                             // 获取 traceback
                             match &e {
-                                PyPluginError::FuncCallError(py_err, _, _) => match py_err.traceback_bound(py) {
+                                PyPluginError::FuncCallError(py_err, _, _) => match py_err.traceback(py) {
                                     Some(traceback) => match traceback.format() {
                                         Ok(trace) => trace,
                                         Err(trace_e) => format!("failed to format traceback: {:?}", trace_e),
