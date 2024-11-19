@@ -69,9 +69,7 @@ impl Room {
     }
 }
 
-fn room_id_default() -> RoomId {
-    -1
-}
+fn room_id_default() -> RoomId { -1 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct InnerRoom {

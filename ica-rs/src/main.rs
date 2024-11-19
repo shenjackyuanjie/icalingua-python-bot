@@ -50,9 +50,7 @@ pub fn help_msg() -> String { format!("{}\n{}", version_str(), HELP_MSG) }
 
 static STARTUP_TIME: OnceLock<SystemTime> = OnceLock::new();
 
-pub fn start_up_time() -> SystemTime {
-    *STARTUP_TIME.get().expect("WTF, why did you panic?")
-}
+pub fn start_up_time() -> SystemTime { *STARTUP_TIME.get().expect("WTF, why did you panic?") }
 
 /// 获得当前客户端的 id
 /// 防止串号
