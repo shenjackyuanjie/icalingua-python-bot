@@ -1,7 +1,11 @@
 pub mod ica;
 pub mod tailchat;
 
-use pyo3::prelude::*;
+use pyo3::{
+    pyclass, pymethods, IntoPyObject, Bound, 
+    PyAny, PyRef,
+    types::{PyBool, PyString},
+};
 use toml::Value as TomlValue;
 
 #[derive(Clone)]
@@ -26,21 +30,25 @@ pub struct ConfigDataPy {
 
 #[pymethods]
 impl ConfigDataPy {
-    pub fn __getitem__(self_: PyRef<'_, Self>, key: String) -> Option<Py<PyAny>> {
+    pub fn __getitem__(self_: PyRef<'_, Self>, key: String) -> Option<Bound<PyAny>> {
         match self_.data.get(&key) {
             Some(value) => match value {
-                TomlValue::String(s) => Some(s.into_py(self_.py())),
-                TomlValue::Integer(i) => Some(i.into_py(self_.py())),
-                TomlValue::Float(f) => Some(f.into_py(self_.py())),
-                TomlValue::Boolean(b) => Some(b.into_py(self_.py())),
+                // TomlValue::String(s) => Some(s.into_pyobject(self_.py()).unwrap().as_any().as_unbound().to_owned()),
+                TomlValue::String(s) => Some(PyString::new(self_.py(), s).into_any()),
+                TomlValue::Integer(i) => Some(i.into_pyobject(self_.py()).unwrap().into_any()),
+                TomlValue::Float(f) => Some(f.into_pyobject(self_.py()).unwrap().into_any()),
+                TomlValue::Boolean(b) => {
+                    let py_value = PyBool::new(self_.py(), *b);
+                    Some(py_value.as_any().clone())
+                }
                 TomlValue::Array(a) => {
                     let new_self = Self::new(TomlValue::Array(a.clone()));
-                    let py_value = new_self.into_py(self_.py());
+                    let py_value = new_self.into_pyobject(self_.py()).unwrap().into_any();
                     Some(py_value)
                 }
                 TomlValue::Table(t) => {
                     let new_self = Self::new(TomlValue::Table(t.clone()));
-                    let py_value = new_self.into_py(self_.py());
+                    let py_value = new_self.into_pyobject(self_.py()).unwrap().into_any();
                     Some(py_value)
                 }
                 _ => None,
