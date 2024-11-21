@@ -9,7 +9,9 @@ use tracing::{event, info, Level};
 use crate::data_struct::tailchat::messages::ReceiveMessage;
 use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
 use crate::tailchat::client::{emit_join_room, send_message};
-use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION};
+use crate::py::PyStatus;
+use crate::py::call::tailchat_new_message_py;
+use crate::{client_id, help_msg, version_str, MainStatus, VERSION, start_up_time};
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client, _status: Arc<BotStatus>) {
@@ -86,7 +88,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                         VERSION,
                         client_id(),
                         if MainStatus::global_config().check_py() {
-                            py::PyStatus::display()
+                            PyStatus::display()
                         } else {
                             "未启用 Python 插件".to_string()
                         }
@@ -95,7 +97,17 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                 } else if message.content == "/bot-help" {
                     let reply = message.reply_with(&help_msg());
                     send_message(&client, &reply).await;
-                }
+                } 
+                // else if message.content == "/bot-uptime" {
+                //     let duration = match start_up_time().elapsed() {
+                //         Ok(d) => format!("{:?}", d),
+                //         Err(e) => format!("出问题啦 {:?}", e),
+                //     };
+                //     let reply = message.reply_with(&format!(
+                //         "shenbot 已运行: {}", duration
+                //     ));
+                //     send_message(&client, &reply).await;
+                // }
                 if MainStatus::global_config().tailchat().admin_list.contains(&message.sender_id) {
                     // admin 区
                     let client_id = client_id();
@@ -104,7 +116,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                         // 尝试获取后面的信息
                         if let Some((_, name)) = message.content.split_once(" ") {
                             let path_name = PathBuf::from(name);
-                            match py::PyStatus::get_status(&path_name) {
+                            match PyStatus::get().get_status(&path_name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -114,7 +126,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                                     send_message(&client, &reply).await;
                                 }
                                 Some(false) => {
-                                    py::PyStatus::set_status(&path_name, true);
+                                    PyStatus::get_mut().set_status(&path_name, true);
                                     let reply = message.reply_with("启用插件完成");
                                     send_message(&client, &reply).await;
                                 }
@@ -123,7 +135,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                     } else if message.content.starts_with(&format!("/bot-disable-{}", client_id)) {
                         if let Some((_, name)) = message.content.split_once(" ") {
                             let path_name = PathBuf::from(name);
-                            match py::PyStatus::get_status(&path_name) {
+                            match PyStatus::get().get_status(&path_name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -133,7 +145,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                                     send_message(&client, &reply).await;
                                 }
                                 Some(true) => {
-                                    py::PyStatus::set_status(&path_name, false);
+                                    PyStatus::get_mut().set_status(&path_name, false);
                                     let reply = message.reply_with("禁用插件完成");
                                     send_message(&client, &reply).await;
                                 }
@@ -142,7 +154,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                     }
                 }
             }
-            py::call::tailchat_new_message_py(&message, &client).await;
+            tailchat_new_message_py(&message, &client).await;
         }
     }
 }

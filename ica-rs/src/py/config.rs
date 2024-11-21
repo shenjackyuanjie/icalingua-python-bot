@@ -116,9 +116,9 @@ impl PluginConfigFile {
     }
 
     pub fn sync_status_from_config(&mut self) {
-        let plugins = PyStatus::get_map_mut();
+        let plugins = PyStatus::get_mut();
         self.verify_and_init();
-        plugins.iter_mut().for_each(|(path, status)| {
+        plugins.files.iter_mut().for_each(|(path, status)| {
             let config_status = self.get_status(path);
             event!(Level::INFO, "插件状态: {:?} {} -> {}", path, status.enabled, config_status);
             status.enabled = config_status;
@@ -126,11 +126,11 @@ impl PluginConfigFile {
     }
 
     pub fn sync_status_to_config(&mut self) {
-        let plugins = PyStatus::get_map();
+        let plugins = PyStatus::get();
         self.verify_and_init();
         let table = self.data.get_mut(CONFIG_KEY).unwrap().as_table_mut().unwrap();
         table.clear();
-        plugins.iter().for_each(|(path, status)| {
+        plugins.files.iter().for_each(|(path, status)| {
             table.insert(path.to_str().unwrap(), value(status.enabled));
         });
     }

@@ -9,7 +9,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION};
+use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION, start_up_time};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
@@ -55,6 +55,16 @@ pub async fn add_message(payload: Payload, client: Client) {
                     let reply = message.reply_with(&help_msg());
                     send_message(&client, &reply).await;
                 }
+                // else if message.content() == "/bot-uptime" {
+                //     let duration = match start_up_time().elapsed() {
+                //         Ok(d) => format!("{:?}", d),
+                //         Err(e) => format!("出问题啦 {:?}", e),
+                //     };
+                //     let reply = message.reply_with(&format!(
+                //         "shenbot 已运行: {}", duration
+                //     ));
+                //     send_message(&client, &reply).await;
+                // }
                 if MainStatus::global_config().ica().admin_list.contains(&message.sender_id()) {
                     // admin 区
                     // 先判定是否为 admin
@@ -63,7 +73,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                         // 尝试获取后面的信息
                         if let Some((_, name)) = message.content().split_once(" ") {
                             let path_name = PathBuf::from(name);
-                            match py::PyStatus::get_status(&path_name) {
+                            match py::PyStatus::get().get_status(&path_name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -73,7 +83,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                                     send_message(&client, &reply).await;
                                 }
                                 Some(false) => {
-                                    py::PyStatus::set_status(&path_name, true);
+                                    py::PyStatus::get_mut().set_status(&path_name, true);
                                     let reply = message.reply_with("启用插件完成");
                                     send_message(&client, &reply).await;
                                 }
@@ -83,7 +93,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                     {
                         if let Some((_, name)) = message.content().split_once(" ") {
                             let path_name = PathBuf::from(name);
-                            match py::PyStatus::get_status(&path_name) {
+                            match py::PyStatus::get().get_status(&path_name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -93,7 +103,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                                     send_message(&client, &reply).await;
                                 }
                                 Some(true) => {
-                                    py::PyStatus::set_status(&path_name, false);
+                                    py::PyStatus::get_mut().set_status(&path_name, false);
                                     let reply = message.reply_with("禁用插件完成");
                                     send_message(&client, &reply).await;
                                 }

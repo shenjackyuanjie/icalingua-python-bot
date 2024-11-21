@@ -2,9 +2,9 @@ pub mod ica;
 pub mod tailchat;
 
 use pyo3::{
-    pyclass, pymethods, IntoPyObject, Bound, 
-    PyAny, PyRef,
+    pyclass, pymethods,
     types::{PyBool, PyString},
+    Bound, IntoPyObject, PyAny, PyRef,
 };
 use toml::Value as TomlValue;
 
@@ -33,7 +33,6 @@ impl ConfigDataPy {
     pub fn __getitem__(self_: PyRef<'_, Self>, key: String) -> Option<Bound<PyAny>> {
         match self_.data.get(&key) {
             Some(value) => match value {
-                // TomlValue::String(s) => Some(s.into_pyobject(self_.py()).unwrap().as_any().as_unbound().to_owned()),
                 TomlValue::String(s) => Some(PyString::new(self_.py(), s).into_any()),
                 TomlValue::Integer(i) => Some(i.into_pyobject(self_.py()).unwrap().into_any()),
                 TomlValue::Float(f) => Some(f.into_pyobject(self_.py()).unwrap().into_any()),

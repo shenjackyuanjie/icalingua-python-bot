@@ -1,6 +1,6 @@
 [package]
 name = "ica-rs"
-version = "0.7.4"
+version = "0.8.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -51,4 +51,3 @@ anyhow = { version = "1.0", features = ["backtrace"] }
 # log
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["time"] }
-thiserror = "2.0"

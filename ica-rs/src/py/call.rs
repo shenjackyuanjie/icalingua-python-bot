@@ -65,17 +65,17 @@ pub fn verify_and_reload_plugins() {
     let plugin_path = MainStatus::global_config().py().plugin_path.clone();
 
     // 先检查是否有插件被删除
-    for path in PyStatus::get_map_mut().keys() {
+    for path in PyStatus::get().files.keys() {
         if !path.exists() {
             event!(Level::INFO, "Python 插件: {:?} 已被删除", path);
-            PyStatus::delete_file(path);
+            PyStatus::get_mut().delete_file(path);
         }
     }
 
     for entry in std::fs::read_dir(plugin_path).unwrap().flatten() {
         let path = entry.path();
         if let Some(ext) = path.extension() {
-            if ext == "py" && !PyStatus::verify_file(&path) {
+            if ext == "py" && !PyStatus::get().verify_file(&path) {
                 need_reload_files.push(path);
             }
         }
@@ -85,15 +85,15 @@ pub fn verify_and_reload_plugins() {
         return;
     }
     event!(Level::INFO, "更改列表: {:?}", need_reload_files);
-    let exist_plugins = PyStatus::get_map_mut();
+    let plugins = PyStatus::get_mut();
     for reload_file in need_reload_files {
-        if let Some(plugin) = exist_plugins.get_mut(&reload_file) {
+        if let Some(plugin) = plugins.files.get_mut(&reload_file) {
             plugin.reload_from_file();
             event!(Level::INFO, "重载 Python 插件: {:?} 完成", reload_file);
         } else {
             match PyPlugin::new_from_path(&reload_file) {
                 Some(plugin) => {
-                    PyStatus::add_file(reload_file.clone(), plugin);
+                    plugins.add_file(reload_file.clone(), plugin);
                     info!("加载 Python 插件: {:?} 完成", reload_file);
                 }
                 None => {
@@ -149,8 +149,8 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
     // 验证插件是否改变
     verify_and_reload_plugins();
 
-    let plugins = PyStatus::get_map();
-    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
+    let plugins = PyStatus::get();
+    for (path, plugin) in plugins.files.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg = class::ica::NewMessagePy::new(message);
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
@@ -162,8 +162,8 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
 pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
     verify_and_reload_plugins();
 
-    let plugins = PyStatus::get_map();
-    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
+    let plugins = PyStatus::get();
+    for (path, plugin) in plugins.files.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg_id = msg_id.clone();
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
@@ -177,8 +177,8 @@ pub async fn tailchat_new_message_py(
 ) {
     verify_and_reload_plugins();
 
-    let plugins = PyStatus::get_map();
-    for (path, plugin) in plugins.iter().filter(|(_, plugin)| plugin.enabled) {
+    let plugins = PyStatus::get();
+    for (path, plugin) in plugins.files.iter().filter(|(_, plugin)| plugin.enabled) {
         let msg = class::tailchat::TailchatReceiveMessagePy::from_recive_message(message);
         let client = class::tailchat::TailchatClientPy::new(client);
         let args = (msg, client);

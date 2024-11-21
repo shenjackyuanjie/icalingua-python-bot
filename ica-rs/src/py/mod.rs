@@ -4,6 +4,7 @@ pub mod config;
 
 use std::ffi::CString;
 use std::path::Path;
+use std::sync::OnceLock;
 use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
 
@@ -16,116 +17,65 @@ use crate::MainStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
-    pub files: Option<PyPlugins>,
-    pub config: Option<config::PluginConfigFile>,
+    pub files: PyPlugins,
+    pub config: config::PluginConfigFile,
 }
 
 pub type PyPlugins = HashMap<PathBuf, PyPlugin>;
 pub type RawPyPlugin = (PathBuf, Option<SystemTime>, String);
 
+#[allow(non_upper_case_globals)]
+static mut PyPluginStatus: OnceLock<PyStatus> = OnceLock::new();
+
 impl PyStatus {
     pub fn init() {
-        unsafe {
-            if PYSTATUS.files.is_none() {
-                PYSTATUS.files = Some(HashMap::new());
-            }
-            if PYSTATUS.config.is_none() {
-                let plugin_path = MainStatus::global_config().py().config_path.clone();
-                let mut config =
-                    config::PluginConfigFile::from_config_path(&PathBuf::from(plugin_path))
-                        .unwrap();
-                config.verify_and_init();
-                PYSTATUS.config = Some(config);
-            }
-        }
+        let plugin_path = MainStatus::global_config().py().plugin_path.clone();
+        let mut config =
+            config::PluginConfigFile::from_config_path(&PathBuf::from(plugin_path)).unwrap();
+        config.verify_and_init();
+        let status = PyStatus {
+            files: HashMap::new(),
+            config,
+        };
+        let _ = unsafe { PyPluginStatus.get_or_init(|| status) };
     }
 
-    pub fn add_file(path: PathBuf, plugin: PyPlugin) { Self::get_map_mut().insert(path, plugin); }
+    pub fn get() -> &'static PyStatus { unsafe { PyPluginStatus.get().unwrap() } }
+
+    pub fn get_mut() -> &'static mut PyStatus { unsafe { PyPluginStatus.get_mut().unwrap() } }
+
+    pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) { self.files.insert(path, plugin); }
 
     /// 删除一个插件
-    pub fn delete_file(path: &PathBuf) -> Option<PyPlugin> { Self::get_map_mut().remove(path) }
+    pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> { self.files.remove(path) }
 
-    pub fn verify_file(path: &PathBuf) -> bool {
-        Self::get_map().get(path).is_some_and(|plugin| plugin.verifiy())
-    }
-
-    pub fn get_map() -> &'static PyPlugins {
-        unsafe {
-            let ptr = &raw const PYSTATUS.files;
-            let ptr = &*ptr;
-            match ptr.as_ref() {
-                Some(files) => files,
-                None => {
-                    Self::init();
-                    ptr.as_ref().unwrap()
-                }
-            }
-        }
-    }
-
-    pub fn get_map_mut() -> &'static mut PyPlugins {
-        unsafe {
-            let ptr = &raw mut PYSTATUS.files;
-            let ptr = &mut *ptr;
-            match ptr {
-                Some(files) => files,
-                None => {
-                    Self::init();
-                    ptr.as_mut().unwrap()
-                }
-            }
-        }
-    }
-
-    pub fn get_config() -> &'static config::PluginConfigFile {
-        unsafe {
-            let ptr = &raw const PYSTATUS.config;
-            let ptr = &*ptr;
-            match ptr {
-                Some(config) => config,
-                None => {
-                    Self::init();
-                    ptr.as_ref().unwrap()
-                }
-            }
-        }
-    }
-
-    pub fn get_config_mut() -> &'static mut config::PluginConfigFile {
-        unsafe {
-            let ptr = &raw mut PYSTATUS.config;
-            let ptr = &mut *ptr;
-            match ptr {
-                Some(config) => config,
-                None => {
-                    Self::init();
-                    ptr.as_mut().unwrap()
-                }
-            }
-        }
+    pub fn verify_file(&self, path: &PathBuf) -> bool {
+        self.files.get(path).is_some_and(|plugin| plugin.verifiy())
     }
 
     /// 获取某个插件的状态
     /// 以 config 优先
-    pub fn get_status(path: &PathBuf) -> Option<bool> {
-        Self::get_config_mut().sync_status_from_config();
-        Self::get_map().get(path).map(|plugin| plugin.enabled)
+    pub fn get_status(&self, path: &PathBuf) -> Option<bool> {
+        self.files.get(path).map(|plugin| plugin.enabled)
     }
 
-    pub fn set_status(path: &Path, status: bool) {
-        let cfg = Self::get_config_mut();
-        cfg.set_status(path, status);
-        let map = Self::get_map_mut();
-        if let Some(plugin) = map.get_mut(path) {
+    pub fn sync_status(&mut self) {
+        self.config.sync_status_from_config();
+    }
+
+    pub fn set_status(&mut self, path: &Path, status: bool) {
+        self.config.set_status(path, status);
+        if let Some(plugin) = self.files.get_mut(path) {
             plugin.enabled = status;
         }
     }
 
     pub fn display() -> String {
-        let map = Self::get_map();
         format!(
             "Python 插件 {{ {} }}",
-            map.iter()
+            Self::get()
+                .files
+                .iter()
                 .map(|(k, v)| format!("{:?}-{}", k, v.enabled))
                 .collect::<Vec<String>>()
                 .join("\n")
@@ -185,7 +135,7 @@ impl PyPlugin {
                 Ok(plugin) => {
                     self.py_module = plugin.py_module;
                     self.changed_time = plugin.changed_time;
-                    self.enabled = PyStatus::get_config().get_status(self.file_path.as_path());
+                    self.enabled = PyStatus::get().config.get_status(self.file_path.as_path());
                     event!(Level::INFO, "更新 Python 插件文件 {:?} 完成", self.file_path);
                 }
                 Err(e) => {
@@ -356,12 +306,8 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
     }
 }
 
-pub static mut PYSTATUS: PyStatus = PyStatus {
-    files: None,
-    config: None,
-};
-
 pub fn load_py_plugins(path: &PathBuf) {
+    let plugins = PyStatus::get_mut();
     if path.exists() {
         event!(Level::INFO, "找到位于 {:?} 的插件", path);
         // 搜索所有的 py 文件 和 文件夹单层下面的 py 文件
@@ -376,7 +322,7 @@ pub fn load_py_plugins(path: &PathBuf) {
                     if let Some(ext) = path.extension() {
                         if ext == "py" {
                             if let Some(plugin) = PyPlugin::new_from_path(&path) {
-                                PyStatus::add_file(path, plugin);
+                                plugins.add_file(path, plugin);
                             }
                         }
                     }
@@ -386,12 +332,12 @@ pub fn load_py_plugins(path: &PathBuf) {
     } else {
         event!(Level::WARN, "插件加载目录不存在: {:?}", path);
     }
-    PyStatus::get_config_mut().sync_status_from_config();
+    plugins.config.sync_status_from_config();
     event!(
         Level::INFO,
         "python 插件目录: {:?} 加载完成, 加载到 {} 个插件",
         path,
-        PyStatus::get_map().len()
+        plugins.files.len()
     );
 }
 
@@ -403,7 +349,9 @@ pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
             py,
             CString::new(content).unwrap().as_c_str(),
             CString::new(path.to_string_lossy().as_bytes()).unwrap().as_c_str(),
-            CString::new(path.file_name().unwrap().to_string_lossy().as_bytes()).unwrap().as_c_str(),
+            CString::new(path.file_name().unwrap().to_string_lossy().as_bytes())
+                .unwrap()
+                .as_c_str(),
             // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
         )
         .map(|module| module.into());
@@ -439,8 +387,9 @@ pub fn init_py() {
 }
 
 pub fn post_py() -> anyhow::Result<()> {
-    PyStatus::get_config_mut().sync_status_to_config();
-    PyStatus::get_config()
+    PyStatus::get_mut().config.sync_status_to_config();
+    PyStatus::get()
+        .config
         .write_to_file(&PathBuf::from(MainStatus::global_config().py().config_path))?;
     Ok(())
 }
