@@ -6,6 +6,17 @@
 - 从 `py::PyStatus` 开始进行一个 `static mut` -> `static mut OnceLock` 的改造
   - 用于看着更舒服(逃)
 
+### ica 1.6.5
+
+- 添加了 `send_room_sign_in` api
+  - 用于发送群签到信息
+  - socketio event: `sendGroupSign`
+- 添加了 `send_poke` api
+  - 用于发送戳一戳
+  - 可以指定群的某个人
+  - 或者指定好友
+  - socketio event: `sendGroupPoke`
+
 ## 0.7.4
 
 - ica 兼容版本号更新到 `2.12.23`

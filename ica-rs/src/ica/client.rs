@@ -1,4 +1,5 @@
 use crate::data_struct::ica::messages::{DeleteMessage, SendMessage};
+use crate::data_struct::ica::{RoomId, RoomIdTrait};
 use crate::error::{ClientResult, IcaError};
 use crate::MainStatus;
 
@@ -23,6 +24,7 @@ pub async fn send_message(client: &Client, message: &SendMessage) -> bool {
         }
     }
 }
+
 /// "安全" 的 删除一条消息
 pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
     let value = message.as_value();
@@ -37,13 +39,14 @@ pub async fn delete_message(client: &Client, message: &DeleteMessage) -> bool {
         }
     }
 }
+
 /// "安全" 的 获取历史消息
 /// ```typescript
 /// async fetchHistory(messageId: string, roomId: number, currentLoadedMessagesCount: number)
 /// ```
 // #[allow(dead_code)]
 // pub async fn fetch_history(client: &Client, roomd_id: RoomId) -> bool { false }
-async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaError> {
+async fn inner_sign(payload: Payload, client: &Client) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "signing icalingua");
     let _guard = span.enter();
 
@@ -100,5 +103,49 @@ async fn inner_sign(payload: Payload, client: Client) -> ClientResult<(), IcaErr
 /// 签名回调
 /// 失败的时候得 panic
 pub async fn sign_callback(payload: Payload, client: Client) {
-    inner_sign(payload, client).await.expect("Faild to sign");
+    inner_sign(payload, &client).await.expect("Faild to sign");
+}
+
+/// 向指定群发送签到信息
+///
+/// 只能是群啊, 不能是私聊
+pub async fn send_room_sign_in(client: &Client, room_id: RoomId) -> bool {
+    if room_id.is_chat() {
+        event!(Level::WARN, "不能向私聊发送签到信息");
+        return false;
+    }
+    match client.emit("sendGroupSign", room_id).await {
+        Ok(_) => {
+            event!(Level::INFO, "已向群 {} 发送签到信息", room_id);
+            true
+        }
+        Err(e) => {
+            event!(Level::ERROR, "向群 {} 发送签到信息失败: {}", room_id, e);
+            false
+        }
+    }
+}
+
+/// 向某个群/私聊的某个人发送戳一戳
+pub async fn send_poke(client: &Client, room_id: RoomId, target: UserId) -> bool {
+    match client.emit(
+        "sendGroupPoke",
+        (room_id, {
+            if room_id.is_chat() {
+                room_id
+                // 以防你 target 写错了
+            } else {
+                target
+            }
+        }),
+    ) {
+        Ok(_) => {
+            event!(Level::INFO, "已向 {} 的 {} 发送戳一戳", room_id, target);
+            true
+        }
+        Err(e) => {
+            event!(Level::ERROR, "向 {} 的 {} 发送戳一戳失败: {}", room_id, target, e);
+            false
+        }
+    }
 }

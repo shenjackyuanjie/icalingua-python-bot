@@ -29,7 +29,7 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.4";
+pub const ICA_VERSION: &str = "1.6.5";
 pub const TAILCHAT_VERSION: &str = "1.2.4";
 
 const HELP_MSG: &str = r#"/bot-rs

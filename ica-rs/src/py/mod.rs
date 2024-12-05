@@ -59,9 +59,7 @@ impl PyStatus {
         self.files.get(path).map(|plugin| plugin.enabled)
     }
 
-    pub fn sync_status(&mut self) {
-        self.config.sync_status_from_config();
-    }
+    pub fn sync_status(&mut self) { self.config.sync_status_from_config(); }
 
     pub fn set_status(&mut self, path: &Path, status: bool) {
         self.config.set_status(path, status);

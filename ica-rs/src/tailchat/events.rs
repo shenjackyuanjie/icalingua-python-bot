@@ -8,10 +8,10 @@ use tracing::{event, info, Level};
 
 use crate::data_struct::tailchat::messages::ReceiveMessage;
 use crate::data_struct::tailchat::status::{BotStatus, UpdateDMConverse};
-use crate::tailchat::client::{emit_join_room, send_message};
-use crate::py::PyStatus;
 use crate::py::call::tailchat_new_message_py;
-use crate::{client_id, help_msg, version_str, MainStatus, VERSION, start_up_time};
+use crate::py::PyStatus;
+use crate::tailchat::client::{emit_join_room, send_message};
+use crate::{client_id, help_msg, start_up_time, version_str, MainStatus, VERSION};
 
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client, _status: Arc<BotStatus>) {
@@ -97,7 +97,7 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                 } else if message.content == "/bot-help" {
                     let reply = message.reply_with(&help_msg());
                     send_message(&client, &reply).await;
-                } 
+                }
                 // else if message.content == "/bot-uptime" {
                 //     let duration = match start_up_time().elapsed() {
                 //         Ok(d) => format!("{:?}", d),

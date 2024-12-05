@@ -9,7 +9,7 @@ use crate::data_struct::ica::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
 use crate::data_struct::ica::{MessageId, RoomId, RoomIdTrait};
-use crate::ica::client::{delete_message, send_message};
+use crate::ica::client::{delete_message, send_message, send_poke, send_room_sign_in};
 use crate::MainStatus;
 
 #[pyclass]
@@ -184,6 +184,26 @@ pub struct IcaClientPy {
 
 #[pymethods]
 impl IcaClientPy {
+    /// 签到
+    ///
+    /// 添加自 1.6.5 版本
+    pub fn send_room_sign_in(&self, room_id: RoomId) -> bool {
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(send_room_sign_in(&self.client, room_id))
+        })
+    }
+
+    /// 戳一戳
+    ///
+    /// 添加自 1.6.5 版本
+    pub fn send_poke(&self, room_id: RoomId, user_id: UserId) -> bool {
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(send_poke(&self.client, room_id, user_id))
+        })
+    }
+
     pub fn send_message(&self, message: SendMessagePy) -> bool {
         tokio::task::block_in_place(|| {
             let rt = Runtime::new().unwrap();
