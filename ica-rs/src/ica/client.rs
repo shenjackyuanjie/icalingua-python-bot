@@ -1,5 +1,5 @@
 use crate::data_struct::ica::messages::{DeleteMessage, SendMessage};
-use crate::data_struct::ica::{RoomId, RoomIdTrait};
+use crate::data_struct::ica::{RoomId, RoomIdTrait, UserId};
 use crate::error::{ClientResult, IcaError};
 use crate::MainStatus;
 
@@ -7,7 +7,7 @@ use colored::Colorize;
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
-use serde_json::Value;
+use serde_json::{Value, json};
 use tracing::{debug, event, span, warn, Level};
 
 /// "安全" 的 发送一条消息
@@ -114,7 +114,8 @@ pub async fn send_room_sign_in(client: &Client, room_id: RoomId) -> bool {
         event!(Level::WARN, "不能向私聊发送签到信息");
         return false;
     }
-    match client.emit("sendGroupSign", room_id).await {
+    let data = json!(room_id.abs());
+    match client.emit("sendGroupSign", data).await {
         Ok(_) => {
             event!(Level::INFO, "已向群 {} 发送签到信息", room_id);
             true
@@ -128,17 +129,10 @@ pub async fn send_room_sign_in(client: &Client, room_id: RoomId) -> bool {
 
 /// 向某个群/私聊的某个人发送戳一戳
 pub async fn send_poke(client: &Client, room_id: RoomId, target: UserId) -> bool {
+    let data = json!([room_id, target]);
     match client.emit(
-        "sendGroupPoke",
-        (room_id, {
-            if room_id.is_chat() {
-                room_id
-                // 以防你 target 写错了
-            } else {
-                target
-            }
-        }),
-    ) {
+        "sendGroupPoke", data
+    ).await {
         Ok(_) => {
             event!(Level::INFO, "已向 {} 的 {} 发送戳一戳", room_id, target);
             true

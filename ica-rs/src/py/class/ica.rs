@@ -8,7 +8,7 @@ use tracing::{event, Level};
 use crate::data_struct::ica::messages::{
     DeleteMessage, MessageTrait, NewMessage, ReplyMessage, SendMessage,
 };
-use crate::data_struct::ica::{MessageId, RoomId, RoomIdTrait};
+use crate::data_struct::ica::{MessageId, RoomId, RoomIdTrait, UserId};
 use crate::ica::client::{delete_message, send_message, send_poke, send_room_sign_in};
 use crate::MainStatus;
 
