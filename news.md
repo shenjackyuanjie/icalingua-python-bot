@@ -6,6 +6,7 @@
 - 从 `py::PyStatus` 开始进行一个 `static mut` -> `static mut OnceLock` 的改造
   - 用于看着更舒服(逃)
 - 部分重构了一下 读取插件启用状态 的配置文件的代码
+- 现在 `/bot-help` 会直接输出实际的 client id, 而不是给你一个默认的 `<client-id>`
 
 ### ica 1.6.5
 
@@ -18,6 +19,13 @@
   - 或者指定好友
   - 目前还是有点问题
   - socketio event: `sendGroupPoke`
+- 添加了 `reload_plugin_status` api
+  - 用于重新加载插件状态
+
+### tailchat 1.2.5
+
+- 添加了 `reload_plugin_status` api
+  - 用于重新加载插件状态
 
 ## 0.7.4
 

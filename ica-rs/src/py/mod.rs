@@ -3,6 +3,7 @@ pub mod class;
 pub mod config;
 
 use std::ffi::CString;
+use std::fmt::Display;
 use std::path::Path;
 use std::sync::OnceLock;
 use std::time::SystemTime;
@@ -11,7 +12,7 @@ use std::{collections::HashMap, path::PathBuf};
 use colored::Colorize;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
-use tracing::{event, info, span, warn, Level};
+use tracing::{event, span, warn, Level};
 
 use crate::MainStatus;
 
@@ -74,8 +75,8 @@ impl PyStatus {
             "Python 插件 {{ {} }}",
             Self::get()
                 .files
-                .iter()
-                .map(|(_, v)| v.to_string())
+                .values()
+                .map(|v| v.to_string())
                 .collect::<Vec<String>>()
                 .join("\n")
         )
@@ -169,9 +170,9 @@ impl PyPlugin {
     pub fn get_id(&self) -> String { plugin_path_as_id(&self.file_path) }
 }
 
-impl ToString for PyPlugin {
-    fn to_string(&self) -> String {
-        format!("{}({:?})-{}", self.get_id(), self.file_path, self.enabled)
+impl Display for PyPlugin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({:?})-{}", self.get_id(), self.file_path, self.enabled)
     }
 }
 
@@ -200,17 +201,26 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                             let mut base_path: PathBuf = PathBuf::from(base_path);
 
                             if !base_path.exists() {
-                                warn!("python 插件路径不存在, 创建: {:?}", base_path);
+                                event!(Level::WARN, "python 插件路径不存在, 创建: {:?}", base_path);
                                 std::fs::create_dir_all(&base_path)?;
                             }
                             base_path.push(&config);
 
                             let config_value = if base_path.exists() {
-                                info!("加载 {:?} 的配置文件 {:?} 中", path, base_path);
+                                event!(
+                                    Level::INFO,
+                                    "加载 {:?} 的配置文件 {:?} 中",
+                                    path,
+                                    base_path
+                                );
                                 let content = std::fs::read_to_string(&base_path)?;
                                 toml::from_str(&content)
                             } else {
-                                warn!("配置文件 {:?} 不存在, 创建默认配置", base_path);
+                                event!(
+                                    Level::WARN,
+                                    "配置文件 {:?} 不存在, 创建默认配置",
+                                    base_path
+                                );
                                 // 写入默认配置
                                 std::fs::write(base_path, &default)?;
                                 toml::from_str(&default)
@@ -220,7 +230,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                                     let py_config =
                                         Bound::new(py, class::ConfigDataPy::new(config));
                                     if let Err(e) = py_config {
-                                        warn!("添加配置文件信息失败: {:?}", e);
+                                        event!(Level::WARN, "添加配置文件信息失败: {:?}", e);
                                         return Err(e);
                                     }
                                     let py_config = py_config.unwrap();
@@ -348,7 +358,8 @@ pub fn load_py_plugins(path: &PathBuf) {
     } else {
         event!(Level::WARN, "插件加载目录不存在: {:?}", path);
     }
-    plugins.config.read_status_from_file();
+    plugins.config.read_status_from_default();
+    plugins.config.sync_status_to_config();
     event!(
         Level::INFO,
         "python 插件目录: {:?} 加载完成, 加载到 {} 个插件",
@@ -399,7 +410,7 @@ pub fn init_py() {
     load_py_plugins(&plugin_path);
     event!(Level::DEBUG, "python 插件列表: {}", PyStatus::display());
 
-    info!("python inited")
+    event!(Level::INFO, "python 初始化完成")
 }
 
 pub fn post_py() -> anyhow::Result<()> {

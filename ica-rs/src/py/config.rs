@@ -49,14 +49,15 @@ impl PluginConfigFile {
         Self::from_config_path(&path)
     }
 
-    pub fn reload_from_default(&mut self) {
+    pub fn reload_from_default(&mut self) -> bool {
         let new_config = Self::default_init();
         if let Err(e) = new_config {
             event!(Level::ERROR, "从配置文件重加载时遇到错误: {}", e);
-            return;
+            return false;
         }
         let new_config = new_config.unwrap();
         self.data = new_config.data;
+        true
     }
 
     pub fn from_config_path(path: &Path) -> anyhow::Result<Self> {
@@ -127,8 +128,13 @@ impl PluginConfigFile {
         }
     }
 
-    pub fn read_status_from_file(&mut self) {
-        self.reload_from_default();
+    /// 从默认文件读取状态
+    ///
+    /// 返回是否成功
+    pub fn read_status_from_default(&mut self) -> bool {
+        if !self.reload_from_default() {
+            return false;
+        }
         event!(Level::INFO, "同步插件状态");
         let plugins = PyStatus::get_mut();
         plugins.files.iter_mut().for_each(|(path, status)| {
@@ -144,6 +150,7 @@ impl PluginConfigFile {
             );
             status.enabled = config_status;
         });
+        true
     }
 
     pub fn sync_status_to_config(&mut self) {

@@ -10,6 +10,7 @@ use crate::data_struct::ica::messages::{
 };
 use crate::data_struct::ica::{MessageId, RoomId, RoomIdTrait, UserId};
 use crate::ica::client::{delete_message, send_message, send_poke, send_room_sign_in};
+use crate::py::PyStatus;
 use crate::MainStatus;
 
 #[pyclass]
@@ -249,6 +250,10 @@ impl IcaClientPy {
     pub fn get_ica_version(&self) -> String { crate::ICA_VERSION.to_string() }
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::start_up_time() }
+
+    /// 重新加载插件状态
+    /// 返回是否成功
+    pub fn reload_plugin_status(&self) -> bool { PyStatus::get_mut().config.reload_from_default() }
 
     pub fn debug(&self, content: String) {
         event!(Level::DEBUG, "{}", content);

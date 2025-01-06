@@ -7,6 +7,7 @@ use tracing::{debug, info, warn};
 
 use crate::data_struct::tailchat::messages::{ReceiveMessage, SendingFile, SendingMessage};
 use crate::data_struct::tailchat::{ConverseId, GroupId, MessageId, UserId};
+use crate::py::PyStatus;
 use crate::tailchat::client::send_message;
 
 #[pyclass]
@@ -72,6 +73,9 @@ impl TailchatClientPy {
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::start_up_time() }
+    /// 重新加载插件状态
+    /// 返回是否成功
+    pub fn reload_plugin_status(&self) -> bool { PyStatus::get_mut().config.reload_from_default() }
 
     #[pyo3(signature = (content, converse_id, group_id = None))]
     pub fn new_message(

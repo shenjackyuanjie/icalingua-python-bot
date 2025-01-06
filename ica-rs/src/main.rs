@@ -30,7 +30,7 @@ pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const ICA_VERSION: &str = "1.6.5";
-pub const TAILCHAT_VERSION: &str = "1.2.4";
+pub const TAILCHAT_VERSION: &str = "1.2.5";
 
 const HELP_MSG: &str = r#"/bot-rs
     展示 rust 侧信息
@@ -46,7 +46,9 @@ const HELP_MSG: &str = r#"/bot-rs
 by shenjackyuanjie"#;
 
 /// 获取帮助信息
-pub fn help_msg() -> String { format!("{}\n{}", version_str(), HELP_MSG) }
+pub fn help_msg() -> String {
+    format!("{}\n{}", version_str(), HELP_MSG).replace("<client-id>", client_id().as_str())
+}
 
 static STARTUP_TIME: OnceLock<SystemTime> = OnceLock::new();
 

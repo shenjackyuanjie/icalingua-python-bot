@@ -97,16 +97,6 @@ pub async fn on_message(payload: Payload, client: Client, _status: Arc<BotStatus
                     let reply = message.reply_with(&help_msg());
                     send_message(&client, &reply).await;
                 }
-                // else if message.content == "/bot-uptime" {
-                //     let duration = match start_up_time().elapsed() {
-                //         Ok(d) => format!("{:?}", d),
-                //         Err(e) => format!("出问题啦 {:?}", e),
-                //     };
-                //     let reply = message.reply_with(&format!(
-                //         "shenbot 已运行: {}", duration
-                //     ));
-                //     send_message(&client, &reply).await;
-                // }
                 if MainStatus::global_config().tailchat().admin_list.contains(&message.sender_id) {
                     // admin 区
                     let client_id = client_id();
