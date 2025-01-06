@@ -46,6 +46,23 @@ impl PyStatus {
     /// 添加一个插件
     pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) { self.files.insert(path, plugin); }
 
+    /// 重新加载一个插件
+    pub fn reload_plugin(&mut self, plugin_name: &str) -> bool {
+        let plugin = self.files.iter_mut().find_map(|(_, plugin)| {
+            if plugin.get_id() == plugin_name {
+                Some(plugin)
+            } else {
+                None
+            }
+        });
+        if let Some(plugin) = plugin {
+            plugin.reload_from_file()
+        } else {
+            event!(Level::WARN, "没有找到插件: {}", plugin_name);
+            false
+        }
+    }
+
     /// 删除一个插件
     pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> { self.files.remove(path) }
 
@@ -128,7 +145,7 @@ impl PyPlugin {
     }
 
     /// 从文件更新
-    pub fn reload_from_file(&mut self) {
+    pub fn reload_from_file(&mut self) -> bool {
         let raw_file = load_py_file(&self.file_path);
         match raw_file {
             Ok(raw_file) => match Self::try_from(raw_file) {
@@ -137,6 +154,7 @@ impl PyPlugin {
                     self.changed_time = plugin.changed_time;
                     self.enabled = PyStatus::get().config.get_status(&self.get_id());
                     event!(Level::INFO, "更新 Python 插件文件 {:?} 完成", self.file_path);
+                    true
                 }
                 Err(e) => {
                     warn!(
@@ -145,10 +163,12 @@ impl PyPlugin {
                         e,
                         get_py_err_traceback(&e)
                     );
+                    false
                 }
             },
             Err(e) => {
                 warn!("更新插件 {:?}: {:?} 失败", self.file_path, e);
+                false
             }
         }
     }

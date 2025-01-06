@@ -255,6 +255,13 @@ impl IcaClientPy {
     /// 返回是否成功
     pub fn reload_plugin_status(&self) -> bool { PyStatus::get_mut().config.reload_from_default() }
 
+    /// 重新加载插件
+    ///
+    /// 返回是否成功
+    pub fn reload_plugin(&self, plugin_name: String) -> bool {
+        PyStatus::get_mut().reload_plugin(&plugin_name)
+    }
+
     pub fn debug(&self, content: String) {
         event!(Level::DEBUG, "{}", content);
     }

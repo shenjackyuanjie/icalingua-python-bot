@@ -21,11 +21,15 @@
   - socketio event: `sendGroupPoke`
 - 添加了 `reload_plugin_status` api
   - 用于重新加载插件状态
+- 添加了 `reload_plugin(plugin_name: str)` api
+  - 用于重新加载指定插件
 
 ### tailchat 1.2.5
 
 - 添加了 `reload_plugin_status` api
   - 用于重新加载插件状态
+- 添加了 `reload_plugin(plugin_name: str)` api
+  - 用于重新加载指定插件
 
 ## 0.7.4
 
