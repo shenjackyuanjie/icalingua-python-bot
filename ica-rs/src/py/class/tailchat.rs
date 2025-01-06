@@ -77,6 +77,19 @@ impl TailchatClientPy {
     /// 返回是否成功
     pub fn reload_plugin_status(&self) -> bool { PyStatus::get_mut().config.reload_from_default() }
 
+    /// 设置某个插件的状态
+    pub fn set_plugin_status(&self, plugin_name: String, status: bool) {
+        PyStatus::get_mut().set_status(&plugin_name, status);
+    }
+
+    pub fn get_plugin_status(&self, plugin_name: String) -> Option<bool> {
+        PyStatus::get().get_status(&plugin_name)
+    }
+
+    /// 同步状态到配置文件
+    /// 这样关闭的时候就会保存状态
+    pub fn sync_status_to_config(&self) { PyStatus::get_mut().config.sync_status_to_config(); }
+
     /// 重新加载插件
     ///
     /// 返回是否成功

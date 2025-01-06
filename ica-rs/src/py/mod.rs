@@ -434,9 +434,8 @@ pub fn init_py() {
 }
 
 pub fn post_py() -> anyhow::Result<()> {
-    PyStatus::get_mut().config.sync_status_to_config();
-    PyStatus::get()
-        .config
-        .write_to_file(&PathBuf::from(MainStatus::global_config().py().config_path))?;
+    let status = PyStatus::get_mut();
+    status.config.sync_status_to_config();
+    status.config.write_to_default()?;
     Ok(())
 }

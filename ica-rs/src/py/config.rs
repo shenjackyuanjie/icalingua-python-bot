@@ -162,6 +162,13 @@ impl PluginConfigFile {
         });
     }
 
+    pub fn write_to_default(&self) -> Result<(), std::io::Error> {
+        let config_path = MainStatus::global_config().py().config_path.clone();
+        let config_path = Path::new(&config_path);
+        let path = config_path.join(CONFIG_FILE_NAME);
+        self.write_to_file(&path)
+    }
+
     pub fn write_to_file(&self, path: &PathBuf) -> Result<(), std::io::Error> {
         let config_path = path.join(CONFIG_FILE_NAME);
         std::fs::write(config_path, self.data.to_string())?;

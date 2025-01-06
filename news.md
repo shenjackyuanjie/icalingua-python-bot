@@ -23,6 +23,12 @@
   - 用于重新加载插件状态
 - 添加了 `reload_plugin(plugin_name: str)` api
   - 用于重新加载指定插件
+- 添加了 `set_plugin_status(plugin_name: str, status: bool)` api
+  - 用于设置插件的启用状态
+- 添加了 `get_plugin_status(plugin_name: str) -> bool` api
+  - 用于获取插件的启用状态
+- 添加了 `sync_status_to_config` api
+  - 用于将内存中的插件状态同步到配置文件中
 
 ### tailchat 1.2.5
 
@@ -30,6 +36,12 @@
   - 用于重新加载插件状态
 - 添加了 `reload_plugin(plugin_name: str)` api
   - 用于重新加载指定插件
+- 添加了 `set_plugin_status(plugin_name: str, status: bool)` api
+  - 用于设置插件的启用状态
+- 添加了 `get_plugin_status(plugin_name: str) -> bool` api
+  - 用于获取插件的启用状态
+- 添加了 `sync_status_to_config` api
+  - 用于将内存中的插件状态同步到配置文件中
 
 ## 0.7.4
 
