@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
@@ -9,7 +7,7 @@ use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
 use crate::ica::client::send_message;
-use crate::{client_id, help_msg, py, start_up_time, version_str, MainStatus, VERSION};
+use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION};
 
 /// 获取在线数据
 pub async fn get_online_data(payload: Payload, _client: Client) {
