@@ -72,8 +72,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                     if message.content().starts_with(&format!("/bot-enable-{}", client_id)) {
                         // 尝试获取后面的信息
                         if let Some((_, name)) = message.content().split_once(" ") {
-                            let path_name = PathBuf::from(name);
-                            match py::PyStatus::get().get_status(&path_name) {
+                            match py::PyStatus::get().get_status(name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -83,7 +82,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                                     send_message(&client, &reply).await;
                                 }
                                 Some(false) => {
-                                    py::PyStatus::get_mut().set_status(&path_name, true);
+                                    py::PyStatus::get_mut().set_status(name, true);
                                     let reply = message.reply_with("启用插件完成");
                                     send_message(&client, &reply).await;
                                 }
@@ -92,8 +91,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                     } else if message.content().starts_with(&format!("/bot-disable-{}", client_id))
                     {
                         if let Some((_, name)) = message.content().split_once(" ") {
-                            let path_name = PathBuf::from(name);
-                            match py::PyStatus::get().get_status(&path_name) {
+                            match py::PyStatus::get().get_status(name) {
                                 None => {
                                     let reply = message.reply_with("未找到插件");
                                     send_message(&client, &reply).await;
@@ -103,7 +101,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                                     send_message(&client, &reply).await;
                                 }
                                 Some(true) => {
-                                    py::PyStatus::get_mut().set_status(&path_name, false);
+                                    py::PyStatus::get_mut().set_status(name, false);
                                     let reply = message.reply_with("禁用插件完成");
                                     send_message(&client, &reply).await;
                                 }

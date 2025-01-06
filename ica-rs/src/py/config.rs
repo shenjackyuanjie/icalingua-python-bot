@@ -7,6 +7,7 @@ use toml_edit::{value, DocumentMut, Key, Table, TomlError, Value};
 use tracing::{event, Level};
 
 use crate::py::PyStatus;
+use crate::MainStatus;
 
 /// ```toml
 /// # 这个文件是由 shenbot 自动生成的, 请 **谨慎** 修改
@@ -31,29 +32,42 @@ pub const DEFAULT_CONFIG: &str = r#"
 
 impl PluginConfigFile {
     pub fn from_str(data: &str) -> Result<Self, TomlError> {
-        let data = DocumentMut::from_str(data)?;
+        let mut data = DocumentMut::from_str(data)?;
+        if data.get(CONFIG_KEY).is_none() {
+            event!(Level::WARN, "插件配置文件缺少 plugins 字段, 正在初始化");
+            data.insert_formatted(
+                &Key::from_str(CONFIG_KEY).unwrap(),
+                toml_edit::Item::Table(Table::new()),
+            );
+        }
         Ok(Self { data })
+    }
+
+    pub fn default_init() -> anyhow::Result<Self> {
+        let config_path = MainStatus::global_config().py().config_path.clone();
+        let path = Path::new(&config_path);
+        Self::from_config_path(&path)
+    }
+
+    pub fn reload_from_default(&mut self) {
+        let new_config = Self::default_init();
+        if let Err(e) = new_config {
+            event!(Level::ERROR, "从配置文件重加载时遇到错误: {}", e);
+            return;
+        }
+        let new_config = new_config.unwrap();
+        self.data = new_config.data;
     }
 
     pub fn from_config_path(path: &Path) -> anyhow::Result<Self> {
         let config_path = path.join(CONFIG_FILE_NAME);
         if !config_path.exists() {
-            event!(Level::INFO, "插件配置文件不存在, 正在创建");
+            event!(Level::WARN, "插件配置文件不存在, 正在创建");
             std::fs::write(&config_path, DEFAULT_CONFIG)?;
             Ok(Self::from_str(DEFAULT_CONFIG)?)
         } else {
             let data = std::fs::read_to_string(&config_path)?;
             Ok(Self::from_str(&data)?)
-        }
-    }
-
-    pub fn verify_and_init(&mut self) {
-        if self.data.get(CONFIG_KEY).is_none() {
-            event!(Level::INFO, "插件配置文件缺少 plugins 字段, 正在初始化");
-            self.data.insert_formatted(
-                &Key::from_str(CONFIG_KEY).unwrap(),
-                toml_edit::Item::Table(Table::new()),
-            );
         }
     }
 
@@ -67,11 +81,10 @@ impl PluginConfigFile {
 
     /// 获取插件状态
     /// 默认为 true
-    pub fn get_status(&self, path: &Path) -> bool {
-        let path_str = path.to_str().unwrap();
+    pub fn get_status(&self, plugin_id: &str) -> bool {
         if let Some(item) = self.data.get(CONFIG_KEY) {
             if let Some(table) = item.as_table() {
-                if let Some(item) = table.get(path_str) {
+                if let Some(item) = table.get(plugin_id) {
                     if let Some(bool) = item.as_bool() {
                         return bool;
                     }
@@ -100,7 +113,6 @@ impl PluginConfigFile {
 
     /// 设置插件状态
     pub fn set_status(&mut self, path: &Path, status: bool) {
-        self.verify_and_init();
         let path_str = path.to_str().unwrap();
         let table = self.data.get_mut(CONFIG_KEY).unwrap().as_table_mut().unwrap();
         if table.contains_key(path_str) {
@@ -115,23 +127,31 @@ impl PluginConfigFile {
         }
     }
 
-    pub fn sync_status_from_config(&mut self) {
+    pub fn read_status_from_file(&mut self) {
+        self.reload_from_default();
+        event!(Level::INFO, "同步插件状态");
         let plugins = PyStatus::get_mut();
-        self.verify_and_init();
         plugins.files.iter_mut().for_each(|(path, status)| {
-            let config_status = self.get_status(path);
-            event!(Level::INFO, "插件状态: {:?} {} -> {}", path, status.enabled, config_status);
+            let plugin_id = status.get_id();
+            let config_status = self.get_status(&plugin_id);
+            event!(
+                Level::INFO,
+                "插件状态: {}({:?}) {} -> {}",
+                status.get_id(),
+                path,
+                status.enabled,
+                config_status
+            );
             status.enabled = config_status;
         });
     }
 
     pub fn sync_status_to_config(&mut self) {
         let plugins = PyStatus::get();
-        self.verify_and_init();
         let table = self.data.get_mut(CONFIG_KEY).unwrap().as_table_mut().unwrap();
         table.clear();
-        plugins.files.iter().for_each(|(path, status)| {
-            table.insert(path.to_str().unwrap(), value(status.enabled));
+        plugins.files.iter().for_each(|(_, status)| {
+            table.insert(&status.get_id(), value(status.enabled));
         });
     }
 

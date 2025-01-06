@@ -7,7 +7,7 @@ use colored::Colorize;
 use ed25519_dalek::{Signature, Signer, SigningKey};
 use rust_socketio::asynchronous::Client;
 use rust_socketio::Payload;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use tracing::{debug, event, span, warn, Level};
 
 /// "安全" 的 发送一条消息
@@ -130,9 +130,7 @@ pub async fn send_room_sign_in(client: &Client, room_id: RoomId) -> bool {
 /// 向某个群/私聊的某个人发送戳一戳
 pub async fn send_poke(client: &Client, room_id: RoomId, target: UserId) -> bool {
     let data = json!([room_id, target]);
-    match client.emit(
-        "sendGroupPoke", data
-    ).await {
+    match client.emit("sendGroupPoke", data).await {
         Ok(_) => {
             event!(Level::INFO, "已向 {} 的 {} 发送戳一戳", room_id, target);
             true

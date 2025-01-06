@@ -2,9 +2,10 @@
 
 ## 0.8.0
 
-- ica 兼容版本号更新到 `2.12.24`
+- ica 兼容版本号更新到 ~~`2.12.24`~~ `2.12.26`
 - 从 `py::PyStatus` 开始进行一个 `static mut` -> `static mut OnceLock` 的改造
   - 用于看着更舒服(逃)
+- 部分重构了一下 读取插件启用状态 的配置文件的代码
 
 ### ica 1.6.5
 
@@ -136,6 +137,7 @@
 好耶！
 
 [!note]
+
 ```text
 notice_room = []
 notice_start = true

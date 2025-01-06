@@ -29,10 +29,8 @@ static mut PyPluginStatus: OnceLock<PyStatus> = OnceLock::new();
 
 impl PyStatus {
     pub fn init() {
-        let plugin_path = MainStatus::global_config().py().plugin_path.clone();
-        let mut config =
-            config::PluginConfigFile::from_config_path(&PathBuf::from(plugin_path)).unwrap();
-        config.verify_and_init();
+        let config =
+            config::PluginConfigFile::default_init().expect("初始化 Python 插件配置文件失败");
         let status = PyStatus {
             files: HashMap::new(),
             config,
@@ -44,28 +42,31 @@ impl PyStatus {
 
     pub fn get_mut() -> &'static mut PyStatus { unsafe { PyPluginStatus.get_mut().unwrap() } }
 
+    /// 添加一个插件
     pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) { self.files.insert(path, plugin); }
 
     /// 删除一个插件
     pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> { self.files.remove(path) }
 
+    pub fn get_status(&self, pluging_id: &str) -> Option<bool> {
+        self.files.iter().find_map(|(_, plugin)| {
+            if plugin.get_id() == pluging_id {
+                return Some(plugin.enabled);
+            }
+            None
+        })
+    }
+
+    pub fn set_status(&mut self, pluging_id: &str, status: bool) {
+        self.files.iter_mut().for_each(|(_, plugin)| {
+            if plugin.get_id() == pluging_id {
+                plugin.enabled = status;
+            }
+        });
+    }
+
     pub fn verify_file(&self, path: &PathBuf) -> bool {
         self.files.get(path).is_some_and(|plugin| plugin.verifiy())
-    }
-
-    /// 获取某个插件的状态
-    /// 以 config 优先
-    pub fn get_status(&self, path: &PathBuf) -> Option<bool> {
-        self.files.get(path).map(|plugin| plugin.enabled)
-    }
-
-    pub fn sync_status(&mut self) { self.config.sync_status_from_config(); }
-
-    pub fn set_status(&mut self, path: &Path, status: bool) {
-        self.config.set_status(path, status);
-        if let Some(plugin) = self.files.get_mut(path) {
-            plugin.enabled = status;
-        }
     }
 
     pub fn display() -> String {
@@ -74,7 +75,7 @@ impl PyStatus {
             Self::get()
                 .files
                 .iter()
-                .map(|(k, v)| format!("{:?}-{}", k, v.enabled))
+                .map(|(_, v)| v.to_string())
                 .collect::<Vec<String>>()
                 .join("\n")
         )
@@ -133,7 +134,7 @@ impl PyPlugin {
                 Ok(plugin) => {
                     self.py_module = plugin.py_module;
                     self.changed_time = plugin.changed_time;
-                    self.enabled = PyStatus::get().config.get_status(self.file_path.as_path());
+                    self.enabled = PyStatus::get().config.get_status(&self.get_id());
                     event!(Level::INFO, "更新 Python 插件文件 {:?} 完成", self.file_path);
                 }
                 Err(e) => {
@@ -163,6 +164,14 @@ impl PyPlugin {
                 }
             }
         }
+    }
+
+    pub fn get_id(&self) -> String { plugin_path_as_id(&self.file_path) }
+}
+
+impl ToString for PyPlugin {
+    fn to_string(&self) -> String {
+        format!("{}({:?})-{}", self.get_id(), self.file_path, self.enabled)
     }
 }
 
@@ -304,6 +313,15 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
     }
 }
 
+/// 插件路径转换为 id
+pub fn plugin_path_as_id(path: &PathBuf) -> String {
+    path.file_name()
+        .unwrap_or_default()
+        .to_str()
+        .unwrap_or("decode-failed")
+        .to_string()
+}
+
 pub fn load_py_plugins(path: &PathBuf) {
     let plugins = PyStatus::get_mut();
     if path.exists() {
@@ -330,7 +348,7 @@ pub fn load_py_plugins(path: &PathBuf) {
     } else {
         event!(Level::WARN, "插件加载目录不存在: {:?}", path);
     }
-    plugins.config.sync_status_from_config();
+    plugins.config.read_status_from_file();
     event!(
         Level::INFO,
         "python 插件目录: {:?} 加载完成, 加载到 {} 个插件",
