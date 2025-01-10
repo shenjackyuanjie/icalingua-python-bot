@@ -1,5 +1,16 @@
 # 更新日志
 
+## 0.8.1
+
+- `ica-typing` 加入了 `from __future__ import annotations`
+  - 这样就可以随便用 typing 了
+  - 把 NewType 都扬了
+
+### ica 1.6.6
+
+- 修复了 `send_poke` api 的问题
+  - 现在可以正常使用了
+
 ## 0.8.0
 
 - ica 兼容版本号更新到 ~~`2.12.24`~~ `2.12.26`

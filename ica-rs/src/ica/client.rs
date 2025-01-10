@@ -129,7 +129,7 @@ pub async fn send_room_sign_in(client: &Client, room_id: RoomId) -> bool {
 
 /// 向某个群/私聊的某个人发送戳一戳
 pub async fn send_poke(client: &Client, room_id: RoomId, target: UserId) -> bool {
-    let data = json!([room_id, target]);
+    let data = vec![json!(room_id), json!(target)];
     match client.emit("sendGroupPoke", data).await {
         Ok(_) => {
             event!(Level::INFO, "已向 {} 的 {} 发送戳一戳", room_id, target);
