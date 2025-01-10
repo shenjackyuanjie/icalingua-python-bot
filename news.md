@@ -2,6 +2,7 @@
 
 ## 0.8.1
 
+- 修复了 Python 插件状态写入的时候写入路径错误的问题
 - `ica-typing` 加入了 `from __future__ import annotations`
   - 这样就可以随便用 typing 了
   - 把 NewType 都扬了

@@ -1,11 +1,13 @@
 use colored::Colorize;
 use rust_socketio::asynchronous::Client;
 use rust_socketio::{Event, Payload};
+use serde_json::json;
 use tracing::{event, info, span, warn, Level};
 
 use crate::data_struct::ica::all_rooms::Room;
 use crate::data_struct::ica::messages::{Message, MessageTrait, NewMessage};
 use crate::data_struct::ica::online_data::OnlineData;
+use crate::data_struct::ica::RoomId;
 use crate::ica::client::send_message;
 use crate::{client_id, help_msg, py, version_str, MainStatus, VERSION};
 
@@ -30,7 +32,7 @@ pub async fn add_message(payload: Payload, client: Client) {
                 return;
             }
 
-            event!(Level::INFO, "new_msg {}", message.to_string().cyan());
+            println!("new_msg {}", message.to_string().cyan());
             // 就在这里处理掉最基本的消息
             // 之后的处理交给插件
             if !message.is_from_self() && !message.is_reply() {
@@ -105,6 +107,10 @@ pub async fn add_message(payload: Payload, client: Client) {
                                 }
                             }
                         }
+                    } else if message.content() == "/bot-fetch" {
+                        let reply = message.reply_with("正在更新当前群消息");
+                        send_message(&client, &reply).await;
+                        fetch_messages(&client, message.room_id).await;
                     }
                 }
             }
@@ -169,6 +175,20 @@ pub async fn failed_message(payload: Payload, _client: Client) {
     }
 }
 
+pub async fn fetch_history(client: Client, room: RoomId) {
+    let mut request_body = json!(room);
+}
+
+pub async fn fetch_messages(client: &Client, room: RoomId) {
+    let mut request_body = json!(room);
+    match client.emit("fetchMessages", request_body).await {
+        Ok(_) => {}
+        Err(e) => {
+            event!(Level::WARN, "fetch_messages {}", e);
+        }
+    }
+}
+
 /// 所有
 pub async fn any_event(event: Event, payload: Payload, _client: Client) {
     let handled = vec![
@@ -189,6 +209,7 @@ pub async fn any_event(event: Event, payload: Payload, _client: Client) {
         "handleRequest", // 处理验证消息 (加入请求之类的)
         // 忽略的
         "notify",
+        "setShutUp",    // 禁言
         "syncRead",     // 同步已读
         "closeLoading", // 发送消息/加载新聊天 有一个 loading
         "renewMessage", // 我也不确定到底是啥事件
