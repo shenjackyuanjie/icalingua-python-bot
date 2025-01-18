@@ -146,6 +146,10 @@ impl SendMessagePy {
     pub fn get_content(&self) -> String { self.msg.content.clone() }
     #[setter]
     pub fn set_content(&mut self, content: String) { self.msg.content = content; }
+    #[getter]
+    pub fn get_room_id(&self) -> RoomId { self.msg.room_id }
+    #[setter]
+    pub fn set_room_id(&mut self, room_id: RoomId) { self.msg.room_id = room_id; }
     /// 设置消息图片
     pub fn set_img(&mut self, file: Vec<u8>, file_type: String, as_sticker: bool) {
         self.msg.set_img(&file, &file_type, as_sticker);

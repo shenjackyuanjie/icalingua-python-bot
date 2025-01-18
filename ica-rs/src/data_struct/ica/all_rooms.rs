@@ -2,7 +2,7 @@ use crate::data_struct::ica::messages::{At, LastMessage};
 use crate::data_struct::ica::RoomId;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
+use serde_json::{Number, Value as JsonValue};
 
 /// export default interface Room {
 ///     roomId: number
@@ -39,14 +39,14 @@ pub struct Room {
 
 impl Room {
     pub fn new_from_json(raw_json: &JsonValue) -> Self {
-        let parse_json = raw_json.clone();
+        let mut parse_json = raw_json.clone();
         // 手动 patch 一下 roomId
         // ica issue: https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/issues/793
-        // if parse_json.get("roomId").is_none_or(|id| id.is_null()) {
-        //     use tracing::warn;
-        //     warn!("Room::new_from_json roomId is None, patching it to -1, raw: {:#?}", raw_json);
-        //     parse_json["roomId"] = JsonValue::Number(Number::from(-1));
-        // }
+        if parse_json.get("roomId").is_none_or(|id| id.is_null()) {
+            use tracing::warn;
+            warn!("Room::new_from_json roomId is None, patching it to -1, raw: {:?}", raw_json);
+            parse_json["roomId"] = JsonValue::Number(Number::from(-1));
+        }
         // 现在 fix 了
 
         let inner = match serde_json::from_value::<InnerRoom>(parse_json) {
