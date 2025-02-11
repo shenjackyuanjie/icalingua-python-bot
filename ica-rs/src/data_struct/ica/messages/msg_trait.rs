@@ -88,12 +88,25 @@ impl<'de> Deserialize<'de> for Message {
 
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if !self.content.is_empty() {
+        if !self.content.is_empty() && !self.content.trim().is_empty() {
             write!(f, "{}|{}|{}|{}", self.msg_id(), self.sender_id, self.sender_name, self.content)
         } else if !self.files.is_empty() {
-            write!(f, "{}|{}|{}|{:?}", self.msg_id(), self.sender_id, self.sender_name, self.files[0].name)
+            write!(
+                f,
+                "{}|{}|{}|{:?}",
+                self.msg_id(),
+                self.sender_id,
+                self.sender_name,
+                self.files[0].name
+            )
         } else {
-            write!(f, "{}|{}|{}|empty content & empty files", self.msg_id(), self.sender_id, self.sender_name)
+            write!(
+                f,
+                "{}|{}|{}|empty content & empty files",
+                self.msg_id(),
+                self.sender_id,
+                self.sender_name
+            )
         }
     }
 }
@@ -120,14 +133,32 @@ impl MessageTrait for NewMessage {
 
 impl Display for NewMessage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}|{}|{}|{}|{}",
-            self.msg_id(),
-            self.room_id,
-            self.msg.sender_id,
-            self.msg.sender_name,
-            self.msg.content
-        )
+        if !self.msg.content.trim().is_empty() {
+            write!(
+                f,
+                "{}|{}|{}|{}|{}",
+                self.msg.msg_id,
+                self.room_id,
+                self.msg.sender_id,
+                self.msg.sender_name,
+                self.msg.content
+            )
+        } else if !self.msg.files.is_empty() {
+            write!(
+                f,
+                "{}|{}|{}|{}|{:?}",
+                self.msg.msg_id,
+                self.room_id,
+                self.msg.sender_id,
+                self.msg.sender_name,
+                self.msg.files[0].name
+            )
+        } else {
+            write!(
+                f,
+                "{}|{}|{}|{}|empty content & empty files",
+                self.msg.msg_id, self.room_id, self.msg.sender_id, self.msg.sender_name
+            )
+        }
     }
 }

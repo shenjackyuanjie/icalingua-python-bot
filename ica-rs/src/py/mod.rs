@@ -39,18 +39,12 @@ impl PyStatus {
         let _ = unsafe { PyPluginStatus.get_or_init(|| status) };
     }
 
-    pub fn get() -> &'static PyStatus {
-        unsafe { PyPluginStatus.get().unwrap() }
-    }
+    pub fn get() -> &'static PyStatus { unsafe { PyPluginStatus.get().unwrap() } }
 
-    pub fn get_mut() -> &'static mut PyStatus {
-        unsafe { PyPluginStatus.get_mut().unwrap() }
-    }
+    pub fn get_mut() -> &'static mut PyStatus { unsafe { PyPluginStatus.get_mut().unwrap() } }
 
     /// 添加一个插件
-    pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) {
-        self.files.insert(path, plugin);
-    }
+    pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) { self.files.insert(path, plugin); }
 
     /// 重新加载一个插件
     pub fn reload_plugin(&mut self, plugin_name: &str) -> bool {
@@ -70,9 +64,7 @@ impl PyStatus {
     }
 
     /// 删除一个插件
-    pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> {
-        self.files.remove(path)
-    }
+    pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> { self.files.remove(path) }
 
     pub fn get_status(&self, pluging_id: &str) -> Option<bool> {
         self.files.iter().find_map(|(_, plugin)| {
@@ -195,9 +187,7 @@ impl PyPlugin {
         }
     }
 
-    pub fn get_id(&self) -> String {
-        plugin_path_as_id(&self.file_path)
-    }
+    pub fn get_id(&self) -> String { plugin_path_as_id(&self.file_path) }
 }
 
 impl Display for PyPlugin {
@@ -398,9 +388,7 @@ pub fn load_py_plugins(path: &PathBuf) {
     );
 }
 
-pub fn get_change_time(path: &Path) -> Option<SystemTime> {
-    path.metadata().ok()?.modified().ok()
-}
+pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()?.modified().ok() }
 
 pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
@@ -525,7 +513,7 @@ pub async fn post_py() -> anyhow::Result<()> {
 
 async fn stop_tasks() {
     if call::PY_TASKS.lock().await.is_empty() {
-        return ;
+        return;
     }
     let waiter = tokio::spawn(async {
         call::PY_TASKS.lock().await.join_all().await;

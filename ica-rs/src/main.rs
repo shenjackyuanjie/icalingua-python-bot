@@ -54,9 +54,7 @@ pub fn help_msg() -> String {
 
 static STARTUP_TIME: OnceLock<SystemTime> = OnceLock::new();
 
-pub fn start_up_time() -> SystemTime {
-    *STARTUP_TIME.get().expect("WTF, why did you panic?")
-}
+pub fn start_up_time() -> SystemTime { *STARTUP_TIME.get().expect("WTF, why did you panic?") }
 
 /// 获得当前客户端的 id
 /// 防止串号
@@ -149,7 +147,7 @@ fn main() -> anyhow::Result<()> {
         .build()
         .unwrap()
         .block_on(inner_main());
-    
+
     event!(Level::INFO, "shenbot-rs v{} exiting", VERSION);
     Ok(())
 }

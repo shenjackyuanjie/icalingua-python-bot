@@ -55,9 +55,7 @@ impl PyTasks {
         self.ica_new_message.len() + self.ica_delete_message.len() + self.tailchat_new_message.len()
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
+    pub fn is_empty(&self) -> bool { self.len() == 0 }
 
     pub fn cancel_all(&mut self) {
         for handle in self.ica_new_message.drain(..) {
@@ -72,11 +70,13 @@ impl PyTasks {
     }
 }
 
-pub static PY_TASKS: LazyLock<Mutex<PyTasks>> = LazyLock::new(|| Mutex::new(PyTasks {
-    ica_new_message: Vec::new(),
-    ica_delete_message: Vec::new(),
-    tailchat_new_message: Vec::new(),
-}));
+pub static PY_TASKS: LazyLock<Mutex<PyTasks>> = LazyLock::new(|| {
+    Mutex::new(PyTasks {
+        ica_new_message: Vec::new(),
+        ica_delete_message: Vec::new(),
+        tailchat_new_message: Vec::new(),
+    })
+});
 
 pub fn get_func<'py>(
     py_module: &Bound<'py, PyAny>,
