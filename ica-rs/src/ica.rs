@@ -13,7 +13,7 @@ use crate::error::{ClientResult, IcaError};
 use crate::{version_str, StopGetter};
 
 /// icalingua 客户端的兼容版本号
-pub const ICA_PROTOCOL_VERSION: &str = "2.12.26";
+pub const ICA_PROTOCOL_VERSION: &str = "2.12.28";
 
 // mod status {
 //     use crate::data_struct::ica::all_rooms::Room;

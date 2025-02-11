@@ -14,7 +14,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{event, span, warn, Level};
 
-use crate::{MainStatus, StopGetter};
+use crate::MainStatus;
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
@@ -39,12 +39,18 @@ impl PyStatus {
         let _ = unsafe { PyPluginStatus.get_or_init(|| status) };
     }
 
-    pub fn get() -> &'static PyStatus { unsafe { PyPluginStatus.get().unwrap() } }
+    pub fn get() -> &'static PyStatus {
+        unsafe { PyPluginStatus.get().unwrap() }
+    }
 
-    pub fn get_mut() -> &'static mut PyStatus { unsafe { PyPluginStatus.get_mut().unwrap() } }
+    pub fn get_mut() -> &'static mut PyStatus {
+        unsafe { PyPluginStatus.get_mut().unwrap() }
+    }
 
     /// 添加一个插件
-    pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) { self.files.insert(path, plugin); }
+    pub fn add_file(&mut self, path: PathBuf, plugin: PyPlugin) {
+        self.files.insert(path, plugin);
+    }
 
     /// 重新加载一个插件
     pub fn reload_plugin(&mut self, plugin_name: &str) -> bool {
@@ -64,7 +70,9 @@ impl PyStatus {
     }
 
     /// 删除一个插件
-    pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> { self.files.remove(path) }
+    pub fn delete_file(&mut self, path: &PathBuf) -> Option<PyPlugin> {
+        self.files.remove(path)
+    }
 
     pub fn get_status(&self, pluging_id: &str) -> Option<bool> {
         self.files.iter().find_map(|(_, plugin)| {
@@ -187,7 +195,9 @@ impl PyPlugin {
         }
     }
 
-    pub fn get_id(&self) -> String { plugin_path_as_id(&self.file_path) }
+    pub fn get_id(&self) -> String {
+        plugin_path_as_id(&self.file_path)
+    }
 }
 
 impl Display for PyPlugin {
@@ -344,7 +354,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
 }
 
 /// 插件路径转换为 id
-pub fn plugin_path_as_id(path: &PathBuf) -> String {
+pub fn plugin_path_as_id(path: &Path) -> String {
     path.file_name()
         .unwrap_or_default()
         .to_str()
@@ -388,7 +398,9 @@ pub fn load_py_plugins(path: &PathBuf) {
     );
 }
 
-pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()?.modified().ok() }
+pub fn get_change_time(path: &Path) -> Option<SystemTime> {
+    path.metadata().ok()?.modified().ok()
+}
 
 pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
     Python::with_gil(|py| -> PyResult<Py<PyAny>> {
@@ -430,11 +442,7 @@ fn init_py_with_env_path(path: &str) {
         let wide_path = OsStr::new(path).encode_wide().chain(Some(0)).collect::<Vec<u16>>();
 
         // 设置 prefix 和 exec_prefix
-        pyo3::ffi::PyConfig_SetString(
-            config_ptr,
-            &mut config.prefix as *mut _,
-            wide_path.as_ptr(),
-        );
+        pyo3::ffi::PyConfig_SetString(config_ptr, &mut config.prefix as *mut _, wide_path.as_ptr());
         pyo3::ffi::PyConfig_SetString(
             config_ptr,
             &mut config.exec_prefix as *mut _,
@@ -505,7 +513,7 @@ pub async fn post_py() -> anyhow::Result<()> {
     status.config.sync_status_to_config();
     status.config.write_to_default()?;
 
-    stop_tasks().await;
+    // stop_tasks().await;
     Ok(())
 }
 
@@ -518,7 +526,7 @@ async fn stop_tasks() {
             event!(Level::INFO, "Python 任务完成");
         }
         _ = tokio::signal::ctrl_c() => {
-            call::PY_TASKS.lock().await.cancel_all();
+            // call::PY_TASKS.lock().await.cancel_all();
             event!(Level::INFO, "Python 任务被中断");
         }
     }
