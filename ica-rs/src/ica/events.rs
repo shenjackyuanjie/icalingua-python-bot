@@ -175,9 +175,7 @@ pub async fn failed_message(payload: Payload, _client: Client) {
     }
 }
 
-pub async fn fetch_history(client: Client, room: RoomId) {
-    let mut request_body = json!(room);
-}
+pub async fn fetch_history(client: Client, room: RoomId) { let mut request_body = json!(room); }
 
 pub async fn fetch_messages(client: &Client, room: RoomId) {
     let mut request_body = json!(room);
