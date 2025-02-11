@@ -36,12 +36,12 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4"
 toml = "0.8"
-toml_edit = "0.22.20"
+toml_edit = "0.22"
 colored = "3.0"
 
 # runtime
 tokio = { version = "1.43", features = ["full"] }
-futures-util = "0.3.30"
+futures-util = "0.3"
 pyo3 = { version = "0.23", features = ["experimental-async", "py-clone"] }
 anyhow = { version = "1.0", features = ["backtrace"] }
 # async 这玩意以后在搞
