@@ -94,6 +94,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
         }
     }
     // 等待停止信号
+    event!(Level::INFO, "ica client waiting for stop signal");
     stop_reciver.await.ok();
     event!(Level::INFO, "socketio client stopping");
     match socket.disconnect().await {

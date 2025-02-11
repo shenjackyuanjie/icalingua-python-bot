@@ -1,13 +1,79 @@
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use pyo3::prelude::*;
 use rust_socketio::asynchronous::Client;
+use tokio::sync::Mutex;
 use tracing::{event, info, warn, Level};
 
 use crate::data_struct::{ica, tailchat};
 use crate::error::PyPluginError;
 use crate::py::{class, PyPlugin, PyStatus};
 use crate::MainStatus;
+
+pub struct PyTasks {
+    pub ica_new_message: Vec<tokio::task::JoinHandle<()>>,
+    pub ica_delete_message: Vec<tokio::task::JoinHandle<()>>,
+    pub tailchat_new_message: Vec<tokio::task::JoinHandle<()>>,
+}
+
+impl PyTasks {
+    pub fn clear(&mut self) {
+        self.ica_new_message.clear();
+        self.ica_delete_message.clear();
+        self.tailchat_new_message.clear();
+    }
+
+    pub fn push_ica_new_message(&mut self, handle: tokio::task::JoinHandle<()>) {
+        self.ica_new_message.push(handle);
+    }
+
+    pub fn push_ica_delete_message(&mut self, handle: tokio::task::JoinHandle<()>) {
+        self.ica_delete_message.push(handle);
+    }
+
+    pub fn push_tailchat_new_message(&mut self, handle: tokio::task::JoinHandle<()>) {
+        self.tailchat_new_message.push(handle);
+    }
+
+    pub async fn join_all(&mut self) {
+        for handle in self.ica_new_message.drain(..) {
+            let _ = handle.await;
+        }
+        for handle in self.ica_delete_message.drain(..) {
+            let _ = handle.await;
+        }
+        for handle in self.tailchat_new_message.drain(..) {
+            let _ = handle.await;
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.ica_new_message.len() + self.ica_delete_message.len() + self.tailchat_new_message.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn cancel_all(&mut self) {
+        for handle in self.ica_new_message.drain(..) {
+            handle.abort();
+        }
+        for handle in self.ica_delete_message.drain(..) {
+            handle.abort();
+        }
+        for handle in self.tailchat_new_message.drain(..) {
+            handle.abort();
+        }
+    }
+}
+
+pub static PY_TASKS: LazyLock<Mutex<PyTasks>> = LazyLock::new(|| Mutex::new(PyTasks {
+    ica_new_message: Vec::new(),
+    ica_delete_message: Vec::new(),
+    tailchat_new_message: Vec::new(),
+}));
 
 pub fn get_func<'py>(
     py_module: &Bound<'py, PyAny>,
@@ -154,8 +220,8 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
         let msg = class::ica::NewMessagePy::new(message);
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
-        // 甚至实际上压根不需要await这个spawn, 直接让他自己跑就好了(离谱)
-        call_py_func!(args, plugin, path, ICA_NEW_MESSAGE_FUNC, client);
+        let task = call_py_func!(args, plugin, path, ICA_NEW_MESSAGE_FUNC, client);
+        PY_TASKS.lock().await.push_ica_new_message(task);
     }
 }
 
@@ -167,7 +233,8 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
         let msg_id = msg_id.clone();
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
-        call_py_func!(args, plugin, path, ICA_DELETE_MESSAGE_FUNC, client);
+        let task = call_py_func!(args, plugin, path, ICA_DELETE_MESSAGE_FUNC, client);
+        PY_TASKS.lock().await.push_ica_delete_message(task);
     }
 }
 
@@ -182,6 +249,7 @@ pub async fn tailchat_new_message_py(
         let msg = class::tailchat::TailchatReceiveMessagePy::from_recive_message(message);
         let client = class::tailchat::TailchatClientPy::new(client);
         let args = (msg, client);
-        call_py_func!(args, plugin, path, TAILCHAT_NEW_MESSAGE_FUNC, client);
+        let task = call_py_func!(args, plugin, path, TAILCHAT_NEW_MESSAGE_FUNC, client);
+        PY_TASKS.lock().await.push_tailchat_new_message(task);
     }
 }

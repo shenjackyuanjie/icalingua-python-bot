@@ -18,6 +18,8 @@ mod tailchat;
 use config::BotConfig;
 use tracing::{event, span, Level};
 
+use crate::py::call;
+
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
@@ -52,7 +54,9 @@ pub fn help_msg() -> String {
 
 static STARTUP_TIME: OnceLock<SystemTime> = OnceLock::new();
 
-pub fn start_up_time() -> SystemTime { *STARTUP_TIME.get().expect("WTF, why did you panic?") }
+pub fn start_up_time() -> SystemTime {
+    *STARTUP_TIME.get().expect("WTF, why did you panic?")
+}
 
 /// 获得当前客户端的 id
 /// 防止串号
@@ -138,13 +142,16 @@ fn main() -> anyhow::Result<()> {
 
     tracing_subscriber::fmt().with_max_level(level).init();
 
-    tokio::runtime::Builder::new_multi_thread()
+    let _ = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .thread_name("shenbot-rs")
-        .worker_threads(4)
+        .worker_threads(10)
         .build()
         .unwrap()
-        .block_on(inner_main())
+        .block_on(inner_main());
+    
+    event!(Level::INFO, "shenbot-rs v{} exiting", VERSION);
+    Ok(())
 }
 
 async fn inner_main() -> anyhow::Result<()> {
@@ -169,7 +176,6 @@ async fn inner_main() -> anyhow::Result<()> {
     let (ica_send, ica_recv) = tokio::sync::oneshot::channel::<()>();
 
     if bot_config.check_ica() {
-        event!(Level::INFO, "启动 ica");
         let config = bot_config.ica();
         tokio::spawn(async move {
             ica::start_ica(&config, ica_recv).await.unwrap();
@@ -190,18 +196,19 @@ async fn inner_main() -> anyhow::Result<()> {
         event!(Level::INFO, "未启用 Tailchat");
     }
 
-    tokio::time::sleep(Duration::from_secs(2)).await;
+    tokio::time::sleep(Duration::from_secs(1)).await;
     // 等待一个输入
-    event!(Level::INFO, "Press any key to exit");
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).unwrap();
+    event!(Level::INFO, "Press ctrl+c to exit, second ctrl+c to force exit");
+    tokio::signal::ctrl_c().await.ok();
 
     ica_send.send(()).ok();
     tailchat_send.send(()).ok();
 
     event!(Level::INFO, "Disconnected");
 
-    py::post_py()?;
+    py::post_py().await?;
+
+    event!(Level::INFO, "Shenbot-rs exiting");
 
     Ok(())
 }

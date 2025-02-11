@@ -14,7 +14,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use tracing::{event, span, warn, Level};
 
-use crate::MainStatus;
+use crate::{MainStatus, StopGetter};
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
@@ -463,7 +463,7 @@ fn init_py_with_env_path(path: &str) {
 /// Python 侧初始化
 pub fn init_py() {
     // 从 全局配置中获取 python 插件路径
-    let span = span!(Level::INFO, "初始化 python 及其插件.ing");
+    let span = span!(Level::INFO, "py init");
     let _enter = span.enter();
 
     let plugin_path = MainStatus::global_config().py().plugin_path;
@@ -500,9 +500,26 @@ pub fn init_py() {
     event!(Level::INFO, "python 初始化完成")
 }
 
-pub fn post_py() -> anyhow::Result<()> {
+pub async fn post_py() -> anyhow::Result<()> {
     let status = PyStatus::get_mut();
     status.config.sync_status_to_config();
     status.config.write_to_default()?;
+
+    stop_tasks().await;
     Ok(())
+}
+
+async fn stop_tasks() {
+    let waiter = tokio::spawn(async {
+        call::PY_TASKS.lock().await.cancel_all();
+    });
+    tokio::select! {
+        _ = waiter => {
+            event!(Level::INFO, "Python 任务完成");
+        }
+        _ = tokio::signal::ctrl_c() => {
+            call::PY_TASKS.lock().await.cancel_all();
+            event!(Level::INFO, "Python 任务被中断");
+        }
+    }
 }
