@@ -451,6 +451,7 @@ fn init_py_with_env_path(path: &str) {
 
         // 使用 Py_InitializeFromConfig 初始化 python
         let status = pyo3::ffi::Py_InitializeFromConfig(&config as *const _);
+        pyo3::ffi::PyEval_SaveThread();
         // 清理配置
         pyo3::ffi::PyConfig_Clear(config_ptr);
         match status._type {
@@ -513,11 +514,19 @@ pub async fn post_py() -> anyhow::Result<()> {
     status.config.sync_status_to_config();
     status.config.write_to_default()?;
 
-    // stop_tasks().await;
+    stop_tasks().await;
+    unsafe {
+        if !pyo3::ffi::Py_FinalizeEx() == 0 {
+            event!(Level::ERROR, "Python 退出失败 (不过应该无所谓)");
+        }
+    }
     Ok(())
 }
 
 async fn stop_tasks() {
+    if call::PY_TASKS.lock().await.is_empty() {
+        return ;
+    }
     let waiter = tokio::spawn(async {
         call::PY_TASKS.lock().await.join_all().await;
     });
@@ -526,7 +535,7 @@ async fn stop_tasks() {
             event!(Level::INFO, "Python 任务完成");
         }
         _ = tokio::signal::ctrl_c() => {
-            // call::PY_TASKS.lock().await.cancel_all();
+            call::PY_TASKS.lock().await.cancel_all();
             event!(Level::INFO, "Python 任务被中断");
         }
     }

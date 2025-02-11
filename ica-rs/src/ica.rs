@@ -47,6 +47,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
 
     event!(Level::INFO, "ica-async-rs v{} initing", crate::ICA_VERSION);
 
+    let start_connect_time = std::time::Instant::now();
     let socket = match ClientBuilder::new(config.host.clone())
         .transport_type(TransportType::Websocket)
         .on_any(async_any_callback!(events::any_event))
@@ -65,7 +66,7 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
         .await
     {
         Ok(client) => {
-            event!(Level::INFO, "socketio connected");
+            event!(Level::INFO, "socketio connected time: {:?}", start_connect_time.elapsed());
             client
         }
         Err(e) => {

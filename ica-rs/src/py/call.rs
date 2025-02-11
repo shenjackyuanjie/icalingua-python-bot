@@ -224,7 +224,7 @@ pub async fn ica_new_message_py(message: &ica::messages::NewMessage, client: &Cl
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg, client);
         let task = call_py_func!(args, plugin, path, ICA_NEW_MESSAGE_FUNC, client);
-        // PY_TASKS.lock().await.push_ica_new_message(task);
+        PY_TASKS.lock().await.push_ica_new_message(task);
     }
 }
 
@@ -237,7 +237,7 @@ pub async fn ica_delete_message_py(msg_id: ica::MessageId, client: &Client) {
         let client = class::ica::IcaClientPy::new(client);
         let args = (msg_id.clone(), client);
         let task = call_py_func!(args, plugin, path, ICA_DELETE_MESSAGE_FUNC, client);
-        // PY_TASKS.lock().await.push_ica_delete_message(task);
+        PY_TASKS.lock().await.push_ica_delete_message(task);
     }
 }
 
@@ -253,6 +253,6 @@ pub async fn tailchat_new_message_py(
         let client = class::tailchat::TailchatClientPy::new(client);
         let args = (msg, client);
         let task = call_py_func!(args, plugin, path, TAILCHAT_NEW_MESSAGE_FUNC, client);
-        // PY_TASKS.lock().await.push_tailchat_new_message(task);
+        PY_TASKS.lock().await.push_tailchat_new_message(task);
     }
 }
