@@ -511,7 +511,7 @@ pub async fn post_py() -> anyhow::Result<()> {
 
 async fn stop_tasks() {
     let waiter = tokio::spawn(async {
-        call::PY_TASKS.lock().await.cancel_all();
+        call::PY_TASKS.lock().await.join_all().await;
     });
     tokio::select! {
         _ = waiter => {
