@@ -108,6 +108,8 @@ const CLI_HELP_MSG: &str = r#"{VERSION}
         trace 模式
     -h
         显示帮助信息
+    -env <env>
+        指定虚拟环境路径
     -c <config_file_path>
         指定配置文件路径
 "#;

@@ -1,7 +1,7 @@
 pub mod client;
 pub mod events;
 
-use std::sync::OnceLock;
+// use std::sync::OnceLock;
 
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{async_any_callback, async_callback};
