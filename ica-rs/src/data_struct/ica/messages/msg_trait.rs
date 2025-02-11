@@ -88,7 +88,13 @@ impl<'de> Deserialize<'de> for Message {
 
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}|{}|{}|{}", self.msg_id(), self.sender_id, self.sender_name, self.content)
+        if !self.content.is_empty() {
+            write!(f, "{}|{}|{}|{}", self.msg_id(), self.sender_id, self.sender_name, self.content)
+        } else if !self.files.is_empty() {
+            write!(f, "{}|{}|{}|{:?}", self.msg_id(), self.sender_id, self.sender_name, self.files[0].name)
+        } else {
+            write!(f, "{}|{}|{}|empty content & empty files", self.msg_id(), self.sender_id, self.sender_name)
+        }
     }
 }
 
