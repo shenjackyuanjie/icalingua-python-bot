@@ -151,7 +151,7 @@ impl Display for NewMessage {
                 self.room_id,
                 self.msg.sender_id,
                 self.msg.sender_name,
-                self.msg.files[0].name
+                self.msg.files[0]
             )
         } else {
             write!(

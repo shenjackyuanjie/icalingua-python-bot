@@ -18,12 +18,6 @@ pub struct PyTasks {
 }
 
 impl PyTasks {
-    pub fn clear(&mut self) {
-        self.ica_new_message.clear();
-        self.ica_delete_message.clear();
-        self.tailchat_new_message.clear();
-    }
-
     pub fn push_ica_new_message(&mut self, handle: tokio::task::JoinHandle<()>) {
         self.ica_new_message.push(handle);
         self.ica_new_message.retain(|handle| !handle.is_finished());
@@ -49,6 +43,13 @@ impl PyTasks {
         for handle in self.tailchat_new_message.drain(..) {
             let _ = handle.await;
         }
+    }
+
+    pub fn len_check(&mut self) -> usize {
+        self.ica_delete_message.retain(|handle| !handle.is_finished());
+        self.ica_new_message.retain(|handle| !handle.is_finished());
+        self.tailchat_new_message.retain(|handle| !handle.is_finished());
+        self.ica_new_message.len() + self.ica_delete_message.len() + self.tailchat_new_message.len()
     }
 
     pub fn len(&self) -> usize {

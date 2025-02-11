@@ -18,8 +18,6 @@ mod tailchat;
 use config::BotConfig;
 use tracing::{event, span, Level};
 
-use crate::py::call;
-
 pub static mut MAIN_STATUS: status::BotStatus = status::BotStatus {
     config: None,
     ica_status: None,
@@ -31,8 +29,8 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.5";
-pub const TAILCHAT_VERSION: &str = "1.2.5";
+pub const ICA_VERSION: &str = "1.6.7";
+pub const TAILCHAT_VERSION: &str = "1.2.6";
 
 const HELP_MSG: &str = r#"/bot-rs
     展示 rust 侧信息

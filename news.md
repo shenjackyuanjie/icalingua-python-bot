@@ -14,6 +14,18 @@
 - 现在会记录所有的 python 运行中 task 了
   - 也会在退出的时候等待所有的 task 结束
   - 二次 ctrl-c 会立即退出
+- 改进了一下 ica 的新消息显示
+- 添加了 ica 链接用时的显示
+
+### ica 1.6.7
+
+- 为 `IcaClinet` 添加了 `py_tasks_count -> int` 属性
+  - 用于获取当前运行中的 python task 数量
+
+### tailchat 1.2.6
+
+- 为 `TailchatClient` 添加了 `py_tasks_count -> int` 属性
+  - 用于获取当前运行中的 python task 数量
 
 ## 0.8.1
 

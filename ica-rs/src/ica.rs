@@ -3,6 +3,7 @@ pub mod events;
 
 // use std::sync::OnceLock;
 
+use colored::Colorize;
 use rust_socketio::asynchronous::{Client, ClientBuilder};
 use rust_socketio::{async_any_callback, async_callback};
 use rust_socketio::{Event, Payload, TransportType};
@@ -66,7 +67,11 @@ pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientRe
         .await
     {
         Ok(client) => {
-            event!(Level::INFO, "socketio connected time: {:?}", start_connect_time.elapsed());
+            event!(
+                Level::INFO,
+                "{}",
+                format!("socketio connected time: {:?}", start_connect_time.elapsed()).on_cyan()
+            );
             client
         }
         Err(e) => {

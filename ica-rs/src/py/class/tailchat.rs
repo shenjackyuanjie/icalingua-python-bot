@@ -3,6 +3,7 @@ use std::time::SystemTime;
 use pyo3::prelude::*;
 
 use rust_socketio::asynchronous::Client;
+use tokio::runtime::Runtime;
 use tracing::{debug, info, warn};
 
 use crate::data_struct::tailchat::messages::{ReceiveMessage, SendingFile, SendingMessage};
@@ -73,6 +74,15 @@ impl TailchatClientPy {
     pub fn get_tailchat_version(&self) -> String { crate::TAILCHAT_VERSION.to_string() }
     #[getter]
     pub fn get_startup_time(&self) -> SystemTime { crate::start_up_time() }
+
+    #[getter]
+    pub fn get_py_tasks_count(&self) -> usize {
+        tokio::task::block_in_place(|| {
+            let rt = Runtime::new().unwrap();
+            rt.block_on(async { crate::py::call::PY_TASKS.lock().await.len_check() })
+        })
+    }
+
     /// 重新加载插件状态
     /// 返回是否成功
     pub fn reload_plugin_status(&self) -> bool { PyStatus::get_mut().config.reload_from_default() }
