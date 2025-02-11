@@ -101,9 +101,40 @@ macro_rules! async_any_callback_with_state {
     }};
 }
 
+const CLI_HELP_MSG: &str = r#"{VERSION}
+    -d
+        debug 模式
+    -t
+        trace 模式
+    -h
+        显示帮助信息
+    -c <config_file_path>
+        指定配置文件路径
+"#;
+
 fn main() -> anyhow::Result<()> {
     let start_up_time = SystemTime::now();
     STARTUP_TIME.set(start_up_time).expect("WTF, why did you panic?");
+
+    // -d -> debug
+    // none -> info
+    let args = std::env::args();
+    let args = args.collect::<Vec<String>>();
+    if args.contains(&"-h".to_string()) {
+        println!("{}", CLI_HELP_MSG.replace("{VERSION}", version_str().as_str()));
+        return Ok(());
+    }
+    let level = {
+        if args.contains(&"-d".to_string()) {
+            Level::DEBUG
+        } else if args.contains(&"-t".to_string()) {
+            Level::TRACE
+        } else {
+            Level::INFO
+        }
+    };
+
+    tracing_subscriber::fmt().with_max_level(level).init();
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -115,21 +146,6 @@ fn main() -> anyhow::Result<()> {
 }
 
 async fn inner_main() -> anyhow::Result<()> {
-    // -d -> debug
-    // none -> info
-    let level = {
-        let args = std::env::args();
-        let args = args.collect::<Vec<String>>();
-        if args.contains(&"-d".to_string()) {
-            Level::DEBUG
-        } else if args.contains(&"-t".to_string()) {
-            Level::TRACE
-        } else {
-            Level::INFO
-        }
-    };
-
-    tracing_subscriber::fmt().with_max_level(level).init();
     let span = span!(Level::INFO, "Shenbot Main");
     let _enter = span.enter();
 

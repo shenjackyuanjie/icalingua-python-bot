@@ -439,7 +439,8 @@ pub fn init_py() {
                 #[cfg(target_os = "windows")]
                 use std::os::windows::ffi::OsStrExt;
 
-                let wide_path = OsStr::new(&virtual_env).encode_wide().chain(Some(0)).collect::<Vec<u16>>();
+                let wide_path =
+                    OsStr::new(&virtual_env).encode_wide().chain(Some(0)).collect::<Vec<u16>>();
 
                 // 设置 prefix 和 exec_prefix
                 pyo3::ffi::PyConfig_SetString(

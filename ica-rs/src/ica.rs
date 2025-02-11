@@ -15,31 +15,31 @@ use crate::{version_str, StopGetter};
 /// icalingua 客户端的兼容版本号
 pub const ICA_PROTOCOL_VERSION: &str = "2.12.26";
 
-mod status {
-    use crate::data_struct::ica::all_rooms::Room;
-    pub use crate::data_struct::ica::online_data::OnlineData;
+// mod status {
+//     use crate::data_struct::ica::all_rooms::Room;
+//     pub use crate::data_struct::ica::online_data::OnlineData;
 
-    #[derive(Debug, Clone)]
-    pub struct MainStatus {
-        /// 是否启用 ica
-        pub enable: bool,
-        /// qq 是否登录
-        pub qq_login: bool,
-        /// 当前已加载的消息数量
-        pub current_loaded_messages_count: u64,
-        /// 房间数据
-        pub rooms: Vec<Room>,
-        /// 在线数据 (Icalingua 信息)
-        pub online_status: OnlineData,
-    }
+//     #[derive(Debug, Clone)]
+//     pub struct MainStatus {
+//         /// 是否启用 ica
+//         pub enable: bool,
+//         /// qq 是否登录
+//         pub qq_login: bool,
+//         /// 当前已加载的消息数量
+//         pub current_loaded_messages_count: u64,
+//         /// 房间数据
+//         pub rooms: Vec<Room>,
+//         /// 在线数据 (Icalingua 信息)
+//         pub online_status: OnlineData,
+//     }
 
-    impl MainStatus {
-        pub fn update_rooms(&mut self, room: Vec<Room>) { self.rooms = room; }
-        pub fn update_online_status(&mut self, status: OnlineData) { self.online_status = status; }
-    }
-}
+//     impl MainStatus {
+//         pub fn update_rooms(&mut self, room: Vec<Room>) { self.rooms = room; }
+//         pub fn update_online_status(&mut self, status: OnlineData) { self.online_status = status; }
+//     }
+// }
 
-static ICA_STATUS: OnceLock<status::MainStatus> = OnceLock::new();
+// static ICA_STATUS: OnceLock<status::MainStatus> = OnceLock::new();
 
 pub async fn start_ica(config: &IcaConfig, stop_reciver: StopGetter) -> ClientResult<(), IcaError> {
     let span = span!(Level::INFO, "Icalingua Client");

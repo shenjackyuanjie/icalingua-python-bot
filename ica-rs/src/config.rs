@@ -102,7 +102,7 @@ impl BotConfig {
     pub fn new_from_cli() -> Self {
         // let config_file_path = env::args().nth(1).expect("No config path given");
         // -c <config_file_path>
-        let mut config_file_path = String::new();
+        let mut config_file_path = "./config.toml".to_string();
         let mut args = env::args();
         while let Some(arg) = args.next() {
             if arg == "-c" {

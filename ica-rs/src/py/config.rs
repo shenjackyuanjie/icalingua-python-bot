@@ -1,7 +1,4 @@
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::{path::Path, str::FromStr};
 
 use toml_edit::{value, DocumentMut, Key, Table, TomlError, Value};
 use tracing::{event, Level};
@@ -46,7 +43,7 @@ impl PluginConfigFile {
     pub fn default_init() -> anyhow::Result<Self> {
         let config_path = MainStatus::global_config().py().config_path.clone();
         let path = Path::new(&config_path);
-        Self::from_config_path(&path)
+        Self::from_config_path(path)
     }
 
     pub fn reload_from_default(&mut self) -> bool {
@@ -165,7 +162,7 @@ impl PluginConfigFile {
     pub fn write_to_default(&self) -> Result<(), std::io::Error> {
         let config_path = MainStatus::global_config().py().config_path.clone();
         let config_path = Path::new(&config_path);
-        self.write_to_file(&config_path)
+        self.write_to_file(config_path)
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), std::io::Error> {
