@@ -433,12 +433,12 @@ fn init_py_with_env_path(path: &str) {
         pyo3::ffi::PyConfig_SetString(
             config_ptr,
             &mut config.prefix as *mut _,
-            wide_path.as_slice().as_ptr(),
+            wide_path.as_ptr(),
         );
         pyo3::ffi::PyConfig_SetString(
             config_ptr,
             &mut config.exec_prefix as *mut _,
-            wide_path.as_slice().as_ptr(),
+            wide_path.as_ptr(),
         );
 
         // 使用 Py_InitializeFromConfig 初始化 python
