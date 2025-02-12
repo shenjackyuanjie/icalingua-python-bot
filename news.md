@@ -17,6 +17,20 @@
 - 改进了一下 ica 的新消息显示
 - 添加了 ica 链接用时的显示
 
+### ica&tailchat 2.0.0
+
+- BREAKING CHANGE
+  - 现在 `CONFIG_DATA` 为一个 `str | bytes`
+  - 用于存储插件的配置信息
+  - 需要自行解析
+  - 现在 `on_config` 函数签名为 `on_config = Callable[[bytes], None]`
+    - 用于接收配置信息
+  - 现在使用 `require_config = Callable[[None], str, bytes | str]` 函数来请求配置信息
+    - 用于请求配置信息
+    - `str` 为配置文件名
+    - `bytes | str` 为配置文件默认内容
+      - 以 `bytes` 形式或者 `str` 形式均可
+
 ### ica 1.6.7
 
 - 为 `IcaClinet` 添加了 `py_tasks_count -> int` 属性

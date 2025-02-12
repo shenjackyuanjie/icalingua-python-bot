@@ -10,11 +10,15 @@ use std::time::SystemTime;
 use std::{collections::HashMap, path::PathBuf};
 
 use colored::Colorize;
-use pyo3::prelude::*;
+use pyo3::exceptions::PyTypeError;
 use pyo3::types::PyTuple;
+use pyo3::{intern, prelude::*};
 use tracing::{event, span, warn, Level};
 
 use crate::MainStatus;
+
+const REQUIRE_CONFIG_FUNC_NAME: &str = "require_config";
+const ON_CONFIG_FUNC_NAME: &str = "on_config";
 
 #[derive(Debug, Clone)]
 pub struct PyStatus {
@@ -198,11 +202,125 @@ impl Display for PyPlugin {
 
 pub const CONFIG_DATA_NAME: &str = "CONFIG_DATA";
 
+fn set_str_cfg_default_plugin(
+    module: &Bound<'_, PyModule>,
+    default: String,
+    path: String,
+) -> PyResult<()> {
+    let base_path = MainStatus::global_config().py().config_path;
+
+    let mut base_path: PathBuf = PathBuf::from(base_path);
+
+    if !base_path.exists() {
+        event!(Level::WARN, "python 插件路径不存在, 创建: {:?}", base_path);
+        std::fs::create_dir_all(&base_path)?;
+    }
+    base_path.push(&path);
+
+    let config_str: String = if base_path.exists() {
+        event!(Level::INFO, "加载 {:?} 的配置文件 {:?} 中", path, base_path);
+        match std::fs::read_to_string(&base_path) {
+            Ok(v) => v,
+            Err(e) => {
+                event!(Level::WARN, "配置文件 {:?} 读取失败 {}, 创建默认配置", base_path, e);
+                // 写入默认配置
+                std::fs::write(&base_path, &default)?;
+                default
+            }
+        }
+    } else {
+        event!(Level::WARN, "配置文件 {:?} 不存在, 创建默认配置", base_path);
+        // 写入默认配置
+        std::fs::write(base_path, &default)?;
+        default
+    };
+
+    if let Err(e) = module.setattr(intern!(module.py(), CONFIG_DATA_NAME), &config_str) {
+        event!(Level::WARN, "Python 插件 {:?} 的配置文件信息设置失败:{:?}", path, e);
+        return Err(PyTypeError::new_err(format!(
+            "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
+            path, e
+        )));
+    }
+
+    // 给到 on config
+    if let Ok(attr) = module.getattr(intern!(module.py(), ON_CONFIG_FUNC_NAME)) {
+        if !attr.is_callable() {
+            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数不是 Callable", path, ON_CONFIG_FUNC_NAME);
+            return Ok(());
+        }
+        let args = (config_str.as_bytes(), );
+        if let Err(e) = attr.call1(args) {
+            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数返回了一个报错 {}", path, ON_CONFIG_FUNC_NAME, e);
+        }
+    }
+
+    Ok(())
+}
+
+fn set_bytes_cfg_default_plugin(
+    module: &Bound<'_, PyModule>,
+    default: Vec<u8>,
+    path: String,
+) -> PyResult<()> {
+    let base_path = MainStatus::global_config().py().config_path;
+
+    let mut base_path: PathBuf = PathBuf::from(base_path);
+
+    if !base_path.exists() {
+        event!(Level::WARN, "python 插件路径不存在, 创建: {:?}", base_path);
+        std::fs::create_dir_all(&base_path)?;
+    }
+    base_path.push(&path);
+
+    let config_vec: Vec<u8> = if base_path.exists() {
+        event!(Level::INFO, "加载 {:?} 的配置文件 {:?} 中", path, base_path);
+        match std::fs::read(&base_path) {
+            Ok(v) => v,
+            Err(e) => {
+                event!(Level::WARN, "配置文件 {:?} 读取失败 {}, 创建默认配置", base_path, e);
+                // 写入默认配置
+                std::fs::write(&base_path, &default)?;
+                default
+            }
+        }
+    } else {
+        event!(Level::WARN, "配置文件 {:?} 不存在, 创建默认配置", base_path);
+        // 写入默认配置
+        std::fs::write(base_path, &default)?;
+        default
+    };
+
+    match module.setattr(intern!(module.py(), CONFIG_DATA_NAME), &config_vec) {
+        Ok(()) => (),
+        Err(e) => {
+            warn!("Python 插件 {:?} 的配置文件信息设置失败:{:?}", path, e);
+            return Err(PyTypeError::new_err(format!(
+                "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
+                path, e
+            )));
+        }
+    }
+
+    // 给到 on config
+    if let Ok(attr) = module.getattr(intern!(module.py(), ON_CONFIG_FUNC_NAME)) {
+        if !attr.is_callable() {
+            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数不是 Callable", path, ON_CONFIG_FUNC_NAME);
+            return Ok(());
+        }
+        let args = (&config_vec, );
+        if let Err(e) = attr.call1(args) {
+            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数返回了一个报错 {}", path, ON_CONFIG_FUNC_NAME, e);
+        }
+    }
+    Ok(())
+}
+
 impl TryFrom<RawPyPlugin> for PyPlugin {
     type Error = PyErr;
     fn try_from(value: RawPyPlugin) -> Result<Self, Self::Error> {
         let (path, changed_time, content) = value;
-        let py_module = match py_module_from_code(&content, &path) {
+        let py_module: Py<PyModule> = match py_module_from_code(&content, &path) {
             Ok(module) => module,
             Err(e) => {
                 warn!("加载 Python 插件: {:?} 失败", e);
@@ -211,109 +329,39 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
         };
         Python::with_gil(|py| {
             let module = py_module.bind(py);
-            if let Ok(config_func) = call::get_func(module, "on_config") {
+            if let Ok(config_func) = call::get_func(module, REQUIRE_CONFIG_FUNC_NAME) {
                 match config_func.call0() {
                     Ok(config) => {
                         if config.is_instance_of::<PyTuple>() {
-                            let (config, default) = config.extract::<(String, String)>().unwrap();
-                            let base_path = MainStatus::global_config().py().config_path;
-
-                            let mut base_path: PathBuf = PathBuf::from(base_path);
-
-                            if !base_path.exists() {
-                                event!(Level::WARN, "python 插件路径不存在, 创建: {:?}", base_path);
-                                std::fs::create_dir_all(&base_path)?;
-                            }
-                            base_path.push(&config);
-
-                            let config_value = if base_path.exists() {
-                                event!(
-                                    Level::INFO,
-                                    "加载 {:?} 的配置文件 {:?} 中",
-                                    path,
-                                    base_path
-                                );
-                                let content = std::fs::read_to_string(&base_path)?;
-                                toml::from_str(&content)
+                            // let (config, default) = config.extract::<(String, Vec<u8>)>().unwrap();
+                            // let (config, default) = config.extract::<(String, String)>().unwrap();
+                            if let Ok((config, default)) = config.extract::<(String, String)>() {
+                                set_str_cfg_default_plugin(module, default, config)?;
+                            } else if let Ok((config, default)) =
+                                config.extract::<(String, Vec<u8>)>()
+                            {
+                                set_bytes_cfg_default_plugin(module, default, config)?;
                             } else {
-                                event!(
-                                    Level::WARN,
-                                    "配置文件 {:?} 不存在, 创建默认配置",
-                                    base_path
+                                warn!(
+                                    "加载 Python 插件 {:?} 的配置文件信息时失败:返回的不是 [str, bytes | str]",
+                                    path
                                 );
-                                // 写入默认配置
-                                std::fs::write(base_path, &default)?;
-                                toml::from_str(&default)
-                            };
-                            match config_value {
-                                Ok(config) => {
-                                    let py_config =
-                                        Bound::new(py, class::ConfigDataPy::new(config));
-                                    if let Err(e) = py_config {
-                                        event!(Level::WARN, "添加配置文件信息失败: {:?}", e);
-                                        return Err(e);
-                                    }
-                                    let py_config = py_config.unwrap();
-                                    // 先判定一下原来有没有
-                                    if let Ok(true) = module.hasattr(CONFIG_DATA_NAME) {
-                                        // get 过来, 后面直接覆盖, 这里用于发个警告
-                                        match module.getattr(CONFIG_DATA_NAME) {
-                                            Ok(old_config) => {
-                                                // 先判断是不是 None, 直接忽略掉 None
-                                                // 毕竟有可能有占位
-                                                if !old_config.is_none() {
-                                                    warn!(
-                                                        "Python 插件 {:?} 的配置文件信息已经存在\n原始内容: {}",
-                                                        path, old_config
-                                                    );
-                                                }
-                                            }
-                                            Err(e) => {
-                                                warn!(
-                                                    "Python 插件 {:?} 的配置文件信息已经存在, 但获取失败:{:?}",
-                                                    path, e
-                                                );
-                                            }
-                                        }
-                                    }
-                                    match module.setattr(CONFIG_DATA_NAME, py_config) {
-                                        Ok(()) => Ok(PyPlugin {
-                                            file_path: path,
-                                            changed_time,
-                                            py_module: module.into_py(py),
-                                            enabled: true,
-                                        }),
-                                        Err(e) => {
-                                            warn!(
-                                                "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
-                                                path, e
-                                            );
-                                            Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-                                                format!(
-                                                    "Python 插件 {:?} 的配置文件信息设置失败:{:?}",
-                                                    path, e
-                                                ),
-                                            ))
-                                        }
-                                    }
-                                }
-                                Err(e) => {
-                                    warn!(
-                                        "加载 Python 插件 {:?} 的配置文件信息时失败:{:?}",
-                                        path, e
-                                    );
-                                    Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(format!(
-                                        "加载 Python 插件 {:?} 的配置文件信息时失败:{:?}",
-                                        path, e
-                                    )))
-                                }
+                                return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+                                    "返回的不是 [str, bytes | str]".to_string(),
+                                ));
                             }
+                            Ok(PyPlugin {
+                                file_path: path,
+                                changed_time,
+                                py_module: module.clone().into_any().unbind(),
+                                enabled: true,
+                            })
                         } else if config.is_none() {
                             // 没有配置文件
                             Ok(PyPlugin {
                                 file_path: path,
                                 changed_time,
-                                py_module: module.into_py(py),
+                                py_module: module.clone().into_any().unbind(),
                                 enabled: true,
                             })
                         } else {
@@ -335,7 +383,7 @@ impl TryFrom<RawPyPlugin> for PyPlugin {
                 Ok(PyPlugin {
                     file_path: path,
                     changed_time,
-                    py_module: module.into_py(py),
+                    py_module: module.clone().into_any().unbind(),
                     enabled: true,
                 })
             }
@@ -390,9 +438,9 @@ pub fn load_py_plugins(path: &PathBuf) {
 
 pub fn get_change_time(path: &Path) -> Option<SystemTime> { path.metadata().ok()?.modified().ok() }
 
-pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
-    Python::with_gil(|py| -> PyResult<Py<PyAny>> {
-        let module: PyResult<Py<PyAny>> = PyModule::from_code(
+pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyModule>> {
+    Python::with_gil(|py| -> PyResult<Py<PyModule>> {
+        let module = PyModule::from_code(
             py,
             CString::new(content).unwrap().as_c_str(),
             CString::new(path.to_string_lossy().as_bytes()).unwrap().as_c_str(),
@@ -401,7 +449,7 @@ pub fn py_module_from_code(content: &str, path: &Path) -> PyResult<Py<PyAny>> {
                 .as_c_str(),
             // !!!! 请注意, 一定要给他一个名字, cpython 会自动把后面的重名模块覆盖掉前面的
         )
-        .map(|module| module.into());
+        .map(|module| module.unbind());
         module
     })
 }

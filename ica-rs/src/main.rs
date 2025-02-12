@@ -29,8 +29,8 @@ pub type MainStatus = status::BotStatus;
 pub type StopGetter = tokio::sync::oneshot::Receiver<()>;
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ICA_VERSION: &str = "1.6.7";
-pub const TAILCHAT_VERSION: &str = "1.2.6";
+pub const ICA_VERSION: &str = "2.0.0";
+pub const TAILCHAT_VERSION: &str = "2.0.0";
 
 const HELP_MSG: &str = r#"/bot-rs
     展示 rust 侧信息
