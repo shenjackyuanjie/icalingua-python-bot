@@ -9,6 +9,7 @@ mod data_struct;
 mod error;
 mod py;
 mod status;
+mod wasms;
 
 #[cfg(feature = "ica")]
 mod ica;
