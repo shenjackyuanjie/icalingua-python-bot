@@ -246,12 +246,23 @@ fn set_str_cfg_default_plugin(
     // 给到 on config
     if let Ok(attr) = module.getattr(intern!(module.py(), ON_CONFIG_FUNC_NAME)) {
         if !attr.is_callable() {
-            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数不是 Callable", path, ON_CONFIG_FUNC_NAME);
+            event!(
+                Level::WARN,
+                "Python 插件 {:?} 的 {} 函数不是 Callable",
+                path,
+                ON_CONFIG_FUNC_NAME
+            );
             return Ok(());
         }
-        let args = (config_str.as_bytes(), );
+        let args = (config_str.as_bytes(),);
         if let Err(e) = attr.call1(args) {
-            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数返回了一个报错 {}", path, ON_CONFIG_FUNC_NAME, e);
+            event!(
+                Level::WARN,
+                "Python 插件 {:?} 的 {} 函数返回了一个报错 {}",
+                path,
+                ON_CONFIG_FUNC_NAME,
+                e
+            );
         }
     }
 
@@ -305,12 +316,23 @@ fn set_bytes_cfg_default_plugin(
     // 给到 on config
     if let Ok(attr) = module.getattr(intern!(module.py(), ON_CONFIG_FUNC_NAME)) {
         if !attr.is_callable() {
-            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数不是 Callable", path, ON_CONFIG_FUNC_NAME);
+            event!(
+                Level::WARN,
+                "Python 插件 {:?} 的 {} 函数不是 Callable",
+                path,
+                ON_CONFIG_FUNC_NAME
+            );
             return Ok(());
         }
-        let args = (&config_vec, );
+        let args = (&config_vec,);
         if let Err(e) = attr.call1(args) {
-            event!(Level::WARN, "Python 插件 {:?} 的 {} 函数返回了一个报错 {}", path, ON_CONFIG_FUNC_NAME, e);
+            event!(
+                Level::WARN,
+                "Python 插件 {:?} 的 {} 函数返回了一个报错 {}",
+                path,
+                ON_CONFIG_FUNC_NAME,
+                e
+            );
         }
     }
     Ok(())
